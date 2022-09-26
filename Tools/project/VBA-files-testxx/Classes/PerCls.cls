@@ -20,13 +20,13 @@ Private Const MAIN_SHEET_NAME = "MainSheet"
 Private systemTimer As Single
 
 'Constructor
-Private Sub class_initialize()
+Private Sub Class_Initialize()
         Let systemTimer = Timer ' start timer
        Debug.Print "--PerCLs Initilized--"
 End Sub
 
 'Destructor
-Private Sub class_terminate()
+Private Sub Class_Terminate()
     Debug.Print "--PerCLs Terminate-- " & getTimerMilestone()
 End Sub
 
@@ -51,7 +51,7 @@ Public Property Get getExcelPath(Optional ByVal fileFilter As String) As String
         With Application
                 If fileFilter = vbNullString Then fileFilter = "Excel Files (*.xls*), *xls*"
                 Let getExcelPath = .GetOpenFilename( _
-                        title:="Select file", _
+                        Title:="Select file", _
                         fileFilter:=fileFilter)
        End With
        On Error GoTo 0

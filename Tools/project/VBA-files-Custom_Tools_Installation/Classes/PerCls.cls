@@ -2,7 +2,7 @@ VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
-Attribute VB_Name = "PerCls1"
+Attribute VB_Name = "PerCls"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
@@ -10,7 +10,7 @@ Attribute VB_Exposed = False
 ' UPDATE SYSTEM TOOLS
 ' Author: DANH
 ' Version: 1.0.2
-' Update: 2022/09/25
+' Update: 2022/09/22
 
 Option Explicit
 
@@ -207,7 +207,7 @@ Public Sub speedOn()
                 .DisplayAlerts = False
                 .Calculation = xlAutomatic
         End With
-        ActiveWorkbook.Date1904 = False
+        ThisWorkbook.Date1904 = False
         ActiveWindow.View = xlNormalView
         ' Debug.Print "--Speed ON--"
 End Sub
@@ -222,7 +222,7 @@ Public Sub speedOff()
                 .Calculation = xlAutomatic
                 .StatusBar = False
         End With
-        ActiveWorkbook.Date1904 = False
+        ThisWorkbook.Date1904 = False
         ' Debug.Print "--Speed OFF--"
 End Sub
 
