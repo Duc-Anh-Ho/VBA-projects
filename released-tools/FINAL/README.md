@@ -1,6 +1,6 @@
 # About Project
 
-This project is small part of my VBA tool for my resume porfolio.
+This project is my VBA tool for my resume porfolio.
 
 # Usage
 
