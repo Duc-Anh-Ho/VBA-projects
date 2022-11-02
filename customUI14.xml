@@ -1,0 +1,23 @@
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui">
+  <ribbon startFromScratch="false">
+    <tabs>
+      <tab id="danh-tools" label="DANH Tools">
+        <group id="sheets-controller" label="Sheets Controller">
+          <labelControl id="MyLabel1"
+            label="Label 1" />
+          <button
+            id="add-sheets"
+            label="Add"
+            image="capture"
+            keytip="K"
+            description="description"
+            screentip="screentip"
+            supertip="supertip"
+            size="large"
+            onAction="CallAddSheet" />
+        </group>
+      </tab>
+    </tabs>
+
+  </ribbon>
+</customUI>

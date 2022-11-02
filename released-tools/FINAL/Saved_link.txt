@@ -1,0 +1,8 @@
+1. VBA edit XML
+https://learn.microsoft.com/en-us/previous-versions/office/developer/office-2007/dd819387(v=office.12)?redirectedfrom=MSDN
+https://simpleexcelvba.com/how-to-overwrite-data-in-xml-file/
+https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ms757828(v=vs.85)
+https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ms757878(v=vs.85)
+https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ms757076(v=vs.85)
+https://bettersolutions.com/vba/ribbon/custom-ui-editor-download.htm
+https://learn.microsoft.com/en-us/office/open-xml/how-to-add-custom-ui-to-a-spreadsheet-document
