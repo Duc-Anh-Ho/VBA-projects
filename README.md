@@ -4,22 +4,22 @@ This project is my VBA tool for my resume porfolio.
 
 # Usage
 
-- Enable all marcos and Trust access to the VBA project object model
-- Open file "Danh-Tools-Installation.xlsb", it will be installed automatically.
-
-# License
-
-Copyright (c) 2022 DANH
+1. Enable all marcos and Trust access to the VBA project object model.
+2. Open file "Danh-Tools-Installation.xlsb", it will be installed automatically.
 
 # Changelog
 
-## v2.1.2 - 2022/10/10
+## v2.0.0 - 2022/10/10
 
 ### Added
 
-- Auto AddIn tool.
-- Auto snipping tool.
-- Auto import and export VBA files tools.
+- Auto Add-In tools.
+- Sheet controller.
+- Chart controller.
+- Pivot controller.
+- Auto import and export VBA files.
+- Auto snipping. (Pending)
+- Option and Information. (Pending)
 
 ### Changed
 
@@ -27,12 +27,22 @@ Copyright (c) 2022 DANH
 
 ### Removed
 
+- Duplicated shortcuts.
+- Old projects code. (Pending)
+
 # Contact
 
-- Facebook: www.fb.com/meo658
-- Linkedin: www.linkedin.com/in/meo658
-- Email: meo658@yahoo.com
+- Facebook: https://www.fb.com/meo658
+- Linkedin: https://www.linkedin.com/in/meo658
+- Githubg: https://github.com/Duc-Anh-Ho
+- Email:
+  1. meo658@yahoo.com
+  2. hoducanh123@outlook.com
 
 # Acknowledgments
 
 - Author: D.Anh
+
+# License
+
+Copyright (c) 2022 DANH

@@ -1,0 +1,203 @@
+<!-- Check README.md for more information -->
+<customUI
+  xmlns="http://schemas.microsoft.com/office/2009/07/customui"
+  onLoad="customUIOnLoad">
+  <ribbon startFromScratch="false">
+    <tabs>
+      <tab id="danh-tools" getLabel="createLabel" getVisible="checkVisible">
+        <group id="sheets-controller" getLabel="createLabel">
+          <button
+            id="add-sheets"
+            size="large"
+            image="SheetsAddImg"
+            getDescription="createDescription "
+            getEnabled="checkEnabled"
+            getShowImage="showImage"
+            getKeytip="createKeytip"
+            getLabel="createLabel"
+            getShowLabel="showLabel"
+            getScreentip="createScreentip"
+            getSupertip="createSupertip"
+            getVisible="checkVisible"
+            onAction="sheetController" />
+          <button
+            id="list-sheets"
+            size="large"
+            image="SheetsListImg"
+            getDescription="createDescription "
+            getEnabled="checkEnabled"
+            getShowImage="showImage"
+            getKeytip="createKeytip"
+            getLabel="createLabel"
+            getShowLabel="showLabel"
+            getScreentip="createScreentip"
+            getSupertip="createSupertip"
+            getVisible="checkVisible"
+            onAction="sheetController" />
+          <button
+            id="delete-sheets"
+            size="large"
+            image="SheetsDeleteImg"
+            getDescription="createDescription "
+            getEnabled="checkEnabled"
+            getShowImage="showImage"
+            getKeytip="createKeytip"
+            getLabel="createLabel"
+            getShowLabel="showLabel"
+            getScreentip="createScreentip"
+            getSupertip="createSupertip"
+            getVisible="checkVisible"
+            onAction="sheetController" />
+          <separator id="sheet-separator-mid" />
+          <button
+            id="show-sheets"
+            size="large"
+            image="SheetsShowImg"
+            getDescription="createDescription "
+            getEnabled="checkEnabled"
+            getShowImage="showImage"
+            getKeytip="createKeytip"
+            getLabel="createLabel"
+            getShowLabel="showLabel"
+            getScreentip="createScreentip"
+            getSupertip="createSupertip"
+            getVisible="checkVisible"
+            onAction="sheetController" />
+          <button
+            id="hide-sheets"
+            size="large"
+            image="SheetsHideImg"
+            getDescription="createDescription "
+            getEnabled="checkEnabled"
+            getShowImage="showImage"
+            getKeytip="createKeytip"
+            getLabel="createLabel"
+            getShowLabel="showLabel"
+            getScreentip="createScreentip"
+            getSupertip="createSupertip"
+            getVisible="checkVisible"
+            onAction="sheetController" />
+          <button
+            id="very-hide-sheets"
+            size="large"
+            image="SheetsVeryHideImg"
+            getDescription="createDescription "
+            getEnabled="checkEnabled"
+            getShowImage="showImage"
+            getKeytip="createKeytip"
+            getLabel="createLabel"
+            getShowLabel="showLabel"
+            getScreentip="createScreentip"
+            getSupertip="createSupertip"
+            getVisible="checkVisible"
+            onAction="sheetController" />
+        </group>
+        <group
+          id="charts-controller"
+          getLabel="createLabel">
+          <button
+            id="hide-error-labels"
+            size="large"
+            image="ChartsHideErrorLabelImg"
+            getDescription="createDescription "
+            getEnabled="checkEnabled"
+            getShowImage="showImage"
+            getKeytip="createKeytip"
+            getLabel="createLabel"
+            getShowLabel="showLabel"
+            getScreentip="createScreentip"
+            getSupertip="createSupertip"
+            getVisible="checkVisible"
+            onAction="chartController" />
+          <button
+            id="show-labels"
+            size="large"
+            image="ChartsShowLabelImg"
+            getDescription="createDescription "
+            getEnabled="checkEnabled"
+            getShowImage="showImage"
+            getKeytip="createKeytip"
+            getLabel="createLabel"
+            getShowLabel="showLabel"
+            getScreentip="createScreentip"
+            getSupertip="createSupertip"
+            getVisible="checkVisible"
+            onAction="chartController" />
+        </group>
+        <group
+          id="pivot-controller"
+          getLabel="createLabel">
+          <toggleButton
+            id="refesh-pivot"
+            size="large"
+            imageMso="ChartRefresh"
+            getDescription="createDescription "
+            getEnabled="checkEnabled"
+            getShowImage="showImage"
+            getKeytip="createKeytip"
+            getLabel="createLabel"
+            getShowLabel="showLabel"
+            getScreentip="createScreentip"
+            getSupertip="createSupertip"
+            getVisible="checkVisible"
+            onAction="pivotController" />
+        </group>
+        <group id="vba-files-controller" getLabel="createLabel">
+          <button
+            id="import-vba-files"
+            size="large"
+            image="ImportImg"
+            getDescription="createDescription "
+            getEnabled="checkEnabled"
+            getShowImage="showImage"
+            getKeytip="createKeytip"
+            getLabel="createLabel"
+            getShowLabel="showLabel"
+            getScreentip="createScreentip"
+            getSupertip="createSupertip"
+            getVisible="checkVisible"
+            onAction="VBAFilesController" />
+          <button
+            id="import-all-vba-files"
+            size="large"
+            image="ImportImg"
+            getDescription="createDescription "
+            getEnabled="checkEnabled"
+            getShowImage="showImage"
+            getKeytip="createKeytip"
+            getLabel="createLabel"
+            getShowLabel="showLabel"
+            getScreentip="createScreentip"
+            getSupertip="createSupertip"
+            getVisible="checkVisible"
+            onAction="VBAFilesController" />
+          <separator id="vba-file-separator-mid" />
+          <button
+            id="export-all-vba-files"
+            size="large"
+            image="ExportAllImg"
+            getDescription="createDescription "
+            getEnabled="checkEnabled"
+            getShowImage="showImage"
+            getKeytip="createKeytip"
+            getLabel="createLabel"
+            getShowLabel="showLabel"
+            getScreentip="createScreentip"
+            getSupertip="createSupertip"
+            getVisible="checkVisible"
+            onAction="VBAFilesController" />
+        </group>
+        <group id="infomation" getLabel="createLabel">
+          <separator id="info-separator-lelf" />
+          <labelControl
+            id="tool-name"
+            getLabel="createLabel" />
+          <labelControl
+            id="version"
+            getLabel="createLabel" />
+          <separator id="info-separator-right" />
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>
