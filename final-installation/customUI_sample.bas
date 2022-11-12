@@ -7,7 +7,6 @@ Private fileSystem As Object
 Private info As MyInfo
 Private userResponse As VbMsgBoxResult
 
-Private NewAddin As AutoAddin 'TO DO
 Private formatC As FormatController 'TO DO
 Private pictureC As PicturesController 'TO DO
 Private sheetCEvent As SheetsController
@@ -65,6 +64,9 @@ Private highlightUpSize As Byte
 Private highlightTransparent As Byte
 Private highlightColor As Long
 
+Private optionGroup As TagController
+Private removeAddinButton As TagController
+
 Private infoGroup As TagController
 Private toolNameLabel As TagController
 Private versionLabel As TagController
@@ -95,7 +97,6 @@ Private Sub createInstances()
     Set showSheetsButton = New TagController
     Set hideSheetsButton = New TagController
     Set veryHideSheetsButton = New TagController
-    Set infoGroup = New TagController
     Set chartGroup = New TagController
     Set chartHideErrButton = New TagController
     Set chartShowButton = New TagController
@@ -129,6 +130,9 @@ Private Sub createInstances()
     Set highlightColorBlueButton = New TagController
     Set highlightColorBlackButton = New TagController
     Set highlightColorWhiteButton = New TagController
+    Set optionGroup = New TagController
+    Set removeAddinButton = New TagController
+    Set infoGroup = New TagController
     Set toolNameLabel = New TagController
     Set versionLabel = New TagController
 End Sub
@@ -151,6 +155,7 @@ Private Sub setUpEnabled()
     Let boldFirstLineButton.letEnabled = isEnabled
     Let invertColorButton.letEnabled = isEnabled
     Let highlightButton.letEnabled = isEnabled
+    Let removeAddinButton.letEnabled = isEnabled
 End Sub
 
 Private Sub setUpShowImage()
@@ -171,6 +176,7 @@ Private Sub setUpShowImage()
     Let boldFirstLineButton.letShowImage = isShowed
     Let invertColorButton.letShowImage = isShowed
     Let highlightButton.letShowImage = isShowed
+    Let removeAddinButton.letShowImage = isShowed
 End Sub
 
 Private Sub setUpKeytip()
@@ -189,6 +195,7 @@ Private Sub setUpKeytip()
     Let boldFirstLineButton.letKeytip = ""
     Let invertColorButton.letKeytip = ""
     Let highlightButton.letKeytip = ""
+    Let removeAddinButton.letKeytip = ""
 End Sub
 
 Private Sub setUpShowLabel()
@@ -209,6 +216,7 @@ Private Sub setUpShowLabel()
     Let boldFirstLineButton.letShowLabel = isShowed
     Let invertColorButton.letShowLabel = isShowed
     Let highlightButton.letShowLabel = isShowed
+    Let removeAddinButton.letShowLabel = isShowed
 End Sub
 
 Private Sub setVisible()
@@ -229,6 +237,7 @@ Private Sub setVisible()
     Let exportAllVbaFilesButton.letVisible = isVisible
     Let boldFirstLineButton.letVisible = isVisible
     Let invertColorButton.letVisible = isVisible
+    Let removeAddinButton.letVisible = isVisible
 End Sub
 
 Private Sub setUpId()
@@ -273,6 +282,8 @@ Private Sub setUpId()
     Let highlightColorBlueButton.letID = "highlight-color-blue"
     Let highlightColorBlackButton.letID = "highlight-color-black"
     Let highlightColorWhiteButton.letID = "highlight-color-white"
+    Let removeAddinButton.letID = "remove-addin"
+    Let optionGroup.letID = "option"
     Let infoGroup.letID = "infomation"
     Let toolNameLabel.letID = "tool-name"
     Let versionLabel.letID = "version"
@@ -292,7 +303,6 @@ Private Sub setUpLabel()
     Let chartShowButton.letLabel = "Show Labels"
     Let refeshPivotButton.letLabel = "SYNC Pivot"
     Let pivotGroup.letLabel = "Pivot Controller"
-    Let infoGroup.letLabel = "Information"
     Let vbaFileGroup.letLabel = "VBA Files"
     Let importVbaFilesButton.letLabel = "Import Files"
     Let importAllVbaFilesButton.letLabel = "Import All Files"
@@ -300,6 +310,9 @@ Private Sub setUpLabel()
     Let boldFirstLineButton.letLabel = "Bold First Line"
     Let invertColorButton.letLabel = "Invert Color"
     Let highlightButton.letLabel = "Highlight Range"
+    Let removeAddinButton.letLabel = "Remove Addin"
+    Let optionGroup.letLabel = "Options"
+    Let infoGroup.letLabel = "Information"
     Let rangeGroup.letLabel = "Range Controller"
     Let toolNameLabel.letLabel = "Tool: DANH"
     Let versionLabel.letLabel = "Version: v2.0.0"
@@ -320,6 +333,7 @@ Private Sub setUpScreentip()
     Let boldFirstLineButton.letScreentip = "Bold First Line"
     Let invertColorButton.letScreentip = "Invert Color"
     Let highlightButton.letScreentip = "Highlight Range"
+    Let removeAddinButton.letScreentip = "Remove Addin"
 End Sub
 
 Private Sub setUpSupertip()
@@ -369,6 +383,8 @@ Private Sub setUpSupertip()
         "2.Auto-fit row and column." & vbNewLine & _
         "3.Optional bold, scale up, color and transparent." & vbNewLine & _
         "Note: when OFF will return all format at before ON."
+    Let removeAddinButton.letSupertip = _
+        "DANH Tools will be removed permanently"
 End Sub
 
 Private Function hasWorkPlace() As Boolean
@@ -434,6 +450,8 @@ Public Sub checkEnabled(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = invertColorButton.getEnabled
         Case highlightButton.getID
             Let returnedVal = highlightButton.getEnabled
+        Case removeAddinButton.getID
+            Let returnedVal = removeAddinButton.getEnabled
     End Select
 End Sub
 'Callback for getShowImage
@@ -469,6 +487,8 @@ Public Sub showImage(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = invertColorButton.getShowImage
         Case highlightButton.getID
             Let returnedVal = highlightButton.getShowImage
+        Case removeAddinButton.getID
+            Let returnedVal = removeAddinButton.getShowImage
     End Select
 End Sub
 'Callback for getKeytip
@@ -504,6 +524,8 @@ Public Sub createKeytip(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = invertColorButton.getKeytip
         Case highlightButton.getID
             Let returnedVal = highlightButton.getKeytip
+        Case removeAddinButton.getID
+            Let returnedVal = removeAddinButton.getKeytip
     End Select
 End Sub
 'Callback for getLabel
@@ -552,6 +574,10 @@ Public Sub createLabel(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = invertColorButton.getLabel
         Case highlightButton.getID
             Let returnedVal = highlightButton.getLabel
+        Case removeAddinButton.getID
+            Let returnedVal = removeAddinButton.getLabel
+        Case optionGroup.getID
+            Let returnedVal = optionGroup.getLabel
         Case infoGroup.getID
             Let returnedVal = infoGroup.getLabel
         Case toolNameLabel.getID
@@ -593,6 +619,8 @@ Public Sub showLabel(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = invertColorButton.getShowLabel
         Case highlightButton.getID
             Let returnedVal = highlightButton.getShowLabel
+        Case removeAddinButton.getID
+            Let returnedVal = removeAddinButton.getShowLabel
     End Select
 End Sub
 'Callback for getScreentip
@@ -628,6 +656,8 @@ Public Sub createScreentip(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = invertColorButton.getScreentip
         Case highlightButton.getID
             Let returnedVal = highlightButton.getScreentip
+        Case removeAddinButton.getID
+            Let returnedVal = removeAddinButton.getScreentip
     End Select
 End Sub
 'Callback for getSupertip
@@ -663,6 +693,8 @@ Public Sub createSupertip(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = invertColorButton.getSupertip
         Case highlightButton.getID
             Let returnedVal = highlightButton.getSupertip
+        Case removeAddinButton.getID
+            Let returnedVal = removeAddinButton.getSupertip
     End Select
 End Sub
 'Callback for getVisible
@@ -699,6 +731,9 @@ Public Sub checkVisible(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = boldFirstLineButton.getVisible
         Case invertColorButton.getID
             Let returnedVal = invertColorButton.getVisible
+        Case removeAddinButton.getID
+            Let returnedVal = removeAddinButton.getVisible
+            
     End Select
 End Sub
 ' Check pressed size buttons
@@ -920,22 +955,6 @@ Public Sub rangeController(ByRef control As IRibbonControl, Optional ByRef press
     ' Refresh Ribbon Status (run all get subs)
     Call loadedRibbon.Invalidate
 End Sub
-'Callback for Range Controller onAction
-Public Sub rangeControllerEvent(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
-    Select Case control.ID
-        Case highlightButton.getID
-            Let isHighlight = pressed
-            If pressed Then
-                Set rangeCEvent = New RangesController '*Reduce procedure
-                Call rangeCEvent.storeHighlightFormat
-                Call HighlightRange
-            Else
-                Call ClearHighLight
-            End If
-    End Select
-    ' Refresh Ribbon Status (run all get subs)
-    Call loadedRibbon.Invalidate
-End Sub
 
 Private Sub HighlightRange()
     If isHighlight Then
@@ -954,3 +973,28 @@ Private Sub ClearHighLight()
         Set rangeCEvent = Nothing
     End If
 End Sub
+'Callback for Range Controller onAction
+Public Sub rangeControllerEvent(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
+    Select Case control.ID
+        Case highlightButton.getID
+            Let isHighlight = pressed
+            If pressed Then
+                Set rangeCEvent = New RangesController '*Reduce procedure
+                Call rangeCEvent.storeHighlightFormat
+                Call HighlightRange
+            Else
+                Call ClearHighLight
+            End If
+    End Select
+    ' Refresh Ribbon Status (run all get subs)
+    Call loadedRibbon.Invalidate
+End Sub
+'Callback for remove-addin onAction
+Public Sub addinController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
+    Dim newAddin As AutoAddin
+    Select Case control.ID
+        Case removeAddinButton.getID
+            newAddin.deleteAddInFile
+    End Select
+End Sub
+

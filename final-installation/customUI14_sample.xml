@@ -10,7 +10,6 @@
             id="add-sheets"
             size="large"
             image="SheetsAddImg"
-            getDescription="createDescription "
             getEnabled="checkEnabled"
             getShowImage="showImage"
             getKeytip="createKeytip"
@@ -24,7 +23,6 @@
             id="list-sheets"
             size="large"
             image="SheetsListImg"
-            getDescription="createDescription "
             getEnabled="checkEnabled"
             getShowImage="showImage"
             getKeytip="createKeytip"
@@ -33,12 +31,11 @@
             getScreentip="createScreentip"
             getSupertip="createSupertip"
             getVisible="checkVisible"
-            onAction="actionWithEvent" />
+            onAction="sheetControllerEvent" />
           <button
             id="delete-sheets"
             size="large"
             image="SheetsDeleteImg"
-            getDescription="createDescription "
             getEnabled="checkEnabled"
             getShowImage="showImage"
             getKeytip="createKeytip"
@@ -53,7 +50,6 @@
             id="show-sheets"
             size="large"
             image="SheetsShowImg"
-            getDescription="createDescription "
             getEnabled="checkEnabled"
             getShowImage="showImage"
             getKeytip="createKeytip"
@@ -67,7 +63,6 @@
             id="hide-sheets"
             size="large"
             image="SheetsHideImg"
-            getDescription="createDescription "
             getEnabled="checkEnabled"
             getShowImage="showImage"
             getKeytip="createKeytip"
@@ -81,7 +76,6 @@
             id="very-hide-sheets"
             size="large"
             image="SheetsVeryHideImg"
-            getDescription="createDescription "
             getEnabled="checkEnabled"
             getShowImage="showImage"
             getKeytip="createKeytip"
@@ -99,7 +93,6 @@
             id="hide-error-labels"
             size="large"
             image="ChartsHideErrorLabelImg"
-            getDescription="createDescription "
             getEnabled="checkEnabled"
             getShowImage="showImage"
             getKeytip="createKeytip"
@@ -113,7 +106,6 @@
             id="show-labels"
             size="large"
             image="ChartsShowLabelImg"
-            getDescription="createDescription "
             getEnabled="checkEnabled"
             getShowImage="showImage"
             getKeytip="createKeytip"
@@ -125,13 +117,12 @@
             onAction="chartController" />
         </group>
         <group
-          id="pivot-coBoldFIrstLineImgntroller"
+          id="pivot-controller"
           getLabel="createLabel">
           <toggleButton
             id="refesh-pivot"
             size="large"
             imageMso="ChartRefresh"
-            getDescription="createDescription "
             getEnabled="checkEnabled"
             getShowImage="showImage"
             getKeytip="createKeytip"
@@ -140,14 +131,13 @@
             getScreentip="createScreentip"
             getSupertip="createSupertip"
             getVisible="checkVisible"
-            onAction="pivotController" />
+            onAction="pivotControllerEvent" />
         </group>
         <group id="vba-files-controller" getLabel="createLabel">
           <button
             id="import-vba-files"
             size="large"
             image="ImportImg"
-            getDescription="createDescription "
             getEnabled="checkEnabled"
             getShowImage="showImage"
             getKeytip="createKeytip"
@@ -161,7 +151,6 @@
             id="import-all-vba-files"
             size="large"
             image="ImportAllImg"
-            getDescription="createDescription "
             getEnabled="checkEnabled"
             getShowImage="showImage"
             getKeytip="createKeytip"
@@ -176,7 +165,6 @@
             id="export-all-vba-files"
             size="large"
             image="ExportAllImg"
-            getDescription="createDescription "
             getEnabled="checkEnabled"
             getShowImage="showImage"
             getKeytip="createKeytip"
@@ -192,7 +180,6 @@
             id="bold-first-line"
             size="large"
             image="BoldFIrstLineImg"
-            getDescription="createDescription "
             getEnabled="checkEnabled"
             getShowImage="showImage"
             getKeytip="createKeytip"
@@ -202,11 +189,11 @@
             getSupertip="createSupertip"
             getVisible="checkVisible"
             onAction="rangeController" />
+          <separator id="range-separator-second" />
           <button
             id="invert-color"
             size="large"
             image="InvertColorImg"
-            getDescription="createDescription "
             getEnabled="checkEnabled"
             getShowImage="showImage"
             getKeytip="createKeytip"
@@ -216,21 +203,179 @@
             getSupertip="createSupertip"
             getVisible="checkVisible"
             onAction="rangeController" />
+          <separator id="range-separator-first" />
           <splitButton
             id="highlight-slip"
-            highlight-range="
-              size=" large" />
+            size="large">
+            <toggleButton
+              id="highlight-range"
+              image="HighlightYellowImg"
+              getEnabled="checkEnabled"
+              getShowImage="showImage"
+              getKeytip="createKeytip"
+              getLabel="createLabel"
+              getShowLabel="showLabel"
+              getScreentip="createScreentip"
+              getSupertip="createSupertip"
+              getVisible="checkVisible"
+              onAction="rangeControllerEvent" />
+            <menu
+              id="highlight-menu"
+              itemSize="normal">
+              <toggleButton
+                id="highlight-bold"
+                imageMso="Bold"
+                label="Bold"
+                getPressed="checkPressed"
+                onAction="rangeController"
+              />
+              <menu
+                id="highlight-size-menu"
+                label="Increase Size"
+                imageMso="FontSizeIncrease"
+              >
+                <toggleButton
+                  id="highlight-size-none"
+                  label="None" getPressed="checkPressed"
+                  onAction="rangeController" />
+                <toggleButton
+                  id="highlight-size-one"
+                  label="+1"
+                  getPressed="checkPressed"
+                  onAction="rangeController" />
+                <toggleButton
+                  id="highlight-size-two"
+                  label="+2"
+                  getPressed="checkPressed"
+                  onAction="rangeController" />
+                <toggleButton
+                  id="highlight-size-three"
+                  label="+3"
+                  getPressed="checkPressed"
+                  onAction="rangeController" />
+                <toggleButton
+                  id="highlight-size-four"
+                  label="+4"
+                  getPressed="checkPressed"
+                  onAction="rangeController" />
+                <toggleButton
+                  id="highlight-size-five"
+                  label="+5"
+                  getPressed="checkPressed"
+                  onAction="rangeController" />
+              </menu>
+              <menu
+                id="highlight-transparent-menu"
+                label="Transparent Rate "
+                imageMso="PictureSetTransparentColor">
+                <toggleButton
+                  id="highlight-transparent-none"
+                  label="0%"
+                  getPressed="checkPressed"
+                  onAction="rangeController" />
+                <toggleButton
+                  id="highlight-transparent-quarter"
+                  label="25%"
+                  getPressed="checkPressed"
+                  onAction="rangeController" />
+                <toggleButton
+                  id="highlight-transparent-half"
+                  label="50%"
+                  getPressed="checkPressed"
+                  onAction="rangeController" />
+                <toggleButton
+                  id="highlight-transparent-three-quarter"
+                  label="75%"
+                  getPressed="checkPressed"
+                  onAction="rangeController" />
+                <toggleButton
+                  id="highlight-transparent-full"
+                  label="100%"
+                  getPressed="checkPressed"
+                  onAction="rangeController" />
+              </menu>
+              <menu
+                id="highlight-color-menu"
+                label="Color"
+                imageMso="RecolorColorPicker">
+                <toggleButton
+                  id="highlight-color-yellow"
+                  image="HighlightYellowImg"
+                  label="Yelow"
+                  getPressed="checkPressed"
+                  onAction="rangeController" />
+                <toggleButton
+                  id="highlight-color-cyan"
+                  image="HighlightCyanImg"
+                  label="Cyan"
+                  getPressed="checkPressed"
+                  onAction="rangeController" />
+                <toggleButton
+                  id="highlight-color-magenta"
+                  image="HighlightMagentaImg"
+                  label="Magenta"
+                  getPressed="checkPressed"
+                  onAction="rangeController" />
+                <toggleButton
+                  id="highlight-color-green"
+                  image="HighlightGreenImg"
+                  label="Green"
+                  getPressed="checkPressed"
+                  onAction="rangeController" />
+                <toggleButton
+                  id="highlight-color-red"
+                  image="HighlightRedImg"
+                  label="Red"
+                  getPressed="checkPressed"
+                  onAction="rangeController" />
+                <toggleButton
+                  id="highlight-color-blue"
+                  image="HighlightBlueImg"
+                  label="Blue"
+                  getPressed="checkPressed"
+                  onAction="rangeController" />
+                <toggleButton
+                  id="highlight-color-black"
+                  image="HighlightBlackImg"
+                  label="Black"
+                  getPressed="checkPressed"
+                  onAction="rangeController" />
+                <toggleButton
+                  id="highlight-color-white"
+                  image="HighlightWhiteImg"
+                  label="White"
+                  getPressed="checkPressed"
+                  onAction="rangeController" />
+              </menu>
+            </menu>
           </splitButton>
         </group>
-        <group id=" infomation" getLabel=" createLabel">
-          <separator id=" info-separator-lelf" />
+        <group id="option" getLabel="createLabel">
+          <button
+            id="remove-addin"
+            size="large"
+            imageMso="AccessRecycleBin"
+            getEnabled="checkEnabled"
+            getShowImage="showImage"
+            getKeytip="createKeytip"
+            getLabel="createLabel"
+            getShowLabel="showLabel"
+            getScreentip="createScreentip"
+            getSupertip="createSupertip"
+            getVisible="checkVisible"
+            onAction="addinController" />
+        </group>
+        <group
+          id="infomation"
+          getLabel="createLabel">
+          <separator id="info-separator-lelf" />
           <labelControl
-            id=" tool-name"
-            getLabel=" createLabel" />
+            id="tool-name"
+            getLabel="createLabel" />
           <labelControl
-            id=" version"
-            getLabel=" createLabel" />
-          <separator id=" info-separator-right" />
+            id="version"
+            getLabel="createLabel" />
+          <separator id="info-separator-right" />
         </group>
       </tab>
     </tabs>
