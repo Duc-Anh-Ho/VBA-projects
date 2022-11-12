@@ -17,6 +17,7 @@ This project is my VBA tool for my resume porfolio.
 - Sheet controller.
 - Chart controller.
 - Pivot controller.
+- Range controller.
 - Auto import and export VBA files.
 - Auto snipping. (Pending)
 - Option and Information. (Pending)

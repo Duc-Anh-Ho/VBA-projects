@@ -33,7 +33,7 @@
             getScreentip="createScreentip"
             getSupertip="createSupertip"
             getVisible="checkVisible"
-            onAction="sheetController" />
+            onAction="actionWithEvent" />
           <button
             id="delete-sheets"
             size="large"
@@ -125,7 +125,7 @@
             onAction="chartController" />
         </group>
         <group
-          id="pivot-controller"
+          id="pivot-coBoldFIrstLineImgntroller"
           getLabel="createLabel">
           <toggleButton
             id="refesh-pivot"
@@ -160,7 +160,7 @@
           <button
             id="import-all-vba-files"
             size="large"
-            image="ImportImg"
+            image="ImportAllImg"
             getDescription="createDescription "
             getEnabled="checkEnabled"
             getShowImage="showImage"
@@ -187,15 +187,50 @@
             getVisible="checkVisible"
             onAction="VBAFilesController" />
         </group>
-        <group id="infomation" getLabel="createLabel">
-          <separator id="info-separator-lelf" />
+        <group id="ranges-controller" getLabel="createLabel">
+          <button
+            id="bold-first-line"
+            size="large"
+            image="BoldFIrstLineImg"
+            getDescription="createDescription "
+            getEnabled="checkEnabled"
+            getShowImage="showImage"
+            getKeytip="createKeytip"
+            getLabel="createLabel"
+            getShowLabel="showLabel"
+            getScreentip="createScreentip"
+            getSupertip="createSupertip"
+            getVisible="checkVisible"
+            onAction="rangeController" />
+          <button
+            id="invert-color"
+            size="large"
+            image="InvertColorImg"
+            getDescription="createDescription "
+            getEnabled="checkEnabled"
+            getShowImage="showImage"
+            getKeytip="createKeytip"
+            getLabel="createLabel"
+            getShowLabel="showLabel"
+            getScreentip="createScreentip"
+            getSupertip="createSupertip"
+            getVisible="checkVisible"
+            onAction="rangeController" />
+          <splitButton
+            id="highlight-slip"
+            highlight-range="
+              size=" large" />
+          </splitButton>
+        </group>
+        <group id=" infomation" getLabel=" createLabel">
+          <separator id=" info-separator-lelf" />
           <labelControl
-            id="tool-name"
-            getLabel="createLabel" />
+            id=" tool-name"
+            getLabel=" createLabel" />
           <labelControl
-            id="version"
-            getLabel="createLabel" />
-          <separator id="info-separator-right" />
+            id=" version"
+            getLabel=" createLabel" />
+          <separator id=" info-separator-right" />
         </group>
       </tab>
     </tabs>
