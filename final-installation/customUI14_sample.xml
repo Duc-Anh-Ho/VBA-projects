@@ -217,7 +217,6 @@
               getShowLabel="showLabel"
               getScreentip="createScreentip"
               getSupertip="createSupertip"
-              getVisible="checkVisible"
               onAction="rangeControllerEvent" />
             <menu
               id="highlight-menu"
@@ -236,7 +235,8 @@
               >
                 <toggleButton
                   id="highlight-size-none"
-                  label="None" getPressed="checkPressed"
+                  label="None"
+                  getPressed="checkPressed"
                   onAction="rangeController" />
                 <toggleButton
                   id="highlight-size-one"
@@ -349,6 +349,40 @@
               </menu>
             </menu>
           </splitButton>
+        </group>
+        <group id="pictures-controller" getLabel="createLabel">
+          <button
+            id="snipping"
+            size="large"
+            imageMso="Camera"
+            getEnabled="checkEnabled"
+            getShowImage="showImage"
+            getKeytip="createKeytip"
+            getLabel="createLabel"
+            getShowLabel="showLabel"
+            getScreentip="createScreentip"
+            getSupertip="createSupertip"
+            getVisible="checkVisible"
+            onAction="pictureController" />
+          <comboBox
+            id="offset"
+            sizeString="AAAA"
+            imageMso="SizeToControlHeightAndWidth"
+            getShowImage="showImage"
+            getLabel="createLabel"
+            getEnabled="checkEnabled"
+            getVisible="checkVisible"
+            getItemCount="createItemAmount"
+            getItemID="createItemID"
+            getItemLabel="createItemLabel"
+            getText="createText"
+            onChange="offsetSelect" />
+          <checkBox id="rate-lock"
+            getLabel="createLabel"
+            getEnabled="checkEnabled"
+            getVisible="checkVisible"
+            getPressed="checkPressed"
+            onAction="pictureController" />
         </group>
         <group id="option" getLabel="createLabel">
           <button

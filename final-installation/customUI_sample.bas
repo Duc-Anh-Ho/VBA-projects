@@ -8,7 +8,6 @@ Private info As MyInfo
 Private userResponse As VbMsgBoxResult
 
 Private formatC As FormatController 'TO DO
-Private pictureC As PicturesController 'TO DO
 Private sheetCEvent As SheetsController
 Private pivotCEvent As PivotTablesController
 Private rangeCEvent As RangesController
@@ -63,6 +62,20 @@ Private highlightIsBold As Boolean
 Private highlightUpSize As Byte
 Private highlightTransparent As Byte
 Private highlightColor As Long
+Private Const DEFAULT_HIGHLIGHT_UP_SIZE As Byte = 0
+Private Const DEFAULT_HIGHLIGHT_TRANSPARENT As Byte = 75
+Private Const DEFAULT_HIGHLIGHT_COLOR As Long = vbYellow
+
+Private pictureGroup As TagController
+Private snipButton As TagController
+Private offsetCBBox As TagController
+Private rateLockCheckBox As TagController
+Private offsetValue As Byte
+Private isRateLock As Boolean
+Private Const NUM_OFFSET_ITEMS As Byte = 6
+Private Const MAX_OFFSET As Byte = 200
+Private Const MIN_OFFSET As Byte = 0
+Private Const DEFAULT_OFFSET_VALUE  As Byte = 0
 
 Private optionGroup As TagController
 Private removeAddinButton As TagController
@@ -130,6 +143,10 @@ Private Sub createInstances()
     Set highlightColorBlueButton = New TagController
     Set highlightColorBlackButton = New TagController
     Set highlightColorWhiteButton = New TagController
+    Set pictureGroup = New TagController
+    Set snipButton = New TagController
+    Set offsetCBBox = New TagController
+    Set rateLockCheckBox = New TagController
     Set optionGroup = New TagController
     Set removeAddinButton = New TagController
     Set infoGroup = New TagController
@@ -155,7 +172,10 @@ Private Sub setUpEnabled()
     Let boldFirstLineButton.letEnabled = isEnabled
     Let invertColorButton.letEnabled = isEnabled
     Let highlightButton.letEnabled = isEnabled
-    Let removeAddinButton.letEnabled = isEnabled
+    Let snipButton.letEnabled = isEnabled And Not isHighlight
+    Let offsetCBBox.letEnabled = isEnabled
+    Let rateLockCheckBox.letEnabled = isEnabled
+    Let removeAddinButton.letEnabled = True 'Able to remove without workplace
 End Sub
 
 Private Sub setUpShowImage()
@@ -176,6 +196,8 @@ Private Sub setUpShowImage()
     Let boldFirstLineButton.letShowImage = isShowed
     Let invertColorButton.letShowImage = isShowed
     Let highlightButton.letShowImage = isShowed
+    Let snipButton.letShowImage = isShowed
+    Let offsetCBBox.letShowImage = isShowed
     Let removeAddinButton.letShowImage = isShowed
 End Sub
 
@@ -195,6 +217,7 @@ Private Sub setUpKeytip()
     Let boldFirstLineButton.letKeytip = ""
     Let invertColorButton.letKeytip = ""
     Let highlightButton.letKeytip = ""
+    Let snipButton.letKeytip = ""
     Let removeAddinButton.letKeytip = ""
 End Sub
 
@@ -216,6 +239,9 @@ Private Sub setUpShowLabel()
     Let boldFirstLineButton.letShowLabel = isShowed
     Let invertColorButton.letShowLabel = isShowed
     Let highlightButton.letShowLabel = isShowed
+    Let snipButton.letShowLabel = isShowed
+    Let offsetCBBox.letShowLabel = isShowed
+    Let rateLockCheckBox.letShowLabel = isShowed
     Let removeAddinButton.letShowLabel = isShowed
 End Sub
 
@@ -237,6 +263,9 @@ Private Sub setVisible()
     Let exportAllVbaFilesButton.letVisible = isVisible
     Let boldFirstLineButton.letVisible = isVisible
     Let invertColorButton.letVisible = isVisible
+    Let snipButton.letVisible = isVisible
+    Let offsetCBBox.letVisible = isVisible
+    Let rateLockCheckBox.letVisible = isVisible
     Let removeAddinButton.letVisible = isVisible
 End Sub
 
@@ -283,6 +312,10 @@ Private Sub setUpId()
     Let highlightColorBlackButton.letID = "highlight-color-black"
     Let highlightColorWhiteButton.letID = "highlight-color-white"
     Let removeAddinButton.letID = "remove-addin"
+    Let pictureGroup.letID = "pictures-controller"
+    Let snipButton.letID = "snipping"
+    Let offsetCBBox.letID = "offset"
+    Let rateLockCheckBox.letID = "rate-lock"
     Let optionGroup.letID = "option"
     Let infoGroup.letID = "infomation"
     Let toolNameLabel.letID = "tool-name"
@@ -311,6 +344,10 @@ Private Sub setUpLabel()
     Let invertColorButton.letLabel = "Invert Color"
     Let highlightButton.letLabel = "Highlight Range"
     Let removeAddinButton.letLabel = "Remove Addin"
+    Let pictureGroup.letLabel = "Picture Controller"
+    Let snipButton.letLabel = "Snipping"
+    Let offsetCBBox.letLabel = "Offset"
+    Let rateLockCheckBox.letLabel = "Lock The Rate"
     Let optionGroup.letLabel = "Options"
     Let infoGroup.letLabel = "Information"
     Let rangeGroup.letLabel = "Range Controller"
@@ -334,6 +371,7 @@ Private Sub setUpScreentip()
     Let invertColorButton.letScreentip = "Invert Color"
     Let highlightButton.letScreentip = "Highlight Range"
     Let removeAddinButton.letScreentip = "Remove Addin"
+    Let snipButton.letScreentip = "Snipping"
 End Sub
 
 Private Sub setUpSupertip()
@@ -383,6 +421,9 @@ Private Sub setUpSupertip()
         "2.Auto-fit row and column." & vbNewLine & _
         "3.Optional bold, scale up, color and transparent." & vbNewLine & _
         "Note: when OFF will return all format at before ON."
+    Let snipButton.letSupertip = _
+        "Option 1: Select range and paste the spinned pictures on with offset" & vbNewLine & _
+        "Option 2: Select an object and replace or lay the spinned pictures at that oject area"
     Let removeAddinButton.letSupertip = _
         "DANH Tools will be removed permanently"
 End Sub
@@ -411,10 +452,16 @@ Public Sub customUIOnLoad(Optional ByRef ribbon As IRibbonUI)
     Call setUpSupertip
     Call setVisible
     Let highlightIsBold = False
-    Let highlightUpSize = 0
-    Let highlightTransparent = 75
-    Let highlightColor = vbYellow
+    Let highlightUpSize = DEFAULT_HIGHLIGHT_UP_SIZE
+    Let highlightTransparent = DEFAULT_HIGHLIGHT_TRANSPARENT
+    Let highlightColor = DEFAULT_HIGHLIGHT_COLOR
+    Let offsetValue = DEFAULT_OFFSET_VALUE
+    Let isRateLock = False
     Let hasCustomUI = True
+End Sub
+'Refesh Rebbon
+Private Sub refeshCustomRibbon()
+    Call loadedRibbon.Invalidate
 End Sub
 'Callback for getEnabled
 Public Sub checkEnabled(ByRef control As IRibbonControl, ByRef returnedVal)
@@ -450,6 +497,12 @@ Public Sub checkEnabled(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = invertColorButton.getEnabled
         Case highlightButton.getID
             Let returnedVal = highlightButton.getEnabled
+        Case snipButton.getID
+            Let returnedVal = snipButton.getEnabled
+        Case offsetCBBox.getID
+            Let returnedVal = offsetCBBox.getEnabled
+        Case rateLockCheckBox.getID
+            Let returnedVal = rateLockCheckBox.getEnabled
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getEnabled
     End Select
@@ -487,6 +540,10 @@ Public Sub showImage(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = invertColorButton.getShowImage
         Case highlightButton.getID
             Let returnedVal = highlightButton.getShowImage
+        Case snipButton.getID
+            Let returnedVal = snipButton.getShowImage
+        Case offsetCBBox.getID
+            Let returnedVal = offsetCBBox.getShowImage
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getShowImage
     End Select
@@ -524,6 +581,8 @@ Public Sub createKeytip(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = invertColorButton.getKeytip
         Case highlightButton.getID
             Let returnedVal = highlightButton.getKeytip
+        Case snipButton.getID
+            Let returnedVal = snipButton.getKeytip
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getKeytip
     End Select
@@ -574,8 +633,18 @@ Public Sub createLabel(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = invertColorButton.getLabel
         Case highlightButton.getID
             Let returnedVal = highlightButton.getLabel
+        Case snipButton.getID
+            Let returnedVal = snipButton.getLabel
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getLabel
+        Case pictureGroup.getID
+            Let returnedVal = pictureGroup.getLabel
+        Case snipButton.getID
+            Let returnedVal = snipButton.getLabel
+        Case offsetCBBox.getID
+            Let returnedVal = offsetCBBox.getLabel
+        Case rateLockCheckBox.getID
+            Let returnedVal = rateLockCheckBox.getLabel
         Case optionGroup.getID
             Let returnedVal = optionGroup.getLabel
         Case infoGroup.getID
@@ -619,6 +688,12 @@ Public Sub showLabel(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = invertColorButton.getShowLabel
         Case highlightButton.getID
             Let returnedVal = highlightButton.getShowLabel
+        Case snipButton.getID
+            Let returnedVal = snipButton.getShowLabel
+        Case offsetCBBox.getID
+            Let returnedVal = offsetCBBox.getShowLabel
+        Case rateLockCheckBox.getID
+            Let returnedVal = rateLockCheckBox.getShowLabel
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getShowLabel
     End Select
@@ -656,6 +731,8 @@ Public Sub createScreentip(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = invertColorButton.getScreentip
         Case highlightButton.getID
             Let returnedVal = highlightButton.getScreentip
+        Case snipButton.getID
+            Let returnedVal = snipButton.getScreentip
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getScreentip
     End Select
@@ -693,6 +770,8 @@ Public Sub createSupertip(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = invertColorButton.getSupertip
         Case highlightButton.getID
             Let returnedVal = highlightButton.getSupertip
+        Case snipButton.getID
+            Let returnedVal = snipButton.getSupertip
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getSupertip
     End Select
@@ -731,9 +810,14 @@ Public Sub checkVisible(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = boldFirstLineButton.getVisible
         Case invertColorButton.getID
             Let returnedVal = invertColorButton.getVisible
+        Case snipButton.getID
+            Let returnedVal = snipButton.getVisible
+        Case offsetCBBox.getID
+            Let returnedVal = offsetCBBox.getVisible
+        Case rateLockCheckBox.getID
+            Let returnedVal = rateLockCheckBox.getVisible
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getVisible
-            
     End Select
 End Sub
 ' Check pressed size buttons
@@ -765,6 +849,8 @@ Public Sub checkPressed(control As IRibbonControl, ByRef returnedVal)
     Select Case control.ID
         Case highlightBoldButton.getID
             Let returnedVal = highlightIsBold
+        Case highlightButton.getID
+            Let returnedVal = isHighlight
         Case highlightSizeNoneButton.getID
             Let returnedVal = isHighlightUpSize(0)
         Case highlightSizeOneButton.getID
@@ -803,6 +889,8 @@ Public Sub checkPressed(control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = isHighlightColor(vbBlack)
         Case highlightColorWhiteButton.getID
             Let returnedVal = isHighlightColor(vbWhite)
+        Case rateLockCheckBox.getID
+            Let returnedVal = isRateLock
         Case Else
             Let returnedVal = False
     End Select
@@ -813,7 +901,7 @@ Public Sub sheetController(ByRef control As IRibbonControl, Optional ByRef press
     Set sheetC = New SheetsController
     Select Case control.ID
         Case addSheetsButton.getID
-            Call sheetC.add
+            Call sheetC.ADD
         Case deleteSheetsButton.getID
             Call sheetC.deleteAll
         Case hideSheetsButton.getID
@@ -952,8 +1040,7 @@ Public Sub rangeController(ByRef control As IRibbonControl, Optional ByRef press
             If pressed Then Let highlightColor = vbWhite
             Call HighlightRange
     End Select
-    ' Refresh Ribbon Status (run all get subs)
-    Call loadedRibbon.Invalidate
+    Call refeshCustomRibbon
 End Sub
 
 Private Sub HighlightRange()
@@ -963,7 +1050,7 @@ Private Sub HighlightRange()
         Let rangeCEvent.letAddSize = highlightUpSize
         Let rangeCEvent.letBlurRate = highlightTransparent
         Let rangeCEvent.letHighlightColor = highlightColor
-        Call rangeCEvent.highlight(Selection)
+        Call rangeCEvent.highlight(target:=Selection)
     End If
 End Sub
 
@@ -986,15 +1073,84 @@ Public Sub rangeControllerEvent(ByRef control As IRibbonControl, Optional ByRef 
                 Call ClearHighLight
             End If
     End Select
-    ' Refresh Ribbon Status (run all get subs)
-    Call loadedRibbon.Invalidate
+    Call refeshCustomRibbon
 End Sub
 'Callback for remove-addin onAction
 Public Sub addinController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
     Dim newAddin As AutoAddin
+    Set newAddin = New AutoAddin
     Select Case control.ID
         Case removeAddinButton.getID
-            newAddin.deleteAddInFile
+            Call newAddin.deleteAddInFile(hasConfirm:=True)
+    End Select
+    Set newAddin = Nothing ' Clear Cache
+End Sub
+'Callback for remove-addin onAction
+Public Sub pictureController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
+    Dim picC As PicturesController
+    Select Case control.ID
+        Case snipButton.getID
+            Set picC = New PicturesController
+            Let picC.letOffset = offsetValue
+            Let picC.letLockRatio = isRateLock
+            Call picC.snip
+            Set picC = Nothing
+        Case rateLockCheckBox.getID
+            Let isRateLock = pressed
     End Select
 End Sub
-
+'Callback for offset getItemCount
+Public Sub createItemAmount(control As IRibbonControl, ByRef returnedVal)
+    Select Case control.ID
+        Case offsetCBBox.getID
+            Let returnedVal = NUM_OFFSET_ITEMS
+    End Select
+End Sub
+'Callback for offset getItemID
+Public Sub createItemID(control As IRibbonControl, index As Integer, ByRef returnedVal)
+    Select Case control.ID
+        Case offsetCBBox.getID
+            Let returnedVal = "offset-item-" & index + 1
+    End Select
+End Sub
+'Callback for offset getItemLabel
+Public Sub createItemLabel(control As IRibbonControl, index As Integer, ByRef returnedVal)
+    Select Case control.ID
+        Case offsetCBBox.getID
+            Let returnedVal = index * 10 'Step
+    End Select
+End Sub
+'Callback for offset getText
+Public Sub createText(control As IRibbonControl, ByRef returnedVal)
+    Select Case control.ID
+        Case offsetCBBox.getID
+            Let returnedVal = offsetValue
+    End Select
+End Sub
+'Callback for offset onChange
+Public Sub offsetSelect(control As IRibbonControl, text As String)
+    Select Case control.ID
+        Case offsetCBBox.getID
+            If Not IsNumeric(text) Then
+                MsgBox _
+                    Prompt:= _
+                        "You have to input a NUMBER between " & _
+                        MIN_OFFSET & " and " & MAX_OFFSET & " !", _
+                    Buttons:=vbOKOnly + vbCritical, _
+                    Title:="DANH TOOL"
+                Call refeshCustomRibbon
+            ElseIf _
+                CLng(text) < MIN_OFFSET Or _
+                CLng(text) > MAX_OFFSET Then
+                MsgBox _
+                    Prompt:= _
+                        "Offset value must be between " & _
+                        MIN_OFFSET & " and " & MAX_OFFSET & " !", _
+                    Buttons:=vbOKOnly + vbCritical, _
+                    Title:="DANH TOOL"
+                Call refeshCustomRibbon
+            Else
+                Let offsetValue = CByte(text)
+            End If
+    End Select
+End Sub
