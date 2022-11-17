@@ -5,7 +5,10 @@
   <ribbon startFromScratch="false">
     <tabs>
       <tab id="danh-tools" getLabel="createLabel" getVisible="checkVisible">
-        <group id="sheets-controller" getLabel="createLabel">
+        <group
+          id="sheets-controller"
+          getLabel="createLabel"
+          image="SheetController">
           <button
             id="add-sheets"
             size="large"
@@ -88,7 +91,8 @@
         </group>
         <group
           id="charts-controller"
-          getLabel="createLabel">
+          getLabel="createLabel"
+          imageMso="ControlChart">
           <button
             id="hide-error-labels"
             size="large"
@@ -118,11 +122,12 @@
         </group>
         <group
           id="pivot-controller"
-          getLabel="createLabel">
+          getLabel="createLabel"
+          imageMso="PivotTableReport">
           <toggleButton
             id="refesh-pivot"
             size="large"
-            imageMso="ChartRefresh"
+            getImage="createImage"
             getEnabled="checkEnabled"
             getShowImage="showImage"
             getKeytip="createKeytip"
@@ -133,7 +138,10 @@
             getVisible="checkVisible"
             onAction="pivotControllerEvent" />
         </group>
-        <group id="vba-files-controller" getLabel="createLabel">
+        <group
+          id="vba-files-controller"
+          getLabel="createLabel"
+          imageMso="SaveAll">
           <button
             id="import-vba-files"
             size="large"
@@ -175,7 +183,10 @@
             getVisible="checkVisible"
             onAction="VBAFilesController" />
         </group>
-        <group id="ranges-controller" getLabel="createLabel">
+        <group
+          id="ranges-controller"
+          getLabel="createLabel"
+          image="Author">
           <button
             id="bold-first-line"
             size="large"
@@ -226,13 +237,11 @@
                 imageMso="Bold"
                 label="Bold"
                 getPressed="checkPressed"
-                onAction="rangeController"
-              />
+                onAction="rangeController" />
               <menu
                 id="highlight-size-menu"
                 label="Increase Size"
-                imageMso="FontSizeIncrease"
-              >
+                imageMso="FontSizeIncrease">
                 <toggleButton
                   id="highlight-size-none"
                   label="None"
@@ -350,7 +359,37 @@
             </menu>
           </splitButton>
         </group>
-        <group id="pictures-controller" getLabel="createLabel">
+        <group
+          id="pictures-controller"
+          getLabel="createLabel"
+          imageMso="PicturesCompress">
+          <toggleButton
+            id="arrange"
+            size="large"
+            getImage="createImage"
+            getEnabled="checkEnabled"
+            getShowImage="showImage"
+            getKeytip="createKeytip"
+            getLabel="createLabel"
+            getShowLabel="showLabel"
+            getScreentip="createScreentip"
+            getSupertip="createSupertip"
+            getVisible="checkVisible"
+            getPressed="checkPressed"
+            onAction="pictureController" />
+          <toggleButton
+            id="auto-arrange"
+            size="large"
+            getImage="createImage"
+            getShowImage="showImage"
+            getKeytip="createKeytip"
+            getLabel="createLabel"
+            getShowLabel="showLabel"
+            getScreentip="createScreentip"
+            getSupertip="createSupertip"
+            getVisible="checkVisible"
+            getPressed="checkPressed"
+            onAction="pictureController" />
           <button
             id="snipping"
             size="large"
@@ -384,7 +423,10 @@
             getPressed="checkPressed"
             onAction="pictureController" />
         </group>
-        <group id="option" getLabel="createLabel">
+        <group
+          id="option"
+          getLabel="createLabel"
+          image="CurrentViewSettings">
           <button
             id="remove-addin"
             size="large"
@@ -401,7 +443,8 @@
         </group>
         <group
           id="infomation"
-          getLabel="createLabel">
+          getLabel="createLabel"
+          image="Author">
           <separator id="info-separator-lelf" />
           <labelControl
             id="tool-name"

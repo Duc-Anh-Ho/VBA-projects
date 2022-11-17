@@ -18,8 +18,8 @@ This project is my VBA tool for my resume porfolio.
 - Chart controller.
 - Pivot controller.
 - Range controller.
-- Auto import and export VBA files.
-- Auto snipping. (Pending)
+- Picture controller.
+- File controller.
 - Option and Information. (Pending)
 
 ### Changed
@@ -29,13 +29,13 @@ This project is my VBA tool for my resume porfolio.
 ### Removed
 
 - Duplicated shortcuts.
-- Old projects code. (Pending)
+- Old projects code.
 
 # Contact
 
 - Facebook: https://www.fb.com/meo658
 - Linkedin: https://www.linkedin.com/in/meo658
-- Githubg: https://github.com/Duc-Anh-Ho
+- Github: https://github.com/Duc-Anh-Ho
 - Email:
   1. meo658@yahoo.com
   2. hoducanh123@outlook.com

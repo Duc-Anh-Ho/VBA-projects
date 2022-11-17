@@ -67,11 +67,15 @@ Private Const DEFAULT_HIGHLIGHT_TRANSPARENT As Byte = 75
 Private Const DEFAULT_HIGHLIGHT_COLOR As Long = vbYellow
 
 Private pictureGroup As TagController
+Private arrangeButton As TagController
+Private autoArrangeButton As TagController
 Private snipButton As TagController
 Private offsetCBBox As TagController
 Private rateLockCheckBox As TagController
-Private offsetValue As Byte
-Private isRateLock As Boolean
+Public offsetValue As Byte 'Use in ThisWorkbook Module
+Public isRateLock As Boolean 'Use in ThisWorkbook Module
+Public isArranging As Boolean 'Use in ThisWorkbook Module
+Private isAutoArrange As Boolean
 Private Const NUM_OFFSET_ITEMS As Byte = 6
 Private Const MAX_OFFSET As Byte = 200
 Private Const MIN_OFFSET As Byte = 0
@@ -85,7 +89,7 @@ Private toolNameLabel As TagController
 Private versionLabel As TagController
 
 Private hasCustomUI As Boolean
-Private loadedRibbon As IRibbonUI 'TO-DO: ?
+Public loadedRibbon As IRibbonUI 'TO-DO: ?
 'Constructor
 Private Sub Auto_Open()
     '
@@ -145,6 +149,8 @@ Private Sub createInstances()
     Set highlightColorWhiteButton = New TagController
     Set pictureGroup = New TagController
     Set snipButton = New TagController
+    Set arrangeButton = New TagController
+    Set autoArrangeButton = New TagController
     Set offsetCBBox = New TagController
     Set rateLockCheckBox = New TagController
     Set optionGroup = New TagController
@@ -156,9 +162,12 @@ End Sub
 
 Private Sub setUpEnabled()
     Dim isEnabled As Boolean
-    Let isEnabled = hasWorkPlace()
+    Let isEnabled = hasWorkPlace() And _
+        Not isAutoArrange 'When AutoArrange Disable all
     Let addSheetsButton.letEnabled = isEnabled
-    Let listSheetsButton.letEnabled = isEnabled And Not isHighlight 'Disable when Highlight
+    Let listSheetsButton.letEnabled = _
+        isEnabled And _
+        Not isHighlight 'Disable when Highlight
     Let deleteSheetsButton.letEnabled = isEnabled
     Let showSheetsButton.letEnabled = isEnabled
     Let hideSheetsButton.letEnabled = isEnabled
@@ -172,12 +181,24 @@ Private Sub setUpEnabled()
     Let boldFirstLineButton.letEnabled = isEnabled
     Let invertColorButton.letEnabled = isEnabled
     Let highlightButton.letEnabled = isEnabled
-    Let snipButton.letEnabled = isEnabled And Not isHighlight
+    Let arrangeButton.letEnabled = _
+        isEnabled And _
+        Not isHighlight
+    Let autoArrangeButton.letEnabled = _
+        isAutoArrange And _
+        Not isHighlight
+    Let snipButton.letEnabled = _
+        isEnabled And _
+        Not isHighlight
     Let offsetCBBox.letEnabled = isEnabled
     Let rateLockCheckBox.letEnabled = isEnabled
     Let removeAddinButton.letEnabled = True 'Able to remove without workplace
 End Sub
-
+Private Sub setUpImage()
+    Let refeshPivotButton.letImage = "ChartRefresh"
+    Let arrangeButton.letImage = "SmartArtLargerShape"
+    Let autoArrangeButton.letImage = "PicturesCompress"
+End Sub
 Private Sub setUpShowImage()
     Dim isShowed As Boolean
     Let isShowed = True
@@ -197,6 +218,8 @@ Private Sub setUpShowImage()
     Let invertColorButton.letShowImage = isShowed
     Let highlightButton.letShowImage = isShowed
     Let snipButton.letShowImage = isShowed
+    Let arrangeButton.letShowImage = isShowed
+    Let autoArrangeButton.letShowImage = isShowed
     Let offsetCBBox.letShowImage = isShowed
     Let removeAddinButton.letShowImage = isShowed
 End Sub
@@ -218,6 +241,8 @@ Private Sub setUpKeytip()
     Let invertColorButton.letKeytip = ""
     Let highlightButton.letKeytip = ""
     Let snipButton.letKeytip = ""
+    Let arrangeButton.letKeytip = ""
+    Let autoArrangeButton.letKeytip = ""
     Let removeAddinButton.letKeytip = ""
 End Sub
 
@@ -240,6 +265,8 @@ Private Sub setUpShowLabel()
     Let invertColorButton.letShowLabel = isShowed
     Let highlightButton.letShowLabel = isShowed
     Let snipButton.letShowLabel = isShowed
+    Let arrangeButton.letShowLabel = isShowed
+    Let autoArrangeButton.letShowLabel = isShowed
     Let offsetCBBox.letShowLabel = isShowed
     Let rateLockCheckBox.letShowLabel = isShowed
     Let removeAddinButton.letShowLabel = isShowed
@@ -264,6 +291,8 @@ Private Sub setVisible()
     Let boldFirstLineButton.letVisible = isVisible
     Let invertColorButton.letVisible = isVisible
     Let snipButton.letVisible = isVisible
+    Let arrangeButton.letVisible = isVisible
+    Let autoArrangeButton.letVisible = isVisible
     Let offsetCBBox.letVisible = isVisible
     Let rateLockCheckBox.letVisible = isVisible
     Let removeAddinButton.letVisible = isVisible
@@ -314,6 +343,8 @@ Private Sub setUpId()
     Let removeAddinButton.letID = "remove-addin"
     Let pictureGroup.letID = "pictures-controller"
     Let snipButton.letID = "snipping"
+    Let arrangeButton.letID = "arrange"
+    Let autoArrangeButton.letID = "auto-arrange"
     Let offsetCBBox.letID = "offset"
     Let rateLockCheckBox.letID = "rate-lock"
     Let optionGroup.letID = "option"
@@ -346,6 +377,8 @@ Private Sub setUpLabel()
     Let removeAddinButton.letLabel = "Remove Addin"
     Let pictureGroup.letLabel = "Picture Controller"
     Let snipButton.letLabel = "Snipping"
+    Let arrangeButton.letLabel = "Arrange"
+    Let autoArrangeButton.letLabel = "Auto Arrange"
     Let offsetCBBox.letLabel = "Offset"
     Let rateLockCheckBox.letLabel = "Lock The Rate"
     Let optionGroup.letLabel = "Options"
@@ -372,6 +405,8 @@ Private Sub setUpScreentip()
     Let highlightButton.letScreentip = "Highlight Range"
     Let removeAddinButton.letScreentip = "Remove Addin"
     Let snipButton.letScreentip = "Snipping"
+    Let arrangeButton.letScreentip = "Arrange"
+    Let autoArrangeButton.letScreentip = "Auto Arrange"
 End Sub
 
 Private Sub setUpSupertip()
@@ -422,10 +457,18 @@ Private Sub setUpSupertip()
         "3.Optional bold, scale up, color and transparent." & vbNewLine & _
         "Note: when OFF will return all format at before ON."
     Let snipButton.letSupertip = _
-        "Option 1: Select range and paste the spinned pictures on with offset" & vbNewLine & _
-        "Option 2: Select an object and replace or lay the spinned pictures at that oject area"
+        "Option 1: Select range and paste the sniped pictures on with offset" & vbNewLine & _
+        "Option 2: Select an object and replace or lay the sniped pictures at that object area"
+    Let arrangeButton.letSupertip = _
+        "1: Select range or object to paste on." & vbNewLine & _
+        "2: Select an object to lay on."
+    Let autoArrangeButton.letSupertip = _
+        "1: After turning on, all shapes will have marker at top left conner." & vbNewLine & _
+        "2: Drag shapes'marker into merge range in order to auto arrange." & vbNewLine & _
+        "3: Turn off, the marker will automatically disapear." & vbNewLine & _
+        "NOTE: Only works on range and merge range!"
     Let removeAddinButton.letSupertip = _
-        "DANH Tools will be removed permanently"
+        "DANH Tools will be removed permanently."
 End Sub
 
 Private Function hasWorkPlace() As Boolean
@@ -437,6 +480,60 @@ Private Function hasWorkPlace() As Boolean
         Let hasWorkPlace = True
     End If
 End Function
+
+'Error Handler
+Private Sub tackleErrors()
+    Select Case Err.Number
+        'Default
+        Case 0
+        'Do nothing
+        'Can't load ribbon
+        Case 91
+            Call customUIOnLoad 'Reset Ribbon
+        'Can't enable Addin
+        Case 1004
+        'Can not import VBA file
+        Case 50057
+            MsgBox Err.description & _
+                vbNewLine & _
+                info.getPrompt & _
+                "Can not import this file!"
+        'FIle import is not VBA file
+        Case 50021
+            MsgBox Err.description & _
+                vbNewLine & _
+                info.getPrompt & _
+                "This file is not VBA file!"
+        'VBA file have password
+        Case 50289
+            MsgBox _
+                Prompt:=Err.description & _
+                    vbNewLine & _
+                    info.getPrompt & _
+                    "Can not access this VBA file because of been protected by a password!", _
+                Buttons:=vbCritical + vbOKOnly, _
+                Title:=info.getAuthor
+        'Un-handled Error
+        Case Else
+            Call errorDisplay
+    End Select
+    On Error GoTo 0
+End Sub
+
+'Error Handler
+Private Sub errorDisplay()
+    Dim errorMessage As String
+    Let errorMessage = _
+        "Error # " & Str(Err.Number) & _
+        " was generated by " & Err.Source & _
+        vbNewLine & "Error Line: " & Erl & _
+        vbNewLine & Err.description
+    MsgBox _
+        Prompt:=errorMessage, _
+        Title:="Error", _
+        HelpFile:=Err.HelpFile, _
+        Context:=Err.HelpContext
+End Sub
 'MAIN
 'Callback for customUI.onLoad
 Public Sub customUIOnLoad(Optional ByRef ribbon As IRibbonUI)
@@ -444,6 +541,7 @@ Public Sub customUIOnLoad(Optional ByRef ribbon As IRibbonUI)
     Call createInstances
     Call setUpId
     Call setUpEnabled
+    Call setUpImage
     Call setUpShowImage
     Call setUpKeytip
     Call setUpLabel
@@ -457,14 +555,33 @@ Public Sub customUIOnLoad(Optional ByRef ribbon As IRibbonUI)
     Let highlightColor = DEFAULT_HIGHLIGHT_COLOR
     Let offsetValue = DEFAULT_OFFSET_VALUE
     Let isRateLock = False
+    Let isArranging = False
     Let hasCustomUI = True
 End Sub
 'Refesh Rebbon
-Private Sub refeshCustomRibbon()
-    Call loadedRibbon.Invalidate
+Public Sub refeshCustomRibbon(Optional ByRef rb As IRibbonUI)
+    If rb Is Nothing Then Set rb = loadedRibbon
+    Call rb.Invalidate
+End Sub
+'Callback for getImage
+Public Sub createImage(ByRef control As IRibbonControl, ByRef returnedVal)
+On Error GoTo ErrorHandle
+    Select Case control.ID
+        Case arrangeButton.getID
+            Let returnedVal = arrangeButton.getImage
+        Case autoArrangeButton.getID
+            Let returnedVal = autoArrangeButton.getImage
+        Case refeshPivotButton.getID
+            Let returnedVal = refeshPivotButton.getImage
+    End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for getEnabled
 Public Sub checkEnabled(ByRef control As IRibbonControl, ByRef returnedVal)
+On Error GoTo ErrorHandle
     Call setUpEnabled
     Select Case control.ID
         Case addSheetsButton.getID
@@ -499,6 +616,10 @@ Public Sub checkEnabled(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = highlightButton.getEnabled
         Case snipButton.getID
             Let returnedVal = snipButton.getEnabled
+        Case arrangeButton.getID
+            Let returnedVal = arrangeButton.getEnabled
+        Case autoArrangeButton.getID
+            Let returnedVal = autoArrangeButton.getEnabled
         Case offsetCBBox.getID
             Let returnedVal = offsetCBBox.getEnabled
         Case rateLockCheckBox.getID
@@ -506,9 +627,14 @@ Public Sub checkEnabled(ByRef control As IRibbonControl, ByRef returnedVal)
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getEnabled
     End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for getShowImage
 Public Sub showImage(ByRef control As IRibbonControl, ByRef returnedVal)
+On Error GoTo ErrorHandle
     Select Case control.ID
         Case addSheetsButton.getID
             Let returnedVal = addSheetsButton.getShowImage
@@ -542,14 +668,23 @@ Public Sub showImage(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = highlightButton.getShowImage
         Case snipButton.getID
             Let returnedVal = snipButton.getShowImage
+        Case arrangeButton.getID
+            Let returnedVal = arrangeButton.getShowImage
+        Case autoArrangeButton.getID
+            Let returnedVal = autoArrangeButton.getShowImage
         Case offsetCBBox.getID
             Let returnedVal = offsetCBBox.getShowImage
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getShowImage
     End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for getKeytip
 Public Sub createKeytip(ByRef control As IRibbonControl, ByRef returnedVal)
+On Error GoTo ErrorHandle
     Select Case control.ID
         Case addSheetsButton.getID
             Let returnedVal = addSheetsButton.getKeytip
@@ -583,12 +718,21 @@ Public Sub createKeytip(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = highlightButton.getKeytip
         Case snipButton.getID
             Let returnedVal = snipButton.getKeytip
+        Case arrangeButton.getID
+            Let returnedVal = arrangeButton.getKeytip
+        Case autoArrangeButton.getID
+            Let returnedVal = autoArrangeButton.getKeytip
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getKeytip
     End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for getLabel
 Public Sub createLabel(ByRef control As IRibbonControl, ByRef returnedVal)
+On Error GoTo ErrorHandle
     If Not hasCustomUI Then Call customUIOnLoad
     Select Case control.ID
         Case toolsTab.getID
@@ -633,14 +777,16 @@ Public Sub createLabel(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = invertColorButton.getLabel
         Case highlightButton.getID
             Let returnedVal = highlightButton.getLabel
-        Case snipButton.getID
-            Let returnedVal = snipButton.getLabel
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getLabel
         Case pictureGroup.getID
             Let returnedVal = pictureGroup.getLabel
         Case snipButton.getID
             Let returnedVal = snipButton.getLabel
+        Case arrangeButton.getID
+            Let returnedVal = arrangeButton.getLabel
+        Case autoArrangeButton.getID
+            Let returnedVal = autoArrangeButton.getLabel
         Case offsetCBBox.getID
             Let returnedVal = offsetCBBox.getLabel
         Case rateLockCheckBox.getID
@@ -654,9 +800,14 @@ Public Sub createLabel(ByRef control As IRibbonControl, ByRef returnedVal)
         Case versionLabel.getID
             Let returnedVal = versionLabel.getLabel
     End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for getShowLabel
 Public Sub showLabel(ByRef control As IRibbonControl, ByRef returnedVal)
+On Error GoTo ErrorHandle
     Select Case control.ID
         Case addSheetsButton.getID
             Let returnedVal = addSheetsButton.getShowLabel
@@ -690,6 +841,10 @@ Public Sub showLabel(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = highlightButton.getShowLabel
         Case snipButton.getID
             Let returnedVal = snipButton.getShowLabel
+        Case arrangeButton.getID
+            Let returnedVal = arrangeButton.getShowLabel
+        Case autoArrangeButton.getID
+            Let returnedVal = autoArrangeButton.getShowLabel
         Case offsetCBBox.getID
             Let returnedVal = offsetCBBox.getShowLabel
         Case rateLockCheckBox.getID
@@ -697,9 +852,14 @@ Public Sub showLabel(ByRef control As IRibbonControl, ByRef returnedVal)
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getShowLabel
     End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for getScreentip
 Public Sub createScreentip(ByRef control As IRibbonControl, ByRef returnedVal)
+On Error GoTo ErrorHandle
     Select Case control.ID
         Case addSheetsButton.getID
             Let returnedVal = addSheetsButton.getScreentip
@@ -733,12 +893,21 @@ Public Sub createScreentip(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = highlightButton.getScreentip
         Case snipButton.getID
             Let returnedVal = snipButton.getScreentip
+        Case arrangeButton.getID
+            Let returnedVal = arrangeButton.getScreentip
+        Case autoArrangeButton.getID
+            Let returnedVal = autoArrangeButton.getScreentip
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getScreentip
     End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for getSupertip
 Public Sub createSupertip(ByRef control As IRibbonControl, ByRef returnedVal)
+On Error GoTo ErrorHandle
     Select Case control.ID
         Case addSheetsButton.getID
             Let returnedVal = addSheetsButton.getSupertip
@@ -772,12 +941,21 @@ Public Sub createSupertip(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = highlightButton.getSupertip
         Case snipButton.getID
             Let returnedVal = snipButton.getSupertip
+        Case arrangeButton.getID
+            Let returnedVal = arrangeButton.getSupertip
+        Case autoArrangeButton.getID
+            Let returnedVal = autoArrangeButton.getSupertip
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getSupertip
     End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for getVisible
 Public Sub checkVisible(ByRef control As IRibbonControl, ByRef returnedVal)
+On Error GoTo ErrorHandle
     If Not hasCustomUI Then Call customUIOnLoad
     Select Case control.ID
         Case toolsTab.getID
@@ -812,6 +990,10 @@ Public Sub checkVisible(ByRef control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = invertColorButton.getVisible
         Case snipButton.getID
             Let returnedVal = snipButton.getVisible
+        Case arrangeButton.getID
+            Let returnedVal = arrangeButton.getVisible
+        Case autoArrangeButton.getID
+            Let returnedVal = autoArrangeButton.getVisible
         Case offsetCBBox.getID
             Let returnedVal = offsetCBBox.getVisible
         Case rateLockCheckBox.getID
@@ -819,6 +1001,10 @@ Public Sub checkVisible(ByRef control As IRibbonControl, ByRef returnedVal)
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getVisible
     End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 ' Check pressed size buttons
 Private Function isHighlightUpSize(ByRef value As Byte) As Boolean
@@ -846,6 +1032,7 @@ Private Function isHighlightColor(ByRef value As Long) As Boolean
 End Function
 'Callback for getPressed
 Public Sub checkPressed(control As IRibbonControl, ByRef returnedVal)
+On Error GoTo ErrorHandle
     Select Case control.ID
         Case highlightBoldButton.getID
             Let returnedVal = highlightIsBold
@@ -891,12 +1078,21 @@ Public Sub checkPressed(control As IRibbonControl, ByRef returnedVal)
             Let returnedVal = isHighlightColor(vbWhite)
         Case rateLockCheckBox.getID
             Let returnedVal = isRateLock
+        Case arrangeButton.getID
+            Let returnedVal = isArranging
+        Case autoArrangeButton.getID
+            Let returnedVal = isAutoArrange
         Case Else
             Let returnedVal = False
     End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for Sheet Controller onAction
 Public Sub sheetController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
+On Error GoTo ErrorHandle
     Dim sheetC As SheetsController
     Set sheetC = New SheetsController
     Select Case control.ID
@@ -918,17 +1114,27 @@ Public Sub sheetController(ByRef control As IRibbonControl, Optional ByRef press
                 isVeryHide:=False)
     End Select
     Set sheetC = Nothing
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for Action With Event
 Public Sub sheetControllerEvent(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
+On Error GoTo ErrorHandle
     Set sheetCEvent = New SheetsController
     Select Case control.ID
         Case listSheetsButton.getID
             Call sheetCEvent.list
     End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for Chart Controller onAction
 Public Sub chartController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
+On Error GoTo ErrorHandle
     Dim chartC As ChartsController
     Set chartC = New ChartsController
     Select Case control.ID
@@ -940,21 +1146,34 @@ Public Sub chartController(ByRef control As IRibbonControl, Optional ByRef press
                 isHide:=False)
     End Select
     Set chartC = Nothing ' Clear Cache while don't have event
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for refesh-pivot onAction
 Public Sub pivotControllerEvent(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
+On Error GoTo ErrorHandle
     Select Case control.ID
         Case refeshPivotButton.getID
             If pressed Then
                 Set pivotCEvent = New PivotTablesController
+                Let refeshPivotButton.letImage = "GroupSyncStatus"
             End If
             If Not pressed Then
                 Set pivotCEvent = Nothing
+                Let refeshPivotButton.letImage = "ChartRefresh"
             End If
+            Call refeshCustomRibbon(loadedRibbon)
     End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for VBAFiles Controller onAction
 Public Sub VBAFilesController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
+On Error GoTo ErrorHandle
     Dim fileC As FilesController
     Set fileC = New FilesController
     Select Case control.ID
@@ -966,9 +1185,14 @@ Public Sub VBAFilesController(ByRef control As IRibbonControl, Optional ByRef pr
             Call fileC.exportAllVbaFiles
     End Select
     Set fileC = Nothing ' Clear Cache
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for Range Controller onAction
 Public Sub rangeController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
+On Error GoTo ErrorHandle
     Dim rangeC As RangesController
     Select Case control.ID
         Case boldFirstLineButton.getID
@@ -1040,7 +1264,11 @@ Public Sub rangeController(ByRef control As IRibbonControl, Optional ByRef press
             If pressed Then Let highlightColor = vbWhite
             Call HighlightRange
     End Select
-    Call refeshCustomRibbon
+    Call refeshCustomRibbon(loadedRibbon)
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 
 Private Sub HighlightRange()
@@ -1062,6 +1290,7 @@ Private Sub ClearHighLight()
 End Sub
 'Callback for Range Controller onAction
 Public Sub rangeControllerEvent(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
+On Error GoTo ErrorHandle
     Select Case control.ID
         Case highlightButton.getID
             Let isHighlight = pressed
@@ -1073,20 +1302,30 @@ Public Sub rangeControllerEvent(ByRef control As IRibbonControl, Optional ByRef 
                 Call ClearHighLight
             End If
     End Select
-    Call refeshCustomRibbon
+    Call refeshCustomRibbon(loadedRibbon)
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for remove-addin onAction
 Public Sub addinController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
+On Error GoTo ErrorHandle
     Dim newAddin As AutoAddin
     Set newAddin = New AutoAddin
     Select Case control.ID
         Case removeAddinButton.getID
-            Call newAddin.deleteAddInFile(hasConfirm:=True)
+            Call newAddin.remove(hasConfirm:=True)
     End Select
     Set newAddin = Nothing ' Clear Cache
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for remove-addin onAction
 Public Sub pictureController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
+On Error GoTo ErrorHandle
     Dim picC As PicturesController
     Select Case control.ID
         Case snipButton.getID
@@ -1095,40 +1334,100 @@ Public Sub pictureController(ByRef control As IRibbonControl, Optional ByRef pre
             Let picC.letLockRatio = isRateLock
             Call picC.snip
             Set picC = Nothing
+        Case arrangeButton.getID
+            If ActiveSheet.Shapes.Count = 0 Then
+                MsgBox _
+                Prompt:= _
+                    "This sheet don't exist any object to arrange yet!", _
+                Buttons:=vbOKOnly + vbExclamation, _
+                Title:="DANH TOOL"
+                Let isArranging = False
+            Else
+                Let isArranging = pressed
+                Set picC = New PicturesController
+                If isArranging Then
+                    Let arrangeButton.letImage = "AutomaticResize"
+                    Let picC.letOffset = offsetValue
+                    Let picC.letLockRatio = isRateLock
+                    Call picC.assign
+                Else
+                    Let arrangeButton.letImage = "SmartArtLargerShape"
+                    Call picC.clearArrange
+                End If
+            End If
+            Call refeshCustomRibbon(loadedRibbon)
+            Set picC = Nothing
+        Case autoArrangeButton.getID
+            Let isAutoArrange = pressed
+            Set picC = New PicturesController
+            If isAutoArrange Then
+                Call picC.autoArrange(True)
+                Call ThisWorkbook.Auto_Run_Continuously
+            Else
+                Call picC.autoArrange(False)
+                Call ThisWorkbook.Stop_Run_Continously
+            End If
+            Call refeshCustomRibbon(loadedRibbon)
+            Set picC = Nothing
         Case rateLockCheckBox.getID
             Let isRateLock = pressed
     End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for offset getItemCount
 Public Sub createItemAmount(control As IRibbonControl, ByRef returnedVal)
+On Error GoTo ErrorHandle
     Select Case control.ID
         Case offsetCBBox.getID
             Let returnedVal = NUM_OFFSET_ITEMS
     End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for offset getItemID
 Public Sub createItemID(control As IRibbonControl, index As Integer, ByRef returnedVal)
+On Error GoTo ErrorHandle
     Select Case control.ID
         Case offsetCBBox.getID
             Let returnedVal = "offset-item-" & index + 1
     End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for offset getItemLabel
 Public Sub createItemLabel(control As IRibbonControl, index As Integer, ByRef returnedVal)
+On Error GoTo ErrorHandle
     Select Case control.ID
         Case offsetCBBox.getID
-            Let returnedVal = index * 10 'Step
+            Let returnedVal = index * 10 'Steps
     End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for offset getText
 Public Sub createText(control As IRibbonControl, ByRef returnedVal)
+On Error GoTo ErrorHandle
     Select Case control.ID
         Case offsetCBBox.getID
             Let returnedVal = offsetValue
     End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
 'Callback for offset onChange
 Public Sub offsetSelect(control As IRibbonControl, text As String)
+On Error GoTo ErrorHandle
     Select Case control.ID
         Case offsetCBBox.getID
             If Not IsNumeric(text) Then
@@ -1138,7 +1437,7 @@ Public Sub offsetSelect(control As IRibbonControl, text As String)
                         MIN_OFFSET & " and " & MAX_OFFSET & " !", _
                     Buttons:=vbOKOnly + vbCritical, _
                     Title:="DANH TOOL"
-                Call refeshCustomRibbon
+                Call refeshCustomRibbon(loadedRibbon)
             ElseIf _
                 CLng(text) < MIN_OFFSET Or _
                 CLng(text) > MAX_OFFSET Then
@@ -1148,9 +1447,16 @@ Public Sub offsetSelect(control As IRibbonControl, text As String)
                         MIN_OFFSET & " and " & MAX_OFFSET & " !", _
                     Buttons:=vbOKOnly + vbCritical, _
                     Title:="DANH TOOL"
-                Call refeshCustomRibbon
+                Call refeshCustomRibbon(loadedRibbon)
             Else
                 Let offsetValue = CByte(text)
             End If
     End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
 End Sub
+
+
+
