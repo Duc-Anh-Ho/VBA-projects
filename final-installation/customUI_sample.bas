@@ -1,11 +1,11 @@
 ' Check README.md for more information
-
 Option Explicit
 'Declare Variables
 Private system As SystemUpdate
 Private fileSystem As Object
 Private info As MyInfo
 Private userResponse As VbMsgBoxResult
+Private ribbonEvents As customEvents
 
 Private formatC As FormatController 'TO DO
 Private sheetCEvent As SheetsController
@@ -34,6 +34,7 @@ Private importAllVbaFilesButton As TagController
 Private exportAllVbaFilesButton As TagController
 
 Private rangeGroup As TagController
+Private hidePageBrakeDropDown As TagController
 Private boldFirstLineButton As TagController
 Private invertColorButton As TagController
 Private highlightButton As TagController
@@ -57,6 +58,7 @@ Private highlightColorRedButton As TagController
 Private highlightColorBlueButton As TagController
 Private highlightColorBlackButton As TagController
 Private highlightColorWhiteButton As TagController
+Private hasPageBeak As Boolean
 Private isHighlight As Boolean
 Private highlightIsBold As Boolean
 Private highlightUpSize As Byte
@@ -67,7 +69,7 @@ Private Const DEFAULT_HIGHLIGHT_TRANSPARENT As Byte = 75
 Private Const DEFAULT_HIGHLIGHT_COLOR As Long = vbYellow
 
 Private pictureGroup As TagController
-Private arrangeButton As TagController
+Public arrangeButton As TagController 'Use in ThisWorkbook Module to modify image
 Private autoArrangeButton As TagController
 Private snipButton As TagController
 Private offsetCBBox As TagController
@@ -106,6 +108,7 @@ Private Sub Auto_Deactivate()
 End Sub
 'METHODS
 Private Sub createInstances()
+    Set ribbonEvents = New customEvents
     Set toolsTab = New TagController
     Set sheetGroup = New TagController
     Set addSheetsButton = New TagController
@@ -124,6 +127,7 @@ Private Sub createInstances()
     Set pivotGroup = New TagController
     Set refeshPivotButton = New TagController
     Set rangeGroup = New TagController
+    Set hidePageBrakeDropDown = New TagController
     Set boldFirstLineButton = New TagController
     Set invertColorButton = New TagController
     Set highlightButton = New TagController
@@ -162,33 +166,66 @@ End Sub
 
 Private Sub setUpEnabled()
     Dim isEnabled As Boolean
-    Let isEnabled = hasWorkPlace() And _
-        Not isAutoArrange 'When AutoArrange Disable all
-    Let addSheetsButton.letEnabled = isEnabled
+    Let isEnabled = hasWorkPlace()
+    Let addSheetsButton.letEnabled = _
+        isEnabled And _
+        Not isAutoArrange 'Disable when Highlight and auto Arrange
     Let listSheetsButton.letEnabled = _
         isEnabled And _
-        Not isHighlight 'Disable when Highlight
-    Let deleteSheetsButton.letEnabled = isEnabled
-    Let showSheetsButton.letEnabled = isEnabled
-    Let hideSheetsButton.letEnabled = isEnabled
-    Let veryHideSheetsButton.letEnabled = isEnabled
-    Let chartHideErrButton.letEnabled = isEnabled
-    Let chartShowButton.letEnabled = isEnabled
-    Let refeshPivotButton.letEnabled = isEnabled
-    Let importVbaFilesButton.letEnabled = isEnabled
-    Let importAllVbaFilesButton.letEnabled = isEnabled
-    Let exportAllVbaFilesButton.letEnabled = isEnabled
-    Let boldFirstLineButton.letEnabled = isEnabled
-    Let invertColorButton.letEnabled = isEnabled
-    Let highlightButton.letEnabled = isEnabled
+        Not isHighlight And _
+        Not isAutoArrange
+    Let deleteSheetsButton.letEnabled = _
+        isEnabled And _
+        Not isAutoArrange 'When AutoArrange Disable all
+    Let showSheetsButton.letEnabled = _
+        isEnabled And _
+        Not isAutoArrange
+    Let hideSheetsButton.letEnabled = _
+        isEnabled And _
+        Not isAutoArrange
+    Let veryHideSheetsButton.letEnabled = _
+        isEnabled And _
+        Not isAutoArrange
+    Let chartHideErrButton.letEnabled = _
+        isEnabled And _
+        Not isAutoArrange
+    Let chartShowButton.letEnabled = _
+        isEnabled And _
+        Not isAutoArrange
+    Let refeshPivotButton.letEnabled = _
+        isEnabled And _
+        Not isAutoArrange
+    Let importVbaFilesButton.letEnabled = _
+        isEnabled And _
+        Not isAutoArrange
+    Let importAllVbaFilesButton.letEnabled = _
+        isEnabled And _
+        Not isAutoArrange
+    Let exportAllVbaFilesButton.letEnabled = _
+        isEnabled And _
+        Not isAutoArrange
+    Let hidePageBrakeDropDown.letEnabled = _
+        isEnabled And _
+        Not isAutoArrange
+    Let boldFirstLineButton.letEnabled = _
+        isEnabled And _
+        Not isAutoArrange
+    Let invertColorButton.letEnabled = _
+        isEnabled And _
+        Not isAutoArrange
+    Let highlightButton.letEnabled = _
+        isEnabled And _
+        Not isAutoArrange
     Let arrangeButton.letEnabled = _
         isEnabled And _
+        Not isAutoArrange And _
         Not isHighlight
     Let autoArrangeButton.letEnabled = _
-        isAutoArrange And _
+        isEnabled And _
         Not isHighlight
     Let snipButton.letEnabled = _
         isEnabled And _
+        Not isAutoArrange And _
         Not isHighlight
     Let offsetCBBox.letEnabled = isEnabled
     Let rateLockCheckBox.letEnabled = isEnabled
@@ -214,6 +251,7 @@ Private Sub setUpShowImage()
     Let importVbaFilesButton.letShowImage = isShowed
     Let importAllVbaFilesButton.letShowImage = isShowed
     Let exportAllVbaFilesButton.letShowImage = isShowed
+    Let hidePageBrakeDropDown.letShowImage = isShowed
     Let boldFirstLineButton.letShowImage = isShowed
     Let invertColorButton.letShowImage = isShowed
     Let highlightButton.letShowImage = isShowed
@@ -261,6 +299,7 @@ Private Sub setUpShowLabel()
     Let importVbaFilesButton.letShowLabel = isShowed
     Let importAllVbaFilesButton.letShowLabel = isShowed
     Let exportAllVbaFilesButton.letShowLabel = isShowed
+    Let hidePageBrakeDropDown.letShowLabel = isShowed
     Let boldFirstLineButton.letShowLabel = isShowed
     Let invertColorButton.letShowLabel = isShowed
     Let highlightButton.letShowLabel = isShowed
@@ -272,9 +311,10 @@ Private Sub setUpShowLabel()
     Let removeAddinButton.letShowLabel = isShowed
 End Sub
 
-Private Sub setVisible()
+Private Sub setUpVisible()
     Dim isVisible As Boolean
-    Let isVisible = True
+    If Not TypeName(ActiveSheet) = "Chart" Then Let isVisible = True
+    If toolsTab Is Nothing Then Call customUIOnLoad
     Let toolsTab.letVisible = isVisible
     Let addSheetsButton.letVisible = isVisible
     Let listSheetsButton.letVisible = isVisible
@@ -288,6 +328,7 @@ Private Sub setVisible()
     Let importVbaFilesButton.letVisible = isVisible
     Let importAllVbaFilesButton.letVisible = isVisible
     Let exportAllVbaFilesButton.letVisible = isVisible
+    Let hidePageBrakeDropDown.letVisible = isVisible
     Let boldFirstLineButton.letVisible = isVisible
     Let invertColorButton.letVisible = isVisible
     Let snipButton.letVisible = isVisible
@@ -317,6 +358,7 @@ Private Sub setUpId()
     Let importAllVbaFilesButton.letID = "import-all-vba-files"
     Let exportAllVbaFilesButton.letID = "export-all-vba-files"
     Let rangeGroup.letID = "ranges-controller"
+    Let hidePageBrakeDropDown.letID = "hide-page-break"
     Let boldFirstLineButton.letID = "bold-first-line"
     Let invertColorButton.letID = "invert-color"
     Let highlightButton.letID = "highlight-range"
@@ -371,6 +413,7 @@ Private Sub setUpLabel()
     Let importVbaFilesButton.letLabel = "Import Files"
     Let importAllVbaFilesButton.letLabel = "Import All Files"
     Let exportAllVbaFilesButton.letLabel = "Export All Files"
+    Let hidePageBrakeDropDown.letLabel = "Page Breaks"
     Let boldFirstLineButton.letLabel = "Bold First Line"
     Let invertColorButton.letLabel = "Invert Color"
     Let highlightButton.letLabel = "Highlight Range"
@@ -476,8 +519,19 @@ Private Function hasWorkPlace() As Boolean
         Let hasWorkPlace = False
     ElseIf Application.ActiveSheet Is Nothing Then
         Let hasWorkPlace = False
+    ElseIf TypeName(Application.ActiveSheet) = "Chart" Then
+        Let hasWorkPlace = False
     Else
         Let hasWorkPlace = True
+        Let highlightIsBold = False
+        Let highlightUpSize = DEFAULT_HIGHLIGHT_UP_SIZE
+        Let highlightTransparent = DEFAULT_HIGHLIGHT_TRANSPARENT
+        Let highlightColor = DEFAULT_HIGHLIGHT_COLOR
+        Let offsetValue = DEFAULT_OFFSET_VALUE
+        Let isRateLock = False
+        Let isArranging = False
+        Let isAutoArrange = False
+        Let hasPageBeak = ActiveSheet.DisplayPageBreaks
     End If
 End Function
 
@@ -548,14 +602,7 @@ Public Sub customUIOnLoad(Optional ByRef ribbon As IRibbonUI)
     Call setUpShowLabel
     Call setUpScreentip
     Call setUpSupertip
-    Call setVisible
-    Let highlightIsBold = False
-    Let highlightUpSize = DEFAULT_HIGHLIGHT_UP_SIZE
-    Let highlightTransparent = DEFAULT_HIGHLIGHT_TRANSPARENT
-    Let highlightColor = DEFAULT_HIGHLIGHT_COLOR
-    Let offsetValue = DEFAULT_OFFSET_VALUE
-    Let isRateLock = False
-    Let isArranging = False
+    Call setUpVisible
     Let hasCustomUI = True
 End Sub
 'Refesh Rebbon
@@ -566,7 +613,7 @@ End Sub
 'Callback for getImage
 Public Sub createImage(ByRef control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    Select Case control.ID
+    Select Case control.id
         Case arrangeButton.getID
             Let returnedVal = arrangeButton.getImage
         Case autoArrangeButton.getID
@@ -583,7 +630,7 @@ End Sub
 Public Sub checkEnabled(ByRef control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
     Call setUpEnabled
-    Select Case control.ID
+    Select Case control.id
         Case addSheetsButton.getID
             Let returnedVal = addSheetsButton.getEnabled
         Case listSheetsButton.getID
@@ -608,6 +655,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = importAllVbaFilesButton.getEnabled
         Case exportAllVbaFilesButton.getID
             Let returnedVal = exportAllVbaFilesButton.getEnabled
+        Case hidePageBrakeDropDown.getID
+            Let returnedVal = hidePageBrakeDropDown.getEnabled
         Case boldFirstLineButton.getID
             Let returnedVal = boldFirstLineButton.getEnabled
         Case invertColorButton.getID
@@ -635,7 +684,7 @@ End Sub
 'Callback for getShowImage
 Public Sub showImage(ByRef control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    Select Case control.ID
+    Select Case control.id
         Case addSheetsButton.getID
             Let returnedVal = addSheetsButton.getShowImage
         Case listSheetsButton.getID
@@ -660,6 +709,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = importAllVbaFilesButton.getShowImage
         Case exportAllVbaFilesButton.getID
             Let returnedVal = exportAllVbaFilesButton.getShowImage
+        Case hidePageBrakeDropDown.getID
+            Let returnedVal = hidePageBrakeDropDown.getShowImage
         Case boldFirstLineButton.getID
             Let returnedVal = boldFirstLineButton.getShowImage
         Case invertColorButton.getID
@@ -685,7 +736,7 @@ End Sub
 'Callback for getKeytip
 Public Sub createKeytip(ByRef control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    Select Case control.ID
+    Select Case control.id
         Case addSheetsButton.getID
             Let returnedVal = addSheetsButton.getKeytip
         Case listSheetsButton.getID
@@ -733,8 +784,7 @@ End Sub
 'Callback for getLabel
 Public Sub createLabel(ByRef control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    If Not hasCustomUI Then Call customUIOnLoad
-    Select Case control.ID
+    Select Case control.id
         Case toolsTab.getID
             Let returnedVal = toolsTab.getLabel
         Case sheetGroup.getID
@@ -771,6 +821,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = exportAllVbaFilesButton.getLabel
         Case rangeGroup.getID
             Let returnedVal = rangeGroup.getLabel
+        Case hidePageBrakeDropDown.getID
+            Let returnedVal = hidePageBrakeDropDown.getLabel
         Case boldFirstLineButton.getID
             Let returnedVal = boldFirstLineButton.getLabel
         Case invertColorButton.getID
@@ -808,7 +860,7 @@ End Sub
 'Callback for getShowLabel
 Public Sub showLabel(ByRef control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    Select Case control.ID
+    Select Case control.id
         Case addSheetsButton.getID
             Let returnedVal = addSheetsButton.getShowLabel
         Case listSheetsButton.getID
@@ -833,6 +885,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = importAllVbaFilesButton.getShowLabel
         Case exportAllVbaFilesButton.getID
             Let returnedVal = exportAllVbaFilesButton.getShowLabel
+        Case hidePageBrakeDropDown.getID
+            Let returnedVal = boldFirstLineButton.getShowLabel
         Case boldFirstLineButton.getID
             Let returnedVal = boldFirstLineButton.getShowLabel
         Case invertColorButton.getID
@@ -860,7 +914,7 @@ End Sub
 'Callback for getScreentip
 Public Sub createScreentip(ByRef control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    Select Case control.ID
+    Select Case control.id
         Case addSheetsButton.getID
             Let returnedVal = addSheetsButton.getScreentip
         Case listSheetsButton.getID
@@ -908,7 +962,7 @@ End Sub
 'Callback for getSupertip
 Public Sub createSupertip(ByRef control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    Select Case control.ID
+    Select Case control.id
         Case addSheetsButton.getID
             Let returnedVal = addSheetsButton.getSupertip
         Case listSheetsButton.getID
@@ -956,8 +1010,8 @@ End Sub
 'Callback for getVisible
 Public Sub checkVisible(ByRef control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    If Not hasCustomUI Then Call customUIOnLoad
-    Select Case control.ID
+    Call setUpVisible
+    Select Case control.id
         Case toolsTab.getID
             Let returnedVal = toolsTab.getVisible
         Case addSheetsButton.getID
@@ -984,6 +1038,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = importAllVbaFilesButton.getVisible
         Case exportAllVbaFilesButton.getID
             Let returnedVal = exportAllVbaFilesButton.getVisible
+        Case hidePageBrakeDropDown.getID
+            Let returnedVal = hidePageBrakeDropDown.getVisible
         Case boldFirstLineButton.getID
             Let returnedVal = boldFirstLineButton.getVisible
         Case invertColorButton.getID
@@ -1033,7 +1089,7 @@ End Function
 'Callback for getPressed
 Public Sub checkPressed(control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    Select Case control.ID
+    Select Case control.id
         Case highlightBoldButton.getID
             Let returnedVal = highlightIsBold
         Case highlightButton.getID
@@ -1095,7 +1151,7 @@ Public Sub sheetController(ByRef control As IRibbonControl, Optional ByRef press
 On Error GoTo ErrorHandle
     Dim sheetC As SheetsController
     Set sheetC = New SheetsController
-    Select Case control.ID
+    Select Case control.id
         Case addSheetsButton.getID
             Call sheetC.ADD
         Case deleteSheetsButton.getID
@@ -1123,7 +1179,7 @@ End Sub
 Public Sub sheetControllerEvent(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
 On Error GoTo ErrorHandle
     Set sheetCEvent = New SheetsController
-    Select Case control.ID
+    Select Case control.id
         Case listSheetsButton.getID
             Call sheetCEvent.list
     End Select
@@ -1137,7 +1193,7 @@ Public Sub chartController(ByRef control As IRibbonControl, Optional ByRef press
 On Error GoTo ErrorHandle
     Dim chartC As ChartsController
     Set chartC = New ChartsController
-    Select Case control.ID
+    Select Case control.id
         Case chartHideErrButton.getID
             Call chartC.hide( _
                 isHide:=True)
@@ -1154,15 +1210,17 @@ End Sub
 'Callback for refesh-pivot onAction
 Public Sub pivotControllerEvent(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
 On Error GoTo ErrorHandle
-    Select Case control.ID
+    Select Case control.id
         Case refeshPivotButton.getID
             If pressed Then
                 Set pivotCEvent = New PivotTablesController
                 Let refeshPivotButton.letImage = "GroupSyncStatus"
+                Let refeshPivotButton.letLabel = "OFF SYNC"
             End If
             If Not pressed Then
                 Set pivotCEvent = Nothing
                 Let refeshPivotButton.letImage = "ChartRefresh"
+                Let refeshPivotButton.letLabel = "SYNC Pivot"
             End If
             Call refeshCustomRibbon(loadedRibbon)
     End Select
@@ -1176,7 +1234,7 @@ Public Sub VBAFilesController(ByRef control As IRibbonControl, Optional ByRef pr
 On Error GoTo ErrorHandle
     Dim fileC As FilesController
     Set fileC = New FilesController
-    Select Case control.ID
+    Select Case control.id
         Case importVbaFilesButton.getID
             Call fileC.importSelectedVBAfiles
         Case importAllVbaFilesButton.getID
@@ -1194,7 +1252,7 @@ End Sub
 Public Sub rangeController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
 On Error GoTo ErrorHandle
     Dim rangeC As RangesController
-    Select Case control.ID
+    Select Case control.id
         Case boldFirstLineButton.getID
             Set rangeC = New RangesController
             Call rangeC.boldFirstLine
@@ -1288,10 +1346,43 @@ Private Sub ClearHighLight()
         Set rangeCEvent = Nothing
     End If
 End Sub
+'Callback for Hide Page Break onAction
+Public Sub hidePageBreakChange(control As IRibbonControl, id As String, index As Integer)
+On Error GoTo ErrorHandle
+    Dim rangeC As RangesController
+    Set rangeC = New RangesController
+    Select Case control.id
+        Case hidePageBrakeDropDown.getID
+            Select Case index
+                Case 0 'Hide
+                    Call rangeC.displayPageBrake( _
+                        isDisplay:=False, _
+                        isApplyAll:=False)
+                Case 1 'Show
+                    Call rangeC.displayPageBrake( _
+                        isDisplay:=True, _
+                        isApplyAll:=False)
+                Case 2 'Hide All
+                    Call rangeC.displayPageBrake( _
+                        isDisplay:=False, _
+                        isApplyAll:=True)
+                Case 3 'Show All
+                    Call rangeC.displayPageBrake( _
+                        isDisplay:=True, _
+                        isApplyAll:=True)
+            End Select
+    End Select
+    Call refeshCustomRibbon(loadedRibbon)
+    Set rangeC = Nothing
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
+End Sub
 'Callback for Range Controller onAction
 Public Sub rangeControllerEvent(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
 On Error GoTo ErrorHandle
-    Select Case control.ID
+    Select Case control.id
         Case highlightButton.getID
             Let isHighlight = pressed
             If pressed Then
@@ -1313,7 +1404,7 @@ Public Sub addinController(ByRef control As IRibbonControl, Optional ByRef press
 On Error GoTo ErrorHandle
     Dim newAddin As AutoAddin
     Set newAddin = New AutoAddin
-    Select Case control.ID
+    Select Case control.id
         Case removeAddinButton.getID
             Call newAddin.remove(hasConfirm:=True)
     End Select
@@ -1327,7 +1418,7 @@ End Sub
 Public Sub pictureController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
 On Error GoTo ErrorHandle
     Dim picC As PicturesController
-    Select Case control.ID
+    Select Case control.id
         Case snipButton.getID
             Set picC = New PicturesController
             Let picC.letOffset = offsetValue
@@ -1347,28 +1438,45 @@ On Error GoTo ErrorHandle
                 Set picC = New PicturesController
                 If isArranging Then
                     Let arrangeButton.letImage = "AutomaticResize"
-                    Let picC.letOffset = offsetValue
-                    Let picC.letLockRatio = isRateLock
+                    Let arrangeButton.letLabel = "Click a shape"
+'                    Let picC.letOffset = offsetValue
+'                    Let picC.letLockRatio = isRateLock
                     Call picC.assign
                 Else
                     Let arrangeButton.letImage = "SmartArtLargerShape"
+                    Let arrangeButton.letLabel = "Arrange"
                     Call picC.clearArrange
                 End If
+                Set picC = Nothing
             End If
             Call refeshCustomRibbon(loadedRibbon)
-            Set picC = Nothing
         Case autoArrangeButton.getID
-            Let isAutoArrange = pressed
-            Set picC = New PicturesController
-            If isAutoArrange Then
-                Call picC.autoArrange(True)
-                Call ThisWorkbook.Auto_Run_Continuously
+            If ActiveSheet.Shapes.Count = 0 Then
+                MsgBox _
+                Prompt:= _
+                    "This sheet don't exist any object to AUTO arrange!", _
+                Buttons:=vbOKOnly + vbExclamation, _
+                Title:="DANH TOOL"
+                Let isAutoArrange = False
             Else
-                Call picC.autoArrange(False)
-                Call ThisWorkbook.Stop_Run_Continously
+                Let isAutoArrange = pressed
+                Set picC = New PicturesController
+                If isAutoArrange Then
+                    Let autoArrangeButton.letImage = "CancelRequest"
+                    Let autoArrangeButton.letLabel = "CANCEL"
+                    Call picC.autoArrange(True)
+                    Let picC.selectObjectMode = True
+                    Call ThisWorkbook.Auto_Run_Continuously
+                Else
+                    Let autoArrangeButton.letImage = "PicturesCompress"
+                    Let autoArrangeButton.letLabel = "Auto Arrange"
+                    Call picC.autoArrange(False)
+                    Let picC.selectObjectMode = False
+                    Call ThisWorkbook.Stop_Run_Continously
+                End If
+                Set picC = Nothing
             End If
             Call refeshCustomRibbon(loadedRibbon)
-            Set picC = Nothing
         Case rateLockCheckBox.getID
             Let isRateLock = pressed
     End Select
@@ -1380,7 +1488,7 @@ End Sub
 'Callback for offset getItemCount
 Public Sub createItemAmount(control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    Select Case control.ID
+    Select Case control.id
         Case offsetCBBox.getID
             Let returnedVal = NUM_OFFSET_ITEMS
     End Select
@@ -1392,7 +1500,7 @@ End Sub
 'Callback for offset getItemID
 Public Sub createItemID(control As IRibbonControl, index As Integer, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    Select Case control.ID
+    Select Case control.id
         Case offsetCBBox.getID
             Let returnedVal = "offset-item-" & index + 1
     End Select
@@ -1404,7 +1512,7 @@ End Sub
 'Callback for offset getItemLabel
 Public Sub createItemLabel(control As IRibbonControl, index As Integer, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    Select Case control.ID
+    Select Case control.id
         Case offsetCBBox.getID
             Let returnedVal = index * 10 'Steps
     End Select
@@ -1416,7 +1524,13 @@ End Sub
 'Callback for offset getText
 Public Sub createText(control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    Select Case control.ID
+    Select Case control.id
+        Case hidePageBrakeDropDown.getID
+            If hasPageBeak Then
+                Let returnedVal = 1 'Index = 1 --> "Show"
+            Else
+                Let returnedVal = 0 'Index = 0 --> "Hide"
+            End If
         Case offsetCBBox.getID
             Let returnedVal = offsetValue
     End Select
@@ -1428,7 +1542,7 @@ End Sub
 'Callback for offset onChange
 Public Sub offsetSelect(control As IRibbonControl, text As String)
 On Error GoTo ErrorHandle
-    Select Case control.ID
+    Select Case control.id
         Case offsetCBBox.getID
             If Not IsNumeric(text) Then
                 MsgBox _
@@ -1457,6 +1571,7 @@ ErrorHandle:
     Call tackleErrors
 ExecuteProcedure:
 End Sub
+
 
 
 

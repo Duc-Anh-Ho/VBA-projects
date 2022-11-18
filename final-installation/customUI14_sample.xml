@@ -187,6 +187,30 @@
           id="ranges-controller"
           getLabel="createLabel"
           image="Author">
+          <dropDown
+            id="hide-page-break"
+            sizeString="AAAAA"
+            imageMso="PageBreaksShow"
+            getShowImage="showImage"
+            getLabel="createLabel"
+            getEnabled="checkEnabled"
+            getVisible="checkVisible"
+            getSelectedItemIndex="createText"
+            onAction="hidePageBreakChange">
+            <item
+              id="hide-page-break-item"
+              label="Hide" />
+            <item
+              id="show-page-break-item"
+              label="Show" />
+            <item
+              id="hide-all-page-break-item"
+              label="Hide All" />
+            <item
+              id="show-all-page-break-item"
+              label="Show All" />
+          </dropDown>
+          <separator id="range-separator-third" />
           <button
             id="bold-first-line"
             size="large"
@@ -362,7 +386,7 @@
         <group
           id="pictures-controller"
           getLabel="createLabel"
-          imageMso="PicturesCompress">
+          imageMso="PictureColorMenu">
           <toggleButton
             id="arrange"
             size="large"
@@ -381,6 +405,7 @@
             id="auto-arrange"
             size="large"
             getImage="createImage"
+            getEnabled="checkEnabled"
             getShowImage="showImage"
             getKeytip="createKeytip"
             getLabel="createLabel"
