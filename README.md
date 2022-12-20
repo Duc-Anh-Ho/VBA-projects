@@ -9,7 +9,7 @@ This project is my VBA tool for my resume porfolio.
 
 # Changelog
 
-## v2.0.0 - 2022/10/10
+## v2.0.0 - 2022/12/20
 
 ### Added
 
@@ -21,6 +21,7 @@ This project is my VBA tool for my resume porfolio.
 - Picture controller.
 - File controller.
 - Option and Information. (Pending)
+- Export saved wifi to file.
 
 ### Changed
 
@@ -28,8 +29,7 @@ This project is my VBA tool for my resume porfolio.
 
 ### Removed
 
-- Duplicated shortcuts.
-- Old projects code.
+- 
 
 # Contact
 

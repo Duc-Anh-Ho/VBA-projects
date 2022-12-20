@@ -451,7 +451,46 @@
         <group
           id="option"
           getLabel="createLabel"
-          image="CurrentViewSettings">
+          imageMso="EditConnectedSystem">
+          <splitButton
+            id="settings-slip"
+            size="large">
+            <button
+              id="settings"
+              imageMso="CurrentViewSettings"
+              getEnabled="checkEnabled"
+              getShowImage="showImage"
+              getKeytip="createKeytip"
+              getLabel="createLabel"
+              getShowLabel="showLabel"
+              getScreentip="createScreentip"
+              getSupertip="createSupertip"
+              onAction="accessSettings" />
+            <menu
+              id="settings-menu"
+              itemSize="normal">
+              <menu
+                id="wifi"
+                label="Wifi Export"
+                imageMso="AudioFadeInTime">
+                <button
+                  id="wifi-export-txt"
+                  label="Export to txt"
+                  imageMso="GetPowerQueryDataFromCsv"
+                  onAction="internetController" />
+                <button
+                  id="wifi-export-csv"
+                  label="Export to csv"
+                  imageMso="PivotTableBlankRowsRemove"
+                  onAction="internetController" />
+                <button
+                  id="wifi-export-json"
+                  label="Export to json"
+                  imageMso="DatabaseCopyDatabaseFile"
+                  onAction="internetController" />
+              </menu>
+            </menu>
+          </splitButton>
           <button
             id="remove-addin"
             size="large"

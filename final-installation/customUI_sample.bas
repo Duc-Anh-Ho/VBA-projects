@@ -58,6 +58,7 @@ Private highlightColorRedButton As TagController
 Private highlightColorBlueButton As TagController
 Private highlightColorBlackButton As TagController
 Private highlightColorWhiteButton As TagController
+
 Private hasPageBeak As Boolean
 Private isHighlight As Boolean
 Private highlightIsBold As Boolean
@@ -84,6 +85,10 @@ Private Const MIN_OFFSET As Byte = 0
 Private Const DEFAULT_OFFSET_VALUE  As Byte = 0
 
 Private optionGroup As TagController
+Private settingsButton As TagController
+Private exportWifiToTxtButton As TagController
+Private exportWifiToCsvButton As TagController
+Private exportWifiToJsonButton As TagController
 Private removeAddinButton As TagController
 
 Private infoGroup As TagController
@@ -94,21 +99,30 @@ Private hasCustomUI As Boolean
 Public loadedRibbon As IRibbonUI 'TO-DO: ?
 'Constructor
 Private Sub Auto_Open()
-    '
+    'Add Shortcuts
+    Application.OnKey _
+        key:="^+{C}", _
+        procedure:="Shortcut.copyF"
+    Application.OnKey _
+        key:="^+{V}", _
+        procedure:="Shortcut.pasteF"
 End Sub
 Private Sub Auto_Activate()
     '
 End Sub
 'Destructor
 Private Sub Auto_Close()
-    '
+    'Remove Shortcuts
+    Application.OnKey _
+        key:="^+{C}"
+    Application.OnKey _
+        key:="^+{V}"
 End Sub
 Private Sub Auto_Deactivate()
     '
 End Sub
 'METHODS
 Private Sub createInstances()
-    Set ribbonEvents = New customEvents
     Set toolsTab = New TagController
     Set sheetGroup = New TagController
     Set addSheetsButton = New TagController
@@ -158,6 +172,10 @@ Private Sub createInstances()
     Set offsetCBBox = New TagController
     Set rateLockCheckBox = New TagController
     Set optionGroup = New TagController
+    Set settingsButton = New TagController
+    Set exportWifiToTxtButton = New TagController
+    Set exportWifiToCsvButton = New TagController
+    Set exportWifiToJsonButton = New TagController
     Set removeAddinButton = New TagController
     Set infoGroup = New TagController
     Set toolNameLabel = New TagController
@@ -229,6 +247,7 @@ Private Sub setUpEnabled()
         Not isHighlight
     Let offsetCBBox.letEnabled = isEnabled
     Let rateLockCheckBox.letEnabled = isEnabled
+    Let settingsButton.letEnabled = isEnabled
     Let removeAddinButton.letEnabled = True 'Able to remove without workplace
 End Sub
 Private Sub setUpImage()
@@ -259,6 +278,7 @@ Private Sub setUpShowImage()
     Let arrangeButton.letShowImage = isShowed
     Let autoArrangeButton.letShowImage = isShowed
     Let offsetCBBox.letShowImage = isShowed
+    Let settingsButton.letShowImage = isShowed
     Let removeAddinButton.letShowImage = isShowed
 End Sub
 
@@ -281,6 +301,7 @@ Private Sub setUpKeytip()
     Let snipButton.letKeytip = ""
     Let arrangeButton.letKeytip = ""
     Let autoArrangeButton.letKeytip = ""
+    Let settingsButton.letKeytip = ""
     Let removeAddinButton.letKeytip = ""
 End Sub
 
@@ -308,6 +329,7 @@ Private Sub setUpShowLabel()
     Let autoArrangeButton.letShowLabel = isShowed
     Let offsetCBBox.letShowLabel = isShowed
     Let rateLockCheckBox.letShowLabel = isShowed
+    Let settingsButton.letShowLabel = isShowed
     Let removeAddinButton.letShowLabel = isShowed
 End Sub
 
@@ -336,6 +358,7 @@ Private Sub setUpVisible()
     Let autoArrangeButton.letVisible = isVisible
     Let offsetCBBox.letVisible = isVisible
     Let rateLockCheckBox.letVisible = isVisible
+    Let settingsButton.letVisible = isVisible
     Let removeAddinButton.letVisible = isVisible
 End Sub
 
@@ -382,6 +405,11 @@ Private Sub setUpId()
     Let highlightColorBlueButton.letID = "highlight-color-blue"
     Let highlightColorBlackButton.letID = "highlight-color-black"
     Let highlightColorWhiteButton.letID = "highlight-color-white"
+    Let settingsButton.letID = "wifi-export-txt"
+    Let settingsButton.letID = "settings"
+    Let exportWifiToTxtButton.letID = "wifi-export-txt"
+    Let exportWifiToCsvButton.letID = "wifi-export-csv"
+    Let exportWifiToJsonButton.letID = "wifi-export-json"
     Let removeAddinButton.letID = "remove-addin"
     Let pictureGroup.letID = "pictures-controller"
     Let snipButton.letID = "snipping"
@@ -417,6 +445,7 @@ Private Sub setUpLabel()
     Let boldFirstLineButton.letLabel = "Bold First Line"
     Let invertColorButton.letLabel = "Invert Color"
     Let highlightButton.letLabel = "Highlight Range"
+    Let settingsButton.letLabel = "Settings"
     Let removeAddinButton.letLabel = "Remove Addin"
     Let pictureGroup.letLabel = "Picture Controller"
     Let snipButton.letLabel = "Snipping"
@@ -446,6 +475,7 @@ Private Sub setUpScreentip()
     Let boldFirstLineButton.letScreentip = "Bold First Line"
     Let invertColorButton.letScreentip = "Invert Color"
     Let highlightButton.letScreentip = "Highlight Range"
+    Let settingsButton.letScreentip = "Settings"
     Let removeAddinButton.letScreentip = "Remove Addin"
     Let snipButton.letScreentip = "Snipping"
     Let arrangeButton.letScreentip = "Arrange"
@@ -510,6 +540,8 @@ Private Sub setUpSupertip()
         "2: Drag shapes'marker into merge range in order to auto arrange." & vbNewLine & _
         "3: Turn off, the marker will automatically disapear." & vbNewLine & _
         "NOTE: Only works on range and merge range!"
+    Let settingsButton.letSupertip = _
+        "Open settings form."
     Let removeAddinButton.letSupertip = _
         "DANH Tools will be removed permanently."
 End Sub
@@ -523,14 +555,6 @@ Private Function hasWorkPlace() As Boolean
         Let hasWorkPlace = False
     Else
         Let hasWorkPlace = True
-        Let highlightIsBold = False
-        Let highlightUpSize = DEFAULT_HIGHLIGHT_UP_SIZE
-        Let highlightTransparent = DEFAULT_HIGHLIGHT_TRANSPARENT
-        Let highlightColor = DEFAULT_HIGHLIGHT_COLOR
-        Let offsetValue = DEFAULT_OFFSET_VALUE
-        Let isRateLock = False
-        Let isArranging = False
-        Let isAutoArrange = False
         Let hasPageBeak = ActiveSheet.DisplayPageBreaks
     End If
 End Function
@@ -603,6 +627,19 @@ Public Sub customUIOnLoad(Optional ByRef ribbon As IRibbonUI)
     Call setUpScreentip
     Call setUpSupertip
     Call setUpVisible
+    Let highlightIsBold = False
+    Let highlightUpSize = DEFAULT_HIGHLIGHT_UP_SIZE
+    Let highlightTransparent = DEFAULT_HIGHLIGHT_TRANSPARENT
+    Let highlightColor = DEFAULT_HIGHLIGHT_COLOR
+    Let offsetValue = DEFAULT_OFFSET_VALUE
+    Let isRateLock = False
+    Let isArranging = False
+    Let isAutoArrange = False
+    If hasWorkPlace Then
+        Let hasPageBeak = ActiveSheet.DisplayPageBreaks
+    End If
+    'Create Custom Event (Ex. Change Sheet,)
+    Set ribbonEvents = New customEvents
     Let hasCustomUI = True
 End Sub
 'Refesh Rebbon
@@ -673,6 +710,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = offsetCBBox.getEnabled
         Case rateLockCheckBox.getID
             Let returnedVal = rateLockCheckBox.getEnabled
+        Case settingsButton.getID
+            Let returnedVal = settingsButton.getEnabled
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getEnabled
     End Select
@@ -725,6 +764,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = autoArrangeButton.getShowImage
         Case offsetCBBox.getID
             Let returnedVal = offsetCBBox.getShowImage
+        Case settingsButton.getID
+            Let returnedVal = settingsButton.getShowImage
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getShowImage
     End Select
@@ -773,6 +814,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = arrangeButton.getKeytip
         Case autoArrangeButton.getID
             Let returnedVal = autoArrangeButton.getKeytip
+        Case settingsButton.getID
+            Let returnedVal = settingsButton.getKeytip
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getKeytip
     End Select
@@ -829,6 +872,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = invertColorButton.getLabel
         Case highlightButton.getID
             Let returnedVal = highlightButton.getLabel
+        Case settingsButton.getID
+            Let returnedVal = settingsButton.getLabel
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getLabel
         Case pictureGroup.getID
@@ -903,6 +948,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = offsetCBBox.getShowLabel
         Case rateLockCheckBox.getID
             Let returnedVal = rateLockCheckBox.getShowLabel
+        Case settingsButton.getID
+            Let returnedVal = settingsButton.getShowLabel
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getShowLabel
     End Select
@@ -951,6 +998,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = arrangeButton.getScreentip
         Case autoArrangeButton.getID
             Let returnedVal = autoArrangeButton.getScreentip
+        Case settingsButton.getID
+            Let returnedVal = settingsButton.getScreentip
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getScreentip
     End Select
@@ -999,6 +1048,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = arrangeButton.getSupertip
         Case autoArrangeButton.getID
             Let returnedVal = autoArrangeButton.getSupertip
+        Case settingsButton.getID
+            Let returnedVal = settingsButton.getSupertip
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getSupertip
     End Select
@@ -1054,6 +1105,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = offsetCBBox.getVisible
         Case rateLockCheckBox.getID
             Let returnedVal = rateLockCheckBox.getVisible
+        Case settingsButton.getID
+            Let returnedVal = settingsButton.getVisible
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getVisible
     End Select
@@ -1153,7 +1206,7 @@ On Error GoTo ErrorHandle
     Set sheetC = New SheetsController
     Select Case control.id
         Case addSheetsButton.getID
-            Call sheetC.ADD
+            Call sheetC.add
         Case deleteSheetsButton.getID
             Call sheetC.deleteAll
         Case hideSheetsButton.getID
@@ -1399,6 +1452,41 @@ ErrorHandle:
     Call tackleErrors
 ExecuteProcedure:
 End Sub
+'Callback for settings onAction
+Public Sub accessSettings(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
+On Error GoTo ErrorHandle
+    Select Case control.id
+        Case settingsButton.getID
+            MsgBox _
+                Prompt:= _
+                    "This button is on process", _
+                Buttons:=vbOKOnly + vbExclamation, _
+                Title:="DANH TOOL"
+    End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
+End Sub
+'Callback for Internet Controller onAction
+Public Sub internetController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
+On Error GoTo ErrorHandle
+    Dim InternetC As InternetConnect
+    Set InternetC = New InternetConnect
+    Select Case control.id
+        Case exportWifiToTxtButton.getID
+            Call InternetC.saveWifiAsTxt
+        Case exportWifiToCsvButton.getID
+            Call InternetC.saveWifiAsCsv
+        Case exportWifiToJsonButton.getID
+            Call InternetC.saveWifiAsJson
+    End Select
+        Set InternetC = Nothing ' Clear Cache
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
+End Sub
 'Callback for remove-addin onAction
 Public Sub addinController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
 On Error GoTo ErrorHandle
@@ -1428,10 +1516,10 @@ On Error GoTo ErrorHandle
         Case arrangeButton.getID
             If ActiveSheet.Shapes.Count = 0 Then
                 MsgBox _
-                Prompt:= _
-                    "This sheet don't exist any object to arrange yet!", _
-                Buttons:=vbOKOnly + vbExclamation, _
-                Title:="DANH TOOL"
+                    Prompt:= _
+                        "This sheet don't exist any object to arrange yet!", _
+                    Buttons:=vbOKOnly + vbExclamation, _
+                    Title:="DANH TOOL"
                 Let isArranging = False
             Else
                 Let isArranging = pressed
@@ -1472,7 +1560,6 @@ On Error GoTo ErrorHandle
                     Let autoArrangeButton.letLabel = "Auto Arrange"
                     Call picC.autoArrange(False)
                     Let picC.selectObjectMode = False
-                    Call ThisWorkbook.Stop_Run_Continously
                 End If
                 Set picC = Nothing
             End If
@@ -1529,7 +1616,7 @@ On Error GoTo ErrorHandle
             If hasPageBeak Then
                 Let returnedVal = 1 'Index = 1 --> "Show"
             Else
-                Let returnedVal = 0 'Index = 0 --> "Hide"
+                Let returnedVal = 0   'Index = 0 --> "Hide"
             End If
         Case offsetCBBox.getID
             Let returnedVal = offsetValue
@@ -1571,7 +1658,3 @@ ErrorHandle:
     Call tackleErrors
 ExecuteProcedure:
 End Sub
-
-
-
-
