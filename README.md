@@ -6,10 +6,11 @@ This project is my VBA tool for my resume porfolio.
 
 1. Enable all marcos and Trust access to the VBA project object model.
 2. Open file "Danh-Tools-Installation.xlsb", it will be installed automatically.
+3. *DON'T enable auto sending function, Antivirus (Kasperky) will detect as virus and delete core MS-Excel files. (Turn off window defend and antivirus before enable).
 
 # Changelog
 
-## v2.0.0 - 2022/12/29
+## v2.2.0 - 2023/05/03
 
 ### Added
 
@@ -23,10 +24,11 @@ This project is my VBA tool for my resume porfolio.
 - Option and Information. (Pending)
 - Export saved wifi to file.
 - **Add auto sending user info via Email. (Danger - Don't release)
+- Shortcut copy/paste format, switch sheets.
 
 ### Changed
 
-- Refactor old project code as following OOP.
+- Fix unknown erorrs.
 
 ### Removed
 
