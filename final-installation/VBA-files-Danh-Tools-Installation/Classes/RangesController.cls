@@ -27,6 +27,7 @@ Private WithEvents wsEvent As Worksheet
 Attribute wsEvent.VB_VarHelpID = -1
 'Private Const INPUT_BOX_RANGE_TYPE As Byte = 8
 Private Const START_CHAR As Byte = 1
+Private Const SHEET_TYPE As String = "Worksheet"
 
 'Initialize Variables
 Private Function hasVariables() As Boolean
@@ -34,7 +35,7 @@ On Error GoTo ErrorHandle
     Set info = New InfoConstants
     Set system = New SystemUpdate
     Set fileSystem = system.createFileSystem
-    If Not system.hasWorkPlace(hasMsg:=True, sheetType:="Worksheet") Then
+    If Not system.hasWorkPlace(hasMsg:=True, workPlaceType:="xlWorksheet") Then
         hasVariables = False
         GoTo ExecuteProcedure
     End If
@@ -147,8 +148,8 @@ Private Sub triggerBoldFirstLine(ByRef cell As Range)
         .Font.Bold
 End Sub
 '3-0 Highlight Range
-Private Sub HighlightRange(ByRef target As Range)
-    With target
+Private Sub HighlightRange(ByRef Target As Range)
+    With Target
         .EntireRow.Interior.Color = getHighlightColor
         .EntireColumn.Interior.Color = getHighlightColor
         .Interior.TintAndShade = getBlurRate / 100
@@ -246,10 +247,10 @@ ExecuteProcedure:
     Call system.speedOff
 End Sub
 '3.3 Highlight
-Public Sub highlight(ByVal target As Object)
+Public Sub highlight(ByVal Target As Object)
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
-    If Not isRange(target, False) Then GoTo ExecuteProcedure
+    If Not isRange(Target, False) Then GoTo ExecuteProcedure
     Call system.speedOn
     Call HighlightRange(targetRange)
 GoTo ExecuteProcedure
@@ -274,22 +275,22 @@ End Sub
 'EVENTS
 
 Private Sub appEvent_SheetDeactivate(ByVal sheetObject As Object)
-    If TypeName(sheetObject) = "Worksheet" Then
+    If TypeName(sheetObject) = SHEET_TYPE Then
         Call pasteHighlightFormat(sheetObject)
     End If
 End Sub
 
 Private Sub appEvent_SheetActivate(ByVal sheetObject As Object)
-   If TypeName(sheetObject) = "Worksheet" Then
+   If TypeName(sheetObject) = SHEET_TYPE Then
         Call storeHighlightFormat(sheetObject)
         Call highlight(Selection)
    End If
 End Sub
 
-Private Sub appEvent_SheetSelectionChange(ByVal sheetObject As Object, ByVal target As Range)
-    If TypeName(sheetObject) = "Worksheet" Then
+Private Sub appEvent_SheetSelectionChange(ByVal sheetObject As Object, ByVal Target As Range)
+    If TypeName(sheetObject) = SHEET_TYPE Then
         Call pasteHighlightFormat(sheetObject)
-        Call highlight(target)
+        Call highlight(Target)
     End If
 End Sub
 

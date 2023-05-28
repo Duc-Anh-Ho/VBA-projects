@@ -48,7 +48,7 @@ Private Sub Auto_Arrange_Shape()
     Let CustomUi.isArranging = False
     Let CustomUi.arrangeButton.letImage = "SmartArtLargerShape"
     Let CustomUi.arrangeButton.letLabel = "Arrange"
-    Call CustomUi.refeshCustomRibbon(CustomUi.loadedRibbon)
+    Call CustomUi.refreshCustomRibbon(CustomUi.loadedRibbon)
 End Sub
 '3.1-Auto Arrange Shape
 Public Sub Auto_Run_Continuously()

@@ -27,29 +27,32 @@ Private sheetCEvent As SheetsController
 Private pivotCEvent As PivotTablesController
 Private rangeCEvent As RangesController
 
-Private hasWorkSheet As Boolean
-Private hasWorkChart As Boolean
-Private hasWorkDialog As Boolean
-Private hasSYNCPivot As Boolean
-Private hasPageBreak As Boolean
-Private hasHighlight As Boolean
+Public hasWorksheet As Boolean 'Used in customEvents Class
+Public hasWorkChart As Boolean ' nt
+Public hasWorkDialog As Boolean 'nt
+Public hasSYNCPivot As Boolean 'Used in customEvents Class
+Private hasPageBreak As Boolean 'Used in customEvents Class
+Public hasHighlight As Boolean 'Used in customEvents Class
 Private highlightIsBold As Boolean
 Private highlightUpSize As Byte
 Private highlightTransparent As Byte
 Private highlightColor As Long
-Private hasListSheet As Boolean
-Private isAutoArrange As Boolean
-Public isArranging As Boolean 'Use in ThisWorkbook Module
-Public offsetValue As Byte 'Use in ThisWorkbook Module
-Public isRateLock As Boolean 'Use in ThisWorkbook Module
+Public hasListSheet As Boolean  'Used in customEvents Class
+Public isAutoArrange As Boolean 'Used in customEvents Class
+Public isArranging As Boolean 'Used in ThisWorkbook Module And customEvents Class
+Public offsetValue As Byte 'Used in ThisWorkbook Module
+Public isRateLock As Boolean 'Used in ThisWorkbook Module
 
 Private toolsTab As CustomUITag
 
 Private sheetGroup As CustomUITag
 Private addSheetsButton As CustomUITag
+Private listSheetsSplit As CustomUITag
 Private listSheetsButton As CustomUITag
+Private renameSheetsButton As CustomUITag
 Private deleteSheetsButton As CustomUITag
 Private showSheetsButton As CustomUITag
+Private hideSheetsSplit As CustomUITag
 Private hideSheetsButton As CustomUITag
 Private veryHideSheetsButton As CustomUITag
 
@@ -58,7 +61,7 @@ Private chartHideErrButton As CustomUITag
 Private chartShowButton As CustomUITag
 
 Private pivotGroup As CustomUITag
-Private refeshPivotButton As CustomUITag
+Private refreshPivotButton As CustomUITag
 
 Private vbaFileGroup As CustomUITag
 Private importVbaFilesButton As CustomUITag
@@ -106,6 +109,7 @@ Private exportWifiToTxtButton As CustomUITag
 Private exportWifiToCsvButton As CustomUITag
 Private exportWifiToJsonButton As CustomUITag
 Private removeAddinButton As CustomUITag
+Private refreshAddinButton As CustomUITag
 
 Private infoGroup As CustomUITag
 Private toolNameLabel As CustomUITag
@@ -135,19 +139,14 @@ Private Sub configTags()
     Dim isOnListSheet As Boolean
     Dim isOnHighlight As Boolean
     Dim isOnAll As Boolean
-    Dim refre
-    Let hasWorkSheet = system.hasWorkPlace(False, "Worksheet")
-    Let hasWorkChart = system.hasWorkPlace(False, "Chart")
-    Let hasWorkDialog = system.hasWorkPlace(False, "DialogSheet")
-    If hasWorkSheet Then Let hasPageBreak = ActiveSheet.DisplayPageBreaks
-    Let isOnHighlight = hasWorkSheet And Not hasHighlight
-    Let isOnAutoArrange = hasWorkSheet And Not isAutoArrange
-    Let isOnListSheet = hasWorkSheet And Not hasListSheet
-    Let isOnAll = hasWorkSheet _
+    If hasWorksheet Then Let hasPageBreak = ActiveSheet.DisplayPageBreaks
+    Let isOnHighlight = hasWorksheet And Not hasHighlight
+    Let isOnAutoArrange = hasWorksheet And Not isAutoArrange
+    Let isOnListSheet = hasWorksheet And Not hasListSheet
+    Let isOnAll = hasWorksheet _
         And Not isAutoArrange _
         And Not hasHighlight _
         And Not hasListSheet
-    
     Set toolsTab = New CustomUITag
     With toolsTab
         .letEnabled = ALWAYS_SHOW
@@ -198,6 +197,12 @@ Private Sub configTags()
             "Note: Will not working when sheets already exist!"
     End With
 
+    Set listSheetsSplit = New CustomUITag
+    With listSheetsSplit
+        .letID = "list-sheets-split"
+        .letSize = SIZE_LARGE
+    End With
+    
     Set listSheetsButton = New CustomUITag
     With listSheetsButton
         .letEnabled = isOnHighlight And isOnAutoArrange
@@ -214,6 +219,25 @@ Private Sub configTags()
         .letSupertip = _
             "ON: List all sheets name at columns A and B." & vbNewLine & _
             "OFF: if ON, turn off lists."
+    End With
+
+    Set renameSheetsButton = New CustomUITag
+    With renameSheetsButton
+        .letID = "rename-sheets"
+        .letEnabled = Not isOnListSheet
+        .letVisible = ALWAYS_SHOW
+        .letShowImage = ALWAYS_SHOW
+        .letShowLabel = ALWAYS_SHOW
+        .letSize = SIZE_LARGE
+        .letLabel = "Rename Sheets"
+        .letDescription = ""
+        .letImage = "TableColumnsInsertRight"
+        .letKeytip = ""
+        .letScreentip = "Rename Sheets"
+        .letSupertip = _
+            "1.Press once to show re-name columns C." & vbNewLine & _
+            "2.Input new names want to change in columns C." & vbNewLine & _
+            "3.Press this button again to apply rename sheets."
     End With
 
     Set deleteSheetsButton = New CustomUITag
@@ -249,6 +273,12 @@ Private Sub configTags()
         .letScreentip = "Show Sheets"
         .letSupertip = _
             "Show all sheets included very hide"
+    End With
+    
+    Set hideSheetsSplit = New CustomUITag
+    With hideSheetsSplit
+        .letID = "hide-sheets-split"
+        .letSize = SIZE_LARGE
     End With
 
     Set hideSheetsButton = New CustomUITag
@@ -355,13 +385,13 @@ Private Sub configTags()
         .letSupertip = ""
     End With
 
-    Set refeshPivotButton = New CustomUITag
-    With refeshPivotButton
+    Set refreshPivotButton = New CustomUITag
+    With refreshPivotButton
         .letEnabled = isOnAutoArrange
         .letVisible = ALWAYS_SHOW
         .letShowImage = ALWAYS_SHOW
         .letShowLabel = ALWAYS_SHOW
-        .letID = "refesh-pivot"
+        .letID = "refresh-pivot"
         .letSize = SIZE_LARGE
         .letLabel = "SYNC Pivot"
         .letDescription = ""
@@ -875,8 +905,10 @@ Private Sub configTags()
         .letKeytip = ""
         .letScreentip = "Auto Arrange"
         .letSupertip = _
-            "1: Select range or object to paste on." & vbNewLine & _
-            "2: Select an object to lay on."
+            "1: After turning on, all shapes will have marker at top left conner." & vbNewLine & _
+            "2: Drag shapes'marker into merge range in order to auto arrange." & vbNewLine & _
+            "3: Turn off, the marker will automatically disapear." & vbNewLine & _
+            "NOTE: Only works on range and merge range!"
     End With
 
     Set snipButton = New CustomUITag
@@ -901,7 +933,7 @@ Private Sub configTags()
 
     Set offsetCBBox = New CustomUITag
     With offsetCBBox
-        .letEnabled = hasWorkSheet
+        .letEnabled = hasWorksheet
         .letVisible = ALWAYS_SHOW
         .letShowImage = ALWAYS_SHOW
         .letShowLabel = ALWAYS_SHOW
@@ -916,7 +948,7 @@ Private Sub configTags()
 
     Set rateLockCheckBox = New CustomUITag
     With rateLockCheckBox
-        .letEnabled = hasWorkSheet
+        .letEnabled = hasWorksheet
         .letVisible = ALWAYS_SHOW
         .letShowImage = ALWAYS_SHOW
         .letShowLabel = ALWAYS_SHOW
@@ -952,7 +984,7 @@ Private Sub configTags()
 
     Set settingsButton = New CustomUITag
     With settingsButton
-        .letEnabled = hasWorkSheet
+        .letEnabled = hasWorksheet
         .letVisible = ALWAYS_SHOW
         .letShowImage = ALWAYS_SHOW
         .letShowLabel = ALWAYS_SHOW
@@ -1028,6 +1060,23 @@ Private Sub configTags()
             "DANH Tools will be removed permanently."
     End With
 
+    Set refreshAddinButton = New CustomUITag
+    With refreshAddinButton
+        .letEnabled = ALWAYS_SHOW
+        .letVisible = ALWAYS_SHOW
+        .letShowImage = ALWAYS_SHOW
+        .letShowLabel = ALWAYS_SHOW
+        .letID = "refresh-ribbon"
+        .letSize = SIZE_LARGE
+        .letLabel = "Refresh Ribbon"
+        .letDescription = ""
+        .letImage = ""
+        .letKeytip = ""
+        .letScreentip = "Refresh Ribbon Tab"
+        .letSupertip = _
+            "When DANH Tools tab is disabled or some unknown errors happened." & vbNewLine & _
+            "Just try this button."
+    End With
     Set infoGroup = New CustomUITag
     With infoGroup
         .letEnabled = ALWAYS_SHOW
@@ -1075,11 +1124,11 @@ Private Sub configTags()
     
     'Overriding attributes
     If hasSYNCPivot Then
-        Let refeshPivotButton.letImage = "GroupSyncStatus"
-        Let refeshPivotButton.letLabel = "OFF SYNC"
+        Let refreshPivotButton.letImage = "GroupSyncStatus"
+        Let refreshPivotButton.letLabel = "OFF SYNC"
     Else
-        Let refeshPivotButton.letImage = "ChartRefresh"
-        Let refeshPivotButton.letLabel = "SYNC Pivot"
+        Let refreshPivotButton.letImage = "ChartRefresh"
+        Let refreshPivotButton.letLabel = "SYNC Pivot"
     End If
     If isArranging Then
         Let arrangeButton.letImage = "AutomaticResize"
@@ -1126,17 +1175,17 @@ End Function
 
 Private Sub HighlightRange()
     If hasHighlight Then
-        Call rangeCEvent.pasteHighlightFormat ' Refesh screen after clicking button
+        Call rangeCEvent.pasteHighlightFormat ' refresh screen after clicking button
         Let rangeCEvent.letBold = highlightIsBold
         Let rangeCEvent.letAddSize = highlightUpSize
         Let rangeCEvent.letBlurRate = highlightTransparent
         Let rangeCEvent.letHighlightColor = highlightColor
-        Call rangeCEvent.highlight(target:=Selection)
+        Call rangeCEvent.highlight(Target:=Selection)
     End If
 End Sub
 
 Private Sub ClearHighLight()
-    If Not hasHighlight Then
+    If Not hasHighlight And Not rangeCEvent Is Nothing Then
         Call rangeCEvent.pasteHighlightFormat
         Set rangeCEvent = Nothing
     End If
@@ -1150,7 +1199,7 @@ Private Sub tackleErrors()
         'Do nothing
         'Can't load ribbon
         Case 91
-            Call refeshCustomRibbon(loadedRibbon) 'Reset Ribbon
+            Call refreshCustomRibbon(loadedRibbon) 'Reset Ribbon
         'Can't enable Addin
         Case 1004
         'Can not import VBA file
@@ -1199,34 +1248,41 @@ Private Sub errorDisplay()
         Context:=Err.HelpContext)
 End Sub
 
-Private Sub setDefaultSettings()
+Public Sub setDefaultSettings()
     Set ribbonEvents = New customEvents
     Set sheetCEvent = Nothing
     Set pivotCEvent = Nothing
     Set rangeCEvent = Nothing
+    Let hasWorksheet = system.hasWorkPlace(False, "xlWorksheet")
+    Let hasWorkChart = system.hasWorkPlace(False, "Chart")
+    Let hasWorkDialog = system.hasWorkPlace(False, "DialogSheet")
     Let highlightIsBold = False
     Let highlightUpSize = DEFAULT_HIGHLIGHT_UP_SIZE
     Let highlightTransparent = DEFAULT_HIGHLIGHT_TRANSPARENT
     Let highlightColor = DEFAULT_HIGHLIGHT_COLOR
     Let offsetValue = DEFAULT_OFFSET_VALUE
     Let isRateLock = False
+    If hasWorksheet Then Let hasPageBreak = ActiveSheet.DisplayPageBreaks
+    'Reset Event Flags
     Let isArranging = False
     Let isAutoArrange = False
+    Let hasListSheet = False
+    Let hasSYNCPivot = False
+    Let hasHighlight = False
 End Sub
 
-'Refesh Ribbon
-Public Sub refeshCustomRibbon(Optional ByRef rb As IRibbonUI)
+'Refresh Ribbon
+Public Sub refreshCustomRibbon(Optional ByRef rb As IRibbonUI)
 On Error GoTo ErrorHandle
     Set system = New SystemUpdate
     Set info = New InfoConstants
     If loadedRibbon Is Nothing Then
-        Debug.Print ("loadedRibbon Is Nothing")
+        Debug.Print ("loadedRibbon Is Nothing") 'For watching
         Set info = New InfoConstants
         ' Reload Ribbon from Pointer (Preprocessor.GetRibbon is Public)
         Set loadedRibbon = GetRibbon(Workbooks(info.getAddinName).Names(RIBBON_ID))
-        ' Refesh
+        ' Reload setting
         Call setDefaultSettings
-'        Call configTags
     End If
     If rb Is Nothing Then Set rb = loadedRibbon
     Call configTags
@@ -1238,8 +1294,8 @@ ExecuteProcedure:
 End Sub
 
 'MAIN
-'Callback for customUI.onLoad
-Public Sub customUIOnLoad(Optional ByRef ribbon As IRibbonUI)
+'Callback for CustomUI.onLoad
+Public Sub CustomUIOnLoad(Optional ByRef ribbon As IRibbonUI)
 On Error GoTo ErrorHandle
     Set system = New SystemUpdate
     Set info = New InfoConstants
@@ -1250,7 +1306,6 @@ On Error GoTo ErrorHandle
         Name:=RIBBON_ID, _
         RefersTo:=ObjPtr(ribbon)
     'Create Custom Event (Ex. Change Sheet,)
-    Set ribbonEvents = New customEvents ' TODO
     Call setDefaultSettings
     Call configTags
 GoTo ExecuteProcedure
@@ -1262,16 +1317,22 @@ End Sub
 'Callback for getSize
 Public Sub getSize(ByRef control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Select Case control.id
         Case addSheetsButton.getID
             Let returnedVal = addSheetsButton.getSize
+        Case listSheetsSplit.getID
+            Let returnedVal = listSheetsSplit.getSize
         Case listSheetsButton.getID
             Let returnedVal = listSheetsButton.getSize
+        Case renameSheetsButton.getID
+            Let returnedVal = renameSheetsButton.getSize
         Case deleteSheetsButton.getID
             Let returnedVal = deleteSheetsButton.getSize
         Case showSheetsButton.getID
             Let returnedVal = showSheetsButton.getSize
+        Case hideSheetsSplit.getID
+            Let returnedVal = hideSheetsSplit.getSize
         Case hideSheetsButton.getID
             Let returnedVal = hideSheetsButton.getSize
         Case veryHideSheetsButton.getID
@@ -1280,8 +1341,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = chartHideErrButton.getSize
         Case chartShowButton.getID
             Let returnedVal = chartShowButton.getSize
-        Case refeshPivotButton.getID
-            Let returnedVal = refeshPivotButton.getSize
+        Case refreshPivotButton.getID
+            Let returnedVal = refreshPivotButton.getSize
         Case importVbaFilesButton.getID
             Let returnedVal = importVbaFilesButton.getSize
         Case importAllVbaFilesButton.getID
@@ -1304,6 +1365,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = settingsSplit.getSize
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getSize
+        Case refreshAddinButton.getID
+            Let returnedVal = refreshAddinButton.getSize
     End Select
 GoTo ExecuteProcedure
 ErrorHandle:
@@ -1314,14 +1377,16 @@ End Sub
 'Callback for getImage
 Public Sub getImage(ByRef control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Select Case control.id
+        Case renameSheetsButton.getID
+            Let returnedVal = renameSheetsButton.getImage
         Case arrangeButton.getID
             Let returnedVal = arrangeButton.getImage
         Case autoArrangeButton.getID
             Let returnedVal = autoArrangeButton.getImage
-        Case refeshPivotButton.getID
-            Let returnedVal = refeshPivotButton.getImage
+        Case refreshPivotButton.getID
+            Let returnedVal = refreshPivotButton.getImage
     End Select
 GoTo ExecuteProcedure
 ErrorHandle:
@@ -1332,13 +1397,15 @@ End Sub
 'Callback for getEnabled
 Public Sub getEnabled(ByRef control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
 '    Call setUpEnabled
     Select Case control.id
         Case addSheetsButton.getID
             Let returnedVal = addSheetsButton.getEnabled
         Case listSheetsButton.getID
             Let returnedVal = listSheetsButton.getEnabled
+        Case renameSheetsButton.getID
+            Let returnedVal = renameSheetsButton.getEnabled
         Case deleteSheetsButton.getID
             Let returnedVal = deleteSheetsButton.getEnabled
         Case hideSheetsButton.getID
@@ -1351,8 +1418,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = chartHideErrButton.getEnabled
         Case chartShowButton.getID
             Let returnedVal = chartShowButton.getEnabled
-        Case refeshPivotButton.getID
-            Let returnedVal = refeshPivotButton.getEnabled
+        Case refreshPivotButton.getID
+            Let returnedVal = refreshPivotButton.getEnabled
         Case importVbaFilesButton.getID
             Let returnedVal = importVbaFilesButton.getEnabled
         Case importAllVbaFilesButton.getID
@@ -1381,6 +1448,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = settingsButton.getEnabled
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getEnabled
+        Case refreshAddinButton.getID
+            Let returnedVal = refreshAddinButton.getEnabled
     End Select
 GoTo ExecuteProcedure
 ErrorHandle:
@@ -1391,12 +1460,14 @@ End Sub
 'Callback for getShowImage
 Public Sub getShowImage(ByRef control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Select Case control.id
         Case addSheetsButton.getID
             Let returnedVal = addSheetsButton.getShowImage
         Case listSheetsButton.getID
             Let returnedVal = listSheetsButton.getShowImage
+        Case renameSheetsButton.getID
+            Let returnedVal = renameSheetsButton.getShowImage
         Case deleteSheetsButton.getID
             Let returnedVal = deleteSheetsButton.getShowImage
         Case hideSheetsButton.getID
@@ -1409,8 +1480,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = chartHideErrButton.getShowImage
         Case chartShowButton.getID
             Let returnedVal = chartShowButton.getShowImage
-        Case refeshPivotButton.getID
-            Let returnedVal = refeshPivotButton.getShowImage
+        Case refreshPivotButton.getID
+            Let returnedVal = refreshPivotButton.getShowImage
         Case importVbaFilesButton.getID
             Let returnedVal = importVbaFilesButton.getShowImage
         Case importAllVbaFilesButton.getID
@@ -1437,6 +1508,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = settingsButton.getShowImage
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getShowImage
+        Case refreshAddinButton.getID
+            Let returnedVal = refreshAddinButton.getShowImage
     End Select
 GoTo ExecuteProcedure
 ErrorHandle:
@@ -1447,12 +1520,14 @@ End Sub
 'Callback for getKeytip
 Public Sub getKeytip(ByRef control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Select Case control.id
         Case addSheetsButton.getID
             Let returnedVal = addSheetsButton.getKeytip
         Case listSheetsButton.getID
             Let returnedVal = listSheetsButton.getKeytip
+        Case renameSheetsButton.getID
+            Let returnedVal = renameSheetsButton.getKeytip
         Case deleteSheetsButton.getID
             Let returnedVal = deleteSheetsButton.getKeytip
         Case hideSheetsButton.getID
@@ -1465,8 +1540,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = chartHideErrButton.getKeytip
         Case chartShowButton.getID
             Let returnedVal = chartShowButton.getKeytip
-        Case refeshPivotButton.getID
-            Let returnedVal = refeshPivotButton.getKeytip
+        Case refreshPivotButton.getID
+            Let returnedVal = refreshPivotButton.getKeytip
         Case importVbaFilesButton.getID
             Let returnedVal = importVbaFilesButton.getKeytip
         Case importAllVbaFilesButton.getID
@@ -1489,6 +1564,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = settingsButton.getKeytip
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getKeytip
+        Case refreshAddinButton.getID
+            Let returnedVal = refreshAddinButton.getKeytip
     End Select
 GoTo ExecuteProcedure
 ErrorHandle:
@@ -1499,7 +1576,7 @@ End Sub
 'Callback for getLabel
 Public Sub getLabel(ByRef control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Select Case control.id
         Case toolsTab.getID
             Let returnedVal = toolsTab.getLabel
@@ -1509,6 +1586,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = addSheetsButton.getLabel
         Case listSheetsButton.getID
             Let returnedVal = listSheetsButton.getLabel
+        Case renameSheetsButton.getID
+            Let returnedVal = renameSheetsButton.getLabel
         Case deleteSheetsButton.getID
             Let returnedVal = deleteSheetsButton.getLabel
         Case hideSheetsButton.getID
@@ -1525,8 +1604,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = chartShowButton.getLabel
         Case pivotGroup.getID
             Let returnedVal = pivotGroup.getLabel
-        Case refeshPivotButton.getID
-            Let returnedVal = refeshPivotButton.getLabel
+        Case refreshPivotButton.getID
+            Let returnedVal = refreshPivotButton.getLabel
         Case vbaFileGroup.getID
             Let returnedVal = vbaFileGroup.getLabel
         Case importVbaFilesButton.getID
@@ -1549,6 +1628,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = settingsButton.getLabel
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getLabel
+        Case refreshAddinButton.getID
+            Let returnedVal = refreshAddinButton.getLabel
         Case pictureGroup.getID
             Let returnedVal = pictureGroup.getLabel
         Case snipButton.getID
@@ -1579,12 +1660,14 @@ End Sub
 'Callback for getShowLabel
 Public Sub getShowLabel(ByRef control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Select Case control.id
         Case addSheetsButton.getID
             Let returnedVal = addSheetsButton.getShowLabel
         Case listSheetsButton.getID
             Let returnedVal = listSheetsButton.getShowLabel
+        Case renameSheetsButton.getID
+            Let returnedVal = renameSheetsButton.getShowLabel
         Case deleteSheetsButton.getID
             Let returnedVal = deleteSheetsButton.getShowLabel
         Case hideSheetsButton.getID
@@ -1597,8 +1680,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = chartHideErrButton.getShowLabel
         Case chartShowButton.getID
             Let returnedVal = chartShowButton.getShowLabel
-        Case refeshPivotButton.getID
-            Let returnedVal = refeshPivotButton.getShowLabel
+        Case refreshPivotButton.getID
+            Let returnedVal = refreshPivotButton.getShowLabel
         Case importVbaFilesButton.getID
             Let returnedVal = importVbaFilesButton.getShowLabel
         Case importAllVbaFilesButton.getID
@@ -1627,6 +1710,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = settingsButton.getShowLabel
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getShowLabel
+        Case refreshAddinButton.getID
+            Let returnedVal = refreshAddinButton.getShowLabel
     End Select
 GoTo ExecuteProcedure
 ErrorHandle:
@@ -1637,12 +1722,14 @@ End Sub
 'Callback for getScreentip
 Public Sub getScreentip(ByRef control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Select Case control.id
         Case addSheetsButton.getID
             Let returnedVal = addSheetsButton.getScreentip
         Case listSheetsButton.getID
             Let returnedVal = listSheetsButton.getScreentip
+        Case renameSheetsButton.getID
+            Let returnedVal = renameSheetsButton.getScreentip
         Case deleteSheetsButton.getID
             Let returnedVal = deleteSheetsButton.getScreentip
         Case hideSheetsButton.getID
@@ -1655,8 +1742,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = chartHideErrButton.getScreentip
         Case chartShowButton.getID
             Let returnedVal = chartShowButton.getScreentip
-        Case refeshPivotButton.getID
-            Let returnedVal = refeshPivotButton.getScreentip
+        Case refreshPivotButton.getID
+            Let returnedVal = refreshPivotButton.getScreentip
         Case importVbaFilesButton.getID
             Let returnedVal = importVbaFilesButton.getScreentip
         Case importAllVbaFilesButton.getID
@@ -1679,6 +1766,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = settingsButton.getScreentip
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getScreentip
+        Case refreshAddinButton.getID
+            Let returnedVal = refreshAddinButton.getScreentip
     End Select
 GoTo ExecuteProcedure
 ErrorHandle:
@@ -1689,12 +1778,14 @@ End Sub
 'Callback for getSupertip
 Public Sub getSupertip(ByRef control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Select Case control.id
         Case addSheetsButton.getID
             Let returnedVal = addSheetsButton.getSupertip
         Case listSheetsButton.getID
             Let returnedVal = listSheetsButton.getSupertip
+        Case renameSheetsButton.getID
+            Let returnedVal = renameSheetsButton.getSupertip
         Case deleteSheetsButton.getID
             Let returnedVal = deleteSheetsButton.getSupertip
         Case hideSheetsButton.getID
@@ -1707,8 +1798,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = chartHideErrButton.getSupertip
         Case chartShowButton.getID
             Let returnedVal = chartShowButton.getSupertip
-        Case refeshPivotButton.getID
-            Let returnedVal = refeshPivotButton.getSupertip
+        Case refreshPivotButton.getID
+            Let returnedVal = refreshPivotButton.getSupertip
         Case importVbaFilesButton.getID
             Let returnedVal = importVbaFilesButton.getSupertip
         Case importAllVbaFilesButton.getID
@@ -1731,6 +1822,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = settingsButton.getSupertip
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getSupertip
+        Case refreshAddinButton.getID
+            Let returnedVal = refreshAddinButton.getSupertip
     End Select
 GoTo ExecuteProcedure
 ErrorHandle:
@@ -1741,7 +1834,7 @@ End Sub
 'Callback for getVisible
 Public Sub getVisible(ByRef control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Select Case control.id
         Case toolsTab.getID
             Let returnedVal = toolsTab.getVisible
@@ -1749,6 +1842,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = addSheetsButton.getVisible
         Case listSheetsButton.getID
             Let returnedVal = listSheetsButton.getVisible
+        Case renameSheetsButton.getID
+            Let returnedVal = renameSheetsButton.getVisible
         Case deleteSheetsButton.getID
             Let returnedVal = deleteSheetsButton.getVisible
         Case hideSheetsButton.getID
@@ -1761,8 +1856,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = chartHideErrButton.getVisible
         Case chartShowButton.getID
             Let returnedVal = chartShowButton.getVisible
-        Case refeshPivotButton.getID
-            Let returnedVal = refeshPivotButton.getVisible
+        Case refreshPivotButton.getID
+            Let returnedVal = refreshPivotButton.getVisible
         Case importVbaFilesButton.getID
             Let returnedVal = importVbaFilesButton.getVisible
         Case importAllVbaFilesButton.getID
@@ -1789,6 +1884,8 @@ On Error GoTo ErrorHandle
             Let returnedVal = settingsButton.getVisible
         Case removeAddinButton.getID
             Let returnedVal = removeAddinButton.getVisible
+        Case refreshAddinButton.getID
+            Let returnedVal = refreshAddinButton.getVisible
     End Select
 GoTo ExecuteProcedure
 ErrorHandle:
@@ -1799,7 +1896,7 @@ End Sub
 'Callback for getPressed
 Public Sub getPressed(control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Select Case control.id
         Case highlightBoldButton.getID
             Let returnedVal = highlightIsBold
@@ -1861,7 +1958,7 @@ End Sub
 'Callback for Sheet Controller onAction
 Public Sub sheetController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Dim sheetC As SheetsController
     Set sheetC = New SheetsController
     Select Case control.id
@@ -1892,7 +1989,7 @@ End Sub
 'Callback for Sheet Controller onAction With Event
 Public Sub sheetControllerEvent(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Set sheetCEvent = New SheetsController
     Select Case control.id
         Case listSheetsButton.getID
@@ -1900,7 +1997,7 @@ On Error GoTo ErrorHandle
             Let hasListSheet = sheetCEvent.hasListSheet
             'If hasListSheet Then Set sheetCEvent = Nothing 'Clear Event
     End Select
-    Call refeshCustomRibbon(loadedRibbon)
+    Call refreshCustomRibbon(loadedRibbon)
 GoTo ExecuteProcedure
 ErrorHandle:
     Call tackleErrors
@@ -1910,7 +2007,7 @@ End Sub
 'Callback for Chart Controller onAction
 Public Sub chartController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Dim chartC As ChartsController
     Set chartC = New ChartsController
     Select Case control.id
@@ -1926,19 +2023,19 @@ ErrorHandle:
 ExecuteProcedure:
 End Sub
 
-'Callback for refesh-pivot onAction
+'Callback for refresh-pivot onAction
 Public Sub pivotControllerEvent(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Select Case control.id
-        Case refeshPivotButton.getID
+        Case refreshPivotButton.getID
             Let hasSYNCPivot = pressed
             If hasSYNCPivot Then
                 Set pivotCEvent = New PivotTablesController
             Else
                 Set pivotCEvent = Nothing
             End If
-            Call refeshCustomRibbon(loadedRibbon)
+            Call refreshCustomRibbon(loadedRibbon)
     End Select
 GoTo ExecuteProcedure
 ErrorHandle:
@@ -1949,7 +2046,7 @@ End Sub
 'Callback for VBAFiles Controller onAction
 Public Sub VBAFilesController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Dim fileC As FilesController
     Set fileC = New FilesController
     Select Case control.id
@@ -1970,7 +2067,7 @@ End Sub
 'Callback for Range Controller onAction
 Public Sub rangeController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Dim rangeC As RangesController
     Select Case control.id
         Case boldFirstLineButton.getID
@@ -2042,7 +2139,7 @@ On Error GoTo ErrorHandle
             If pressed Then Let highlightColor = vbWhite
             Call HighlightRange
     End Select
-    Call refeshCustomRibbon(loadedRibbon)
+    Call refreshCustomRibbon(loadedRibbon)
 GoTo ExecuteProcedure
 ErrorHandle:
     Call tackleErrors
@@ -2052,7 +2149,7 @@ End Sub
 'Callback for Hide Page Break onAction
 Public Sub hidePageBreakChange(control As IRibbonControl, id As String, index As Integer)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Dim rangeC As RangesController
     Set rangeC = New RangesController
     Select Case control.id
@@ -2076,7 +2173,7 @@ On Error GoTo ErrorHandle
                         isApplyAll:=True)
             End Select
     End Select
-    Call refeshCustomRibbon(loadedRibbon)
+    Call refreshCustomRibbon(loadedRibbon)
     Set rangeC = Nothing
 GoTo ExecuteProcedure
 ErrorHandle:
@@ -2087,7 +2184,7 @@ End Sub
 'Callback for Range Controller onAction
 Public Sub rangeControllerEvent(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Select Case control.id
         Case highlightButton.getID
             Let hasHighlight = pressed
@@ -2099,7 +2196,7 @@ On Error GoTo ErrorHandle
                 Call ClearHighLight
             End If
     End Select
-    Call refeshCustomRibbon(loadedRibbon)
+    Call refreshCustomRibbon(loadedRibbon)
 GoTo ExecuteProcedure
 ErrorHandle:
     Call tackleErrors
@@ -2109,13 +2206,13 @@ End Sub
 'Callback for settings onAction
 Public Sub accessSettings(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Select Case control.id
         Case settingsButton.getID
             Let userResponse = MsgBox( _
                 Prompt:="This button is on process", _
                 Buttons:=vbOKOnly + vbExclamation, _
-                Title:="DANH TOOL")
+                Title:="DANH TOOLS")
 End Select
 GoTo ExecuteProcedure
 ErrorHandle:
@@ -2126,7 +2223,7 @@ End Sub
 'Callback for Internet Controller onAction
 Public Sub internetController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Dim internetC As InternetConnector
     Set internetC = New InternetConnector
     Select Case control.id
@@ -2147,12 +2244,14 @@ End Sub
 'Callback for remove-addin onAction
 Public Sub addinController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Dim newAddin As AutoAddin
     Set newAddin = New AutoAddin
     Select Case control.id
         Case removeAddinButton.getID
             Call newAddin.remove(hasConfirm:=True)
+        Case refreshAddinButton.getID
+            Call refreshCustomRibbon(loadedRibbon)
     End Select
     Set newAddin = Nothing ' Clear Cache
 GoTo ExecuteProcedure
@@ -2164,7 +2263,7 @@ End Sub
 'Callback for remove-addin onAction
 Public Sub pictureController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Dim picC As PicturesController
     Select Case control.id
         Case snipButton.getID
@@ -2192,7 +2291,7 @@ On Error GoTo ErrorHandle
                 End If
                 Set picC = Nothing
             End If
-            Call refeshCustomRibbon(loadedRibbon)
+            Call refreshCustomRibbon(loadedRibbon)
         Case autoArrangeButton.getID
             If ActiveSheet.Shapes.Count = 0 Then
                 Let userResponse = MsgBox( _
@@ -2212,7 +2311,7 @@ On Error GoTo ErrorHandle
                 Let picC.selectObjectMode = isAutoArrange
                 Set picC = Nothing
             End If
-            Call refeshCustomRibbon(loadedRibbon)
+            Call refreshCustomRibbon(loadedRibbon)
         Case rateLockCheckBox.getID
             Let isRateLock = pressed
     End Select
@@ -2225,7 +2324,7 @@ End Sub
 'Callback for getItemCount
 Public Sub getItemCount(control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Select Case control.id
         Case offsetCBBox.getID
             Let returnedVal = NUM_OFFSET_ITEMS
@@ -2239,7 +2338,7 @@ End Sub
 'Callback for getItemID
 Public Sub getItemID(control As IRibbonControl, index As Integer, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Select Case control.id
         Case offsetCBBox.getID
             Let returnedVal = "offset-item-" & index + 1
@@ -2253,7 +2352,7 @@ End Sub
 'Callback for getItemLabel
 Public Sub getItemLabel(control As IRibbonControl, index As Integer, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Select Case control.id
         Case offsetCBBox.getID
             Let returnedVal = index * 10 'Steps
@@ -2267,7 +2366,7 @@ End Sub
 'Callback for getText
 Public Sub getText(control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Select Case control.id
         Case offsetCBBox.getID
             Let returnedVal = offsetValue
@@ -2281,10 +2380,12 @@ End Sub
 'Callback for getSelectedItemIndex
 Public Sub getSelectedItemIndex(control As IRibbonControl, ByRef returnedVal)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Select Case control.id
         Case hidePageBreakDropDown.getID
-            If hasWorkSheet Then Let hasPageBreak = ActiveSheet.DisplayPageBreaks
+            ' Check WS again for case don't remove all Ws
+            Let hasWorksheet = system.hasWorkPlace(False, "xlWorksheet")
+            If hasWorksheet Then Let hasPageBreak = ActiveSheet.DisplayPageBreaks
             If hasPageBreak Then
                 Let returnedVal = 1 'Index = 1 --> "Show"
             Else
@@ -2300,7 +2401,7 @@ End Sub
 'Callback for offset onChange
 Public Sub offsetSelect(control As IRibbonControl, text As String)
 On Error GoTo ErrorHandle
-    If loadedRibbon Is Nothing Then Call refeshCustomRibbon
+    If loadedRibbon Is Nothing Then Call refreshCustomRibbon
     Select Case control.id
         Case offsetCBBox.getID
             If Not IsNumeric(text) Then
@@ -2310,7 +2411,7 @@ On Error GoTo ErrorHandle
                         MIN_OFFSET & " and " & MAX_OFFSET & " !", _
                     Buttons:=vbOKOnly + vbCritical, _
                     Title:="DANH TOOL")
-                Call refeshCustomRibbon(loadedRibbon)
+                Call refreshCustomRibbon(loadedRibbon)
             ElseIf _
                 CLng(text) < MIN_OFFSET Or _
                 CLng(text) > MAX_OFFSET Then
@@ -2320,7 +2421,7 @@ On Error GoTo ErrorHandle
                         MIN_OFFSET & " and " & MAX_OFFSET & " !", _
                     Buttons:=vbOKOnly + vbCritical, _
                     Title:="DANH TOOL")
-                Call refeshCustomRibbon(loadedRibbon)
+                Call refreshCustomRibbon(loadedRibbon)
             Else
                 Let offsetValue = CByte(text)
             End If

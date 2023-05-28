@@ -18,19 +18,27 @@ Private Const POWER_SHELL_SCRIPT As String = "Wscript.Shell" '  Windows Script H
 Private Const FILE_STREAM_SCRIPT As String = "ADODB.Stream"
 Private Const CDO_CONFIG_SCRIPT As String = "CDO.Configuration"
 Private Const CDO_MESS_SCRIPT As String = "CDO.Message"
+Private Const EXCEL_TYPE As String = "Microsoft Excel"
+Private Const WB_TYPE As String = "Workbook"
 Private Const WS_TYPE As String = "Worksheet"
+Private Const WS_TYPE_DETAIL_SHEET As String = "xlWorksheet"
+Private Const WS_TYPE_DETAIL_CHART As String = "xlChart"
+Private Const WS_TYPE_DETAIL_MACRO As String = "xlExcel4MacroSheet"
+Private Const WS_TYPE_DETAIL_INT_MACRO As String = "xlExcel4IntMacroSheet"
 Private Const CHART_TYPE As String = "Chart"
 Private Const DIALOG_TYPE As String = "DialogSheet"
 Private userResponse As VbMsgBoxResult
 Private info As InfoConstants
 Private systemTimer As Single
-'Global
 Public WithEvents app As Application
 Attribute app.VB_VarHelpID = -1
 Public WithEvents wb As Workbook
 Attribute wb.VB_VarHelpID = -1
 Public WithEvents ws As Worksheet
 Attribute ws.VB_VarHelpID = -1
+'Public wss As Worksheets 'TODO: Refactor as global accessor get wss for sheets controller
+'Public wsObs As Sheets 'wsObs could be Charts || DialogSheets || Worksheets (ws regular || ws marcro)
+Public sheetOb As Object 'SheetOb could be Chart || DialogSheet || Worksheet (ws regular || ws marcro)
 Public chartSh As Chart
 Public dialogSh As DialogSheet
 
@@ -39,7 +47,7 @@ Private Function hasVariables() As Boolean
 On Error GoTo ErrorHandle
     Set info = New InfoConstants
     Let systemTimer = Timer ' start timer
-    hasVariables = True
+    Let hasVariables = True
     GoTo ExecuteProcedure
 ErrorHandle:
     Call tackleErrors
@@ -50,7 +58,6 @@ End Function
 Private Sub Class_Initialize()
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
-    '
     GoTo ExecuteProcedure
 ErrorHandle:
     Call tackleErrors
@@ -66,154 +73,404 @@ End Sub
 Private Function wsDetailType() As String
     Select Case Application.ActiveSheet.Type
         Case xlWorksheet
-            Let wsDetailType = "xlWorksheet"
+            Let wsDetailType = WS_TYPE_DETAIL_SHEET
         Case xlChart
-            Let wsDetailType = "xlChart"
+            Let wsDetailType = WS_TYPE_DETAIL_CHART
         Case xlExcel4MacroSheet
-            Let wsDetailType = "xlExcel4MacroSheet"
+            Let wsDetailType = WS_TYPE_DETAIL_MACRO
         Case xlExcel4IntlMacroSheet
-            Let wsDetailType = "xlExcel4IntlMacroSheet"
+            Let wsDetailType = WS_TYPE_DETAIL_INT_MACRO
     End Select
 End Function
 
 Public Property Get hasWorkPlace( _
     Optional ByVal hasMsg As Boolean = False, _
-    Optional ByVal sheetType As String _
+    Optional ByVal workPlaceType As String _
 ) As Variant
 On Error GoTo ErrorHandle
     Dim mess As String
-    'Check EXCEL application
-    If Application.Name <> "Microsoft Excel" Then
-        Let mess = info.getPrompt & "Sorry, this tool currently is just working with MS-EXCEL!"
-        Let hasWorkPlace = False
-        GoTo ExecuteProcedure
-    End If
-    'Check ActiveWorkbook exist
-    If Application.ActiveWorkbook Is Nothing Then
-        Let mess = info.getPrompt & "Don't exist any workbook yet, please open one!"
-        Let hasWorkPlace = False
-        GoTo ExecuteProcedure
-    End If
-    'Check ActiveSheet exist
-    If Application.ActiveSheet Is Nothing Then
-        Let mess = info.getPrompt & "Don't active any worksheet yet, please select one!"
-        Let hasWorkPlace = False
-        GoTo ExecuteProcedure
-    End If
-    'Check ActiveSheet type
-    'Return Sheet Type Case
-    If sheetType = vbNullString Then
-        Select Case TypeName(Application.ActiveSheet)
-            Case CHART_TYPE
-                Set app = Application
-                Set wb = app.ActiveWorkbook
-                Set chartSh = wb.ActiveSheet
-                Let hasWorkPlace = CHART_TYPE
+    Dim resultStr As String
+'    '*Case close app but used storage procedure || application.ontime run || mutilple thread
+'   ' TODO
+'    If not hasAppllication()  Then
+'          Let mess = "Can not find any application!"
+'          Let hasWorkPlace = False
+'          GoTo ExecuteProcedure
+'    End If
+    'Check each possible cases
+    Select Case workPlaceType
+        'Return *STRING Cases
+        Case vbNullString
+            'LV-1
+            'TO-DO: Make cases for MS: Work, PPT, Access, Outlook...
+            If Not hasApplication() Then
+                Let resultStr = "NOTHING"
                 GoTo ExecuteProcedure
-            Case DIALOG_TYPE
-                Set app = Application
-                Set wb = app.ActiveWorkbook
-                Set dialogSh = wb.ActiveSheet
-                Let hasWorkPlace = DIALOG_TYPE
+            Else
+                Select Case Application
+                    Case EXCEL_TYPE
+                        Set app = Application
+                        Let resultStr = EXCEL_TYPE
+                    Case Else
+                        ' Set app = Application
+                        Let resultStr = Application.Name & "_Un-handle"
+                        GoTo ExecuteProcedure
+                End Select
+            End If
+            'LV-2
+            'TO-DO: Make cases for else types: document..
+            If app.ActiveWorkbook Is Nothing Then
                 GoTo ExecuteProcedure
-            Case WS_TYPE
-                If Not wsDetailType() = "xlWorksheet" Then
-                    mess = _
-                        info.getPrompt & _
-                        "You've selected a special worksheet -" & _
-                        wsDetailType() & _
-                        "- you need to select a regular one!"
-                    Let hasWorkPlace = False
-                    GoTo ExecuteProcedure
-                End If
-                Set app = Application
-                Set wb = app.ActiveWorkbook
-                Set ws = wb.ActiveSheet
-                Let hasWorkPlace = WS_TYPE
+            Else
+                Select Case TypeName(app.ActiveWorkbook)
+                    Case WB_TYPE
+                        Set wb = app.ActiveWorkbook
+                        Let resultStr = resultStr & "_" & WB_TYPE
+                    Case Else
+                        ' Set wb = app.ActiveWorkbook
+                        Let resultStr = resultStr & "_" & TypeName(app.ActiveWorkbook) & "_Un-Handle"
+                        GoTo ExecuteProcedure
+                End Select
+            End If
+            'LV-3
+            If wb.ActiveSheet Is Nothing Then
                 GoTo ExecuteProcedure
-            Case Else
-                mess = _
-                    info.getPrompt & _
+            Else
+                Set sheetOb = wb.ActiveSheet
+                Select Case TypeName(wb.ActiveSheet)
+                    Case WS_TYPE
+                        Set ws = wb.ActiveSheet
+                        Set chartSh = Nothing
+                        Set dialogSh = Nothing
+                        Let resultStr = resultStr & "_" & WS_TYPE
+                    Case CHART_TYPE
+                        Set ws = Nothing
+                        Set chartSh = wb.ActiveSheet
+                        Set dialogSh = Nothing
+                        Let resultStr = resultStr & "_" & CHART_TYPE
+                    Case DIALOG_TYPE
+                        Set ws = Nothing
+                        Set chartSh = Nothing
+                        Set dialogSh = wb.ActiveSheet
+                        Let resultStr = resultStr & "_" & DIALOG_TYPE
+                        GoTo ExecuteProcedure ' DialogSheet DON'T have type attribute
+                    Case Else
+                        Let resultStr = resultStr & "_" & TypeName(wb.ActiveSheet) & "_Un-Handle"
+                        GoTo ExecuteProcedure
+                End Select
+            End If
+            'LV-4
+            Select Case sheetOb.Type 'Type will return number, NOT string.
+                Case xlWorksheet
+                    Let resultStr = resultStr & "_" & WS_TYPE_DETAIL_SHEET
+                Case xlChart
+                    Let resultStr = resultStr & "_" & WS_TYPE_DETAIL_CHART
+                Case xlExcel4MacroSheet
+                    Let resultStr = resultStr & "_" & WS_TYPE_DETAIL_MACRO
+                Case xlExcel4IntlMacroSheet
+                    Let resultStr = resultStr & "_" & WS_TYPE_DETAIL_INT_MACRO
+                Case Else
+                Let resultStr = resultStr & "_Unknow Type"
+            End Select
+            GoTo ExecuteProcedure
+        'Return *BOOLEAN Cases
+        Case EXCEL_TYPE ' LV-1 'TO-DO: Make cases for MS: Work, PPT, Access, Outlook...
+            If Not hasApplication() Then
+                Let mess = "Sorry, this tool currently is just working with MS-EXCEL!"
+                GoTo ExecuteProcedure
+            Else
+                Set app = Application
+                GoTo ExecuteProcedure
+            End If
+        Case WB_TYPE ' LV-2
+            If Not hasApplication() Then
+                Let mess = "Sorry, this tool currently is just working with MS-EXCEL!"
+                GoTo ExecuteProcedure
+            ElseIf Application.ActiveWorkbook Is Nothing Then
+                Let mess = "Don't exist any workbook yet, please open one!"
+                GoTo ExecuteProcedure
+            Else
+                Let app = Application
+                Let wb = app.ActiveWorkbook
+                GoTo ExecuteProcedure
+            End If
+        Case WS_TYPE ' LV-3
+            If Not hasApplication() Then
+                Let mess = "Sorry, this tool currently is just working with MS-EXCEL!"
+                GoTo ExecuteProcedure
+            ElseIf Application.ActiveWorkbook Is Nothing Then
+                Let mess = "Don't exist any workbook yet, please open one!"
+                GoTo ExecuteProcedure
+            ElseIf Application.ActiveSheet Is Nothing Then
+                Let mess = "Don't active any sheet yet, please select one!"
+                GoTo ExecuteProcedure
+            ElseIf TypeName(Application.ActiveSheet) <> WS_TYPE Then
+                Let mess = _
                     "You've selected a " & _
                     TypeName(Application.ActiveSheet) & _
                     ", need to select a " & _
-                    sheetType
-            Let hasWorkPlace = False
-            GoTo ExecuteProcedure
-        End Select
-    End If
-    'Return True Case
-    If sheetType = TypeName(Application.ActiveSheet) Then
-        Select Case TypeName(Application.ActiveSheet)
-            Case CHART_TYPE
+                    workPlaceType
+                GoTo ExecuteProcedure
+            Else
                 Set app = Application
                 Set wb = app.ActiveWorkbook
-                Set chartSh = wb.ActiveSheet
-                Let hasWorkPlace = True
-                GoTo ExecuteProcedure
-            Case DIALOG_TYPE
-                Set app = Application
-                Set wb = app.ActiveWorkbook
-                Set dialogSh = wb.ActiveSheet
-                Let hasWorkPlace = True
-                GoTo ExecuteProcedure
-            Case WS_TYPE
-                If Not wsDetailType() = "xlWorksheet" Then
-                    mess = _
-                        info.getPrompt & _
-                        "You've selected a special worksheet -" & _
-                        wsDetailType() & _
-                        "- you need to select a regular one!"
-                    Let hasWorkPlace = False
-                    GoTo ExecuteProcedure
+                Set sheetOb = wb.ActiveSheet
+                'Set ws following sheetOb
+                If wsDetailType() <> WS_TYPE_DETAIL_SHEET Then
+                    Set ws = sheetOb
+                Else
+                    Set ws = Nothing
                 End If
-                Set app = Application
-                Set wb = app.ActiveWorkbook
-                Set ws = wb.ActiveSheet
-                Let hasWorkPlace = True
+                Set chartSh = Nothing
+                Set dialogSh = Nothing
                 GoTo ExecuteProcedure
-            Case Else
-                mess = _
-                    info.getPrompt & _
+            End If
+        Case CHART_TYPE ' LV-3
+             If Not hasApplication() Then
+                Let mess = "Sorry, this tool currently is just working with MS-EXCEL!"
+                GoTo ExecuteProcedure
+            ElseIf Application.ActiveWorkbook Is Nothing Then
+                Let mess = "Don't exist any workbook yet, please open one!"
+                GoTo ExecuteProcedure
+            ElseIf Application.ActiveSheet Is Nothing Then
+                Let mess = "Don't active any sheet yet, please select one!"
+                GoTo ExecuteProcedure
+            ElseIf TypeName(Application.ActiveSheet) <> CHART_TYPE Then
+                Let mess = _
                     "You've selected a " & _
                     TypeName(Application.ActiveSheet) & _
                     ", need to select a " & _
-                    sheetType
-            Let hasWorkPlace = False
+                    workPlaceType
+                GoTo ExecuteProcedure
+            Else
+                Set app = Application
+                Set wb = app.ActiveWorkbook
+                Set sheetOb = Nothing
+                Set chartSh = wb.ActiveSheet
+                Set dialogSh = Nothing
+                GoTo ExecuteProcedure
+            End If
+        Case DIALOG_TYPE 'LV-3
+            If Not hasApplication() Then
+                Let mess = "Sorry, this tool currently is just working with MS-EXCEL!"
+                GoTo ExecuteProcedure
+            ElseIf Application.ActiveWorkbook Is Nothing Then
+                Let mess = "Don't exist any workbook yet, please open one!"
+                GoTo ExecuteProcedure
+            ElseIf Application.ActiveSheet Is Nothing Then
+                Let mess = "Don't active any sheet yet, please select one!"
+                GoTo ExecuteProcedure
+            ElseIf TypeName(Application.ActiveSheet) <> DIALOG_TYPE Then
+               Let mess = _
+                    "You've selected a " & _
+                    TypeName(Application.ActiveSheet) & _
+                    ", need to select a " & _
+                    workPlaceType
+                GoTo ExecuteProcedure
+            Else
+                Set app = Application
+                Set wb = app.ActiveWorkbook
+                Set sheetOb = Nothing
+                Set chartSh = Nothing
+                Set dialogSh = wb.ActiveSheet
+                GoTo ExecuteProcedure
+            End If
+        Case WS_TYPE_DETAIL_SHEET 'LV-4
+            If Not hasApplication() Then
+                Let mess = "Sorry, this tool currently is just working with MS-EXCEL!"
+                GoTo ExecuteProcedure
+            ElseIf Application.ActiveWorkbook Is Nothing Then
+                Let mess = "Don't exist any workbook yet, please open one!"
+                GoTo ExecuteProcedure
+            ElseIf Application.ActiveSheet Is Nothing Then
+                Let mess = "Don't active any sheet yet, please select one!"
+                GoTo ExecuteProcedure
+            ElseIf TypeName(Application.ActiveSheet) <> WS_TYPE Then
+                Let mess = _
+                    "You've selected a " & _
+                    TypeName(Application.ActiveSheet) & _
+                    ", need to select a " & _
+                    workPlaceType
+                GoTo ExecuteProcedure
+            ElseIf wsDetailType() <> WS_TYPE_DETAIL_SHEET Then
+                Let mess = _
+                    "You've selected a special worksheet -" & _
+                    wsDetailType() & _
+                    "- you need to select a " & _
+                    WS_TYPE_DETAIL_CHART & " one!"
+                GoTo ExecuteProcedure
+            Else
+                Set app = Application
+                Set wb = app.ActiveWorkbook
+                Set sheetOb = wb.ActiveSheet
+                Set ws = sheetOb
+                Set chartSh = Nothing
+                Set dialogSh = Nothing
+                GoTo ExecuteProcedure
+            End If
+        Case WS_TYPE_DETAIL_CHART 'LV-4
+            If Not hasApplication() Then
+                Let mess = "Sorry, this tool currently is just working with MS-EXCEL!"
+                GoTo ExecuteProcedure
+            ElseIf Application.ActiveWorkbook Is Nothing Then
+                Let mess = "Don't exist any workbook yet, please open one!"
+                GoTo ExecuteProcedure
+            ElseIf Application.ActiveSheet Is Nothing Then
+                Let mess = "Don't active any sheet yet, please select one!"
+                GoTo ExecuteProcedure
+            ElseIf TypeName(Application.ActiveSheet) <> CHART_TYPE Then
+                Let mess = _
+                    "You've selected a " & _
+                    TypeName(Application.ActiveSheet) & _
+                    ", need to select a " & _
+                    workPlaceType
+                GoTo ExecuteProcedure
+            ElseIf wsDetailType() <> WS_TYPE_DETAIL_CHART Then
+                Let mess = _
+                    "You've selected a special worksheet -" & _
+                    wsDetailType() & _
+                    "- you need to select a " & _
+                    WS_TYPE_DETAIL_CHART & " one!"
+                GoTo ExecuteProcedure
+            Else
+                Set app = Application
+                Set wb = app.ActiveWorkbook
+                Set sheetOb = wb.ActiveSheet
+                Set ws = Nothing
+                Set chartSh = sheetOb
+                Set dialogSh = Nothing
+                GoTo ExecuteProcedure
+            End If
+        Case WS_TYPE_DETAIL_MACRO 'LV-4
+            If Not hasApplication() Then
+                Let mess = "Sorry, this tool currently is just working with MS-EXCEL!"
+                GoTo ExecuteProcedure
+            ElseIf Application.ActiveWorkbook Is Nothing Then
+                Let mess = "Don't exist any workbook yet, please open one!"
+                GoTo ExecuteProcedure
+            ElseIf Application.ActiveSheet Is Nothing Then
+                Let mess = "Don't active any sheet yet, please select one!"
+                GoTo ExecuteProcedure
+            ElseIf TypeName(Application.ActiveSheet) <> WS_TYPE Then
+                Let mess = _
+                    "You've selected a " & _
+                    TypeName(Application.ActiveSheet) & _
+                    ", need to select a " & _
+                    workPlaceType
+                GoTo ExecuteProcedure
+            ElseIf wsDetailType() <> WS_TYPE_DETAIL_MACRO Then
+                Let mess = _
+                    "You've selected a special worksheet -" & _
+                    wsDetailType() & _
+                    "- you need to select a " & _
+                    WS_TYPE_DETAIL_MACRO & " one!"
+                GoTo ExecuteProcedure
+            Else
+                Set app = Application
+                Set wb = app.ActiveWorkbook
+                Set sheetOb = wb.ActiveSheet
+                Set ws = Nothing
+                Set chartSh = Nothing
+                Set dialogSh = Nothing
+                GoTo ExecuteProcedure
+            End If
+        Case WS_TYPE_DETAIL_INT_MACRO 'LV-4
+            If Not hasApplication() Then
+                Let mess = "Sorry, this tool currently is just working with MS-EXCEL!"
+                GoTo ExecuteProcedure
+            ElseIf Application.ActiveWorkbook Is Nothing Then
+                Let mess = "Don't exist any workbook yet, please open one!"
+                GoTo ExecuteProcedure
+            ElseIf Application.ActiveSheet Is Nothing Then
+                Let mess = "Don't active any sheet yet, please select one!"
+                GoTo ExecuteProcedure
+            ElseIf TypeName(Application.ActiveSheet) <> WS_TYPE Then
+                Let mess = _
+                    "You've selected a " & _
+                    TypeName(Application.ActiveSheet) & _
+                    ", need to select a " & _
+                    workPlaceType
+                GoTo ExecuteProcedure
+            ElseIf wsDetailType() <> WS_TYPE_DETAIL_INT_MACRO Then
+                Let mess = _
+                    "You've selected a special worksheet -" & _
+                    wsDetailType() & _
+                    "- you need to select a " & _
+                    WS_TYPE_DETAIL_INT_MACRO & " one!"
+                GoTo ExecuteProcedure
+            Else
+                Set app = Application
+                Set wb = app.ActiveWorkbook
+                Set sheetOb = wb.ActiveSheet
+                Set ws = Nothing
+                Set chartSh = Nothing
+                Set dialogSh = Nothing
+                GoTo ExecuteProcedure
+            End If
+        Case Else
+            Let resultStr = _
+                "-hasWorkPlace- only accept below options: " & _
+                vbNewLine & EXCEL_TYPE & _
+                vbNewLine & WB_TYPE & _
+                vbNewLine & WS_TYPE & _
+                vbNewLine & CHART_TYPE & _
+                vbNewLine & DIALOG_TYPE & _
+                vbNewLine & WS_TYPE_DETAIL_SHEET & _
+                vbNewLine & WS_TYPE_DETAIL_CHART & _
+                vbNewLine & WS_TYPE_DETAIL_MACRO & _
+                vbNewLine & WS_TYPE_DETAIL_INT_MACRO
+            Let mess = resultStr
             GoTo ExecuteProcedure
-        End Select
-    End If
-    'NotMatch sheetType case
-    If Not sheetType = TypeName(Application.ActiveSheet) Then
-        mess = _
-                info.getPrompt & _
-                "You've selected a " & _
-                TypeName(Application.ActiveSheet) & _
-                ", need to select a " & _
-                sheetType
-        Let hasWorkPlace = False
-        GoTo ExecuteProcedure
-    End If
+    End Select
 ErrorHandle:
-    Call tackleErrors
+'    Call tackleErrors
 ExecuteProcedure:
-    'Display mess
-    If hasMsg And Not mess = vbNullString Then Let userResponse = MsgBox( _
-            Prompt:=mess, _
-            Buttons:=vbOKOnly + vbExclamation, _
-            Title:=info.getAuthor)
+    'Check return String Cases
+    If workPlaceType = vbNullString Then
+        Let hasWorkPlace = resultStr
+    'Check if don't have mess mean True case
+    ElseIf mess = vbNullString Then
+        Let hasWorkPlace = True
+    Else
+        'Check display mess option
+        If hasMsg Then
+            Let userResponse = MsgBox( _
+                Prompt:=info.getPrompt & mess, _
+                Buttons:=vbOKOnly + vbExclamation, _
+                Title:=info.getAuthor)
+        End If
+        Let hasWorkPlace = False
+    End If
+End Property
+'APPLICATION
+Public Property Get hasApplication(Optional appName As String = EXCEL_TYPE) As Boolean
+    If Application.Name = appName Then
+        Let hasApplication = True
+    Else
+        Let hasApplication = False
+    End If
+End Property
+'WORKBOOK
+Public Property Get hasWorkbook(wbName As String) As Boolean
+    Dim wo As Workbook
+    For Each wo In app.Workbooks
+        If wo.Name = wbName Then
+            Let hasWorkbook = True
+            Exit Property
+        End If
+    Next wo
+    Let hasWorkbook = False
 End Property
 'SHEET
-Public Property Get isExistSheet(sheetName As String) As Boolean
+Public Property Get hasSheet(shName As String) As Boolean
     Dim sh As Worksheet
     For Each sh In wb.Worksheets
-        If sh.Name = sheetName Then
-            Let isExistSheet = False
+        If sh.Name = shName Then
+            Let hasSheet = True
             Exit Property
-        Else
-            Let isExistSheet = True
         End If
     Next sh
+    Let hasSheet = False
 End Property
 '//OBJECT CREATE BY SCRIPTS
 'FILE
@@ -299,16 +556,16 @@ Public Property Get getLastRow(ByVal ws As Worksheet, Optional ByVal atColumn As
 On Error GoTo ErrorHandle
     With ws
         If atColumn = False Then
-                Let getLastRow = .Cells.Find( _
-                        "*", _
-                        SearchOrder:=xlByRows, _
-                        SearchDirection:=xlPrevious).row
+            Let getLastRow = .Cells.Find( _
+                "*", _
+                SearchOrder:=xlByRows, _
+                SearchDirection:=xlPrevious).row
         Else
-                If .Cells(.Rows.Count, atColumn).End(xlUp).value = False Then
-                        getLastRow = 0
-                Else
-                        Let getLastRow = .Cells(.Rows.Count, atColumn).End(xlUp).row
-                End If
+            If .Cells(.Rows.Count, atColumn).End(xlUp).value = False Then
+                    getLastRow = 0
+            Else
+                    Let getLastRow = .Cells(.Rows.Count, atColumn).End(xlUp).row
+            End If
         End If
     End With
 GoTo ExecuteProcedure
@@ -462,12 +719,15 @@ Public Sub speedOn( _
     Optional ByVal eventsStt As Boolean = False, _
     Optional ByVal linksStt As Boolean = False, _
     Optional ByVal alertsStt As Boolean = False)
+    
     With Application
-        .ScreenUpdating = screenStt
-        .EnableEvents = eventsStt
-        .AskToUpdateLinks = linksStt
-        .DisplayAlerts = alertsStt
-         If Not ActiveWindow Is Nothing Then .Calculation = xlAutomatic
+        If .ScreenUpdating <> screenStt Then .ScreenUpdating = screenStt
+        If .EnableEvents <> eventsStt Then .EnableEvents = eventsStt
+'        If .AskToUpdateLinks <> linksStt Then .AskToUpdateLinks = linksStt
+        If .DisplayAlerts <> alertsStt Then .DisplayAlerts = alertsStt
+        If Not ActiveWindow Is Nothing Then
+            If .Calculation <> xlAutomatic Then .Calculation = xlAutomatic
+        End If
     End With
 End Sub
 'SPEED
@@ -477,11 +737,13 @@ Public Sub speedOff( _
     Optional ByVal linksStt As Boolean = True, _
     Optional ByVal alertsStt As Boolean = True)
     With Application
-        .ScreenUpdating = screenStt
-        .EnableEvents = eventsStt
-        .AskToUpdateLinks = linksStt
-        .DisplayAlerts = alertsStt
-        If Not ActiveWindow Is Nothing Then .Calculation = xlAutomatic
+        If .ScreenUpdating <> screenStt Then .ScreenUpdating = screenStt
+        If .EnableEvents <> eventsStt Then .EnableEvents = eventsStt
+        If .AskToUpdateLinks <> linksStt Then .AskToUpdateLinks = linksStt
+        If .DisplayAlerts <> alertsStt Then .DisplayAlerts = alertsStt
+        If Not ActiveWindow Is Nothing Then
+            If .Calculation <> xlAutomatic Then .Calculation = xlAutomatic
+        End If
     End With
 End Sub
 
@@ -489,7 +751,7 @@ End Sub
 Public Sub storeSheetFormat(fromSheet As Worksheet, Optional toSheetName As String = "formatStored")
     'Create format sheet if not exist
     If toSheetName <> "formatStored" Then
-        If Not isExistSheet(toSheetName) Then ThisWorkbook.Worksheets.add.Name = toSheetName
+        If Not hasSheet(toSheetName) Then ThisWorkbook.Worksheets.add.Name = toSheetName
     End If
     'Copy all from object sheet
     fromSheet.Cells.Copy
@@ -500,7 +762,7 @@ End Sub
 Public Sub pasteSheetFormat(toSheetName As Worksheet, Optional fromSheet As String = "formatStored")
     'Create format sheet if not exist
     If fromSheet <> "formatStored" Then
-        If Not isExistSheet(fromSheet) Then ThisWorkbook.Worksheets.add.Name = toSheetName
+        If Not hasSheet(fromSheet) Then ThisWorkbook.Worksheets.add.Name = toSheetName
     End If
 '    Copy all from object sheet
     ThisWorkbook.Worksheets(fromSheet).Cells.Copy
@@ -562,10 +824,10 @@ End Sub
 
 'EVENTS
 'Update actived workbook and actived sheet when changed
-Private Sub app_SheetActivate(ByVal sh As Object)
-'    If hasWorkPlace(hasMsg:=False, sheetType:="Worksheet") Then
+'Private Sub app_SheetActivate(ByVal sh As Object)
+'    If hasWorkPlace(hasMsg:=False, workPlaceType:= SHEET_TYPE Then
 '    End If
-End Sub
+'End Sub
 'Private Sub app_WorkbookActivate(ByVal Wb As Workbook)
 '    Call hasWorkplace
 'End Sub
@@ -581,3 +843,5 @@ End Sub
 Public Sub clearImmediateWindow()
     Debug.Print String(65535, vbCr)
 End Sub
+
+

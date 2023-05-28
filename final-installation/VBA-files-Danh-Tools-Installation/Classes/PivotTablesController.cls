@@ -26,7 +26,7 @@ On Error GoTo ErrorHandle
     Set info = New InfoConstants
     Set system = New SystemUpdate
     Set fileSystem = system.createFileSystem
-    If Not system.hasWorkPlace(hasMsg:=True, sheetType:="Worksheet") Then
+    If Not system.hasWorkPlace(hasMsg:=True, workPlaceType:="xlWorksheet") Then
         Let hasVariables = False
         GoTo ExecuteProcedure
     End If
@@ -74,6 +74,6 @@ End Sub
 
 'EVENT
 
-Private Sub appEvent_SheetChange(ByVal sheetObject As Object, ByVal target As Range)
+Private Sub appEvent_SheetChange(ByVal sheetObject As Object, ByVal Target As Range)
     Call refreshAllPivotTableCaches
 End Sub

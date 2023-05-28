@@ -54,7 +54,6 @@ Private Sub Class_Terminate()
 End Sub
 
 'METHODS
-
 Private Function checkIsAddinWb(ByRef currentWb As Workbook)
     If currentWb.FullName = addinFullName Then
         Let IsAddinWb = True
@@ -70,7 +69,6 @@ Private Function checkisAddinExisted(ByRef addinFullName As String)
         isAddinExisted = True
     End If
 End Function
-
 
 Private Sub saveFileAsAddin(ByRef currentWb As Workbook)
     currentWb.SaveAs _
@@ -182,7 +180,6 @@ Private Sub deleteAddin(Optional ByRef hasConfirm As Boolean = False)
 End Sub
 
 'MAIN
-
 Public Sub install()
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure

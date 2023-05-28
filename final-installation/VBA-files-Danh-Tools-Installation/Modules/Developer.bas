@@ -50,5 +50,19 @@ Public Sub aaTestCode()
     
 '    Debug.Print PWShell.executeScript("ipconfig /all")
 '''''''''''''''''
+    Dim system As New SystemUpdate
+    Debug.Print "====="
+    Debug.Print system.hasWorkPlace(True)
+'    Debug.Print system.hasWorkPlace(True, "asd")
+    Debug.Print "====="
+    'Microsoft Excel
+    'Workbook
+    'Worksheet
+    'Chart
+    'DialogSheet
+    'xlWorksheet
+    'xlChart
+    'xlExcel4MacroSheet
+    'xlExcel4IntMacroSheet
 End Sub
 

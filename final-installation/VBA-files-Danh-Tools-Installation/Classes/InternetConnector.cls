@@ -60,11 +60,6 @@ On Error GoTo ErrorHandle
     Set info = New InfoConstants
     Set system = New SystemUpdate
     Set PWShell = New PowerShellController
-'    Set fileSystem = system.createFileSystem
-'    If Not system.hasWorkPlace Then
-'        Let hasVariables = False
-'        GoTo ExecuteProcedure
-'    End If
     Let hasVariables = True
     GoTo ExecuteProcedure
 ErrorHandle:
@@ -156,9 +151,6 @@ On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
     Call system.speedOn
     Call saveWifiAs(exportType.TXT, useThisFolder)
-'    Debug.Print checkConnect("google.com")
-'    Debug.Print checkConnect()
-    
 GoTo ExecuteProcedure
 ErrorHandle:
     Call system.tackleErrors

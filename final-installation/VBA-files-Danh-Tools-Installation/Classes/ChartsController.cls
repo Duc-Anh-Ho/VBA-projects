@@ -25,7 +25,7 @@ On Error GoTo ErrorHandle
     Set info = New InfoConstants
     Set system = New SystemUpdate
     Set fileSystem = system.createFileSystem
-    If Not system.hasWorkPlace(hasMsg:=True, sheetType:="Worksheet") Then
+    If Not system.hasWorkPlace(hasMsg:=True, workPlaceType:="xlWorksheet") Then
         hasVariables = False
         GoTo ExecuteProcedure
     End If

@@ -109,13 +109,3 @@ Public Property Let letVisible(ByVal newVisible As Boolean)
 End Property
 'METHODS
 'MAIN
-
-
-
-
-
-
-
-
-
-

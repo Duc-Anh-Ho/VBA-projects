@@ -26,7 +26,7 @@ Private targetRange As Range
 Private cell As Object
 Private wss As Sheets
 Private selectedWss As Sheets
-Private ws As Worksheet
+Private ws As Object
 Private triggerFlag As Boolean
 Private WithEvents appEvent As Application
 Attribute appEvent.VB_VarHelpID = -1
@@ -41,13 +41,14 @@ On Error GoTo ErrorHandle
     Set info = New InfoConstants
     Set system = New SystemUpdate
     Set fileSystem = system.createFileSystem
-    If Not system.hasWorkPlace(hasMsg:=True, sheetType:="Worksheet") Then
+    If Not system.hasWorkPlace(hasMsg:=True, workPlaceType:="xlWorksheet") Then
         Let hasVariables = False
         GoTo ExecuteProcedure
     End If
-    Set wss = system.wb.Worksheets
     Set appEvent = system.app
     Set wbEvent = system.wb
+'    Set wss = system.wb.Worksheets
+    Set wss = system.wb.Sheets
     Set wsEvent = system.ws
     Set selectedWss = system.app.Windows(wbEvent.Name).SelectedSheets
     Let hasVariables = True
@@ -63,25 +64,25 @@ Private Sub Class_Initialize()
 End Sub
 'Destructor
 Private Sub Class_Terminate()
-    Set info = Nothing
-    Set system = Nothing
+'    Set info = Nothing
+'    Set system = Nothing
     Set appEvent = Nothing
     Set wbEvent = Nothing
     Set wsEvent = Nothing
 End Sub
 
 'ASSESSORS
-'G1.0-Check Exist Sheet
-Private Property Get isExistSheet(ByVal sheetName As String) As Boolean
-    'Loop through all worksheets
-    For Each ws In wss
-        If ws.Name = sheetName Then
-            Let isExistSheet = True
-            Exit Property
-        End If
-    Next ws
-    Let isExistSheet = False
-End Property
+'G1.0-Check Exist Sheet 'TODO: Delete - Duplicated with system update hasworkplace
+'Private Property Get hasSheet(ByVal sheetName As String) As Boolean
+'    'Loop through all worksheets
+'    For Each ws In wss
+'        If ws.Name = sheetName Then
+'            Let hasSheet = True
+'            Exit Property
+'        End If
+'    Next ws
+'    Let hasSheet = False
+'End Property
 'G1.1- Remove special character in sheet name
 Private Property Get removeSpecialChars(ByVal cellText As String) As String
     Let removeSpecialChars = Replace(cellText, "\", "")
@@ -105,10 +106,8 @@ Public Property Get hasListSheet(Optional ByVal onSheet As Worksheet) As Boolean
     With onSheet
         If .Range(TITLE_NO_CELL).text = TITLE_NO _
         And .Range(TITLE_NAME_CELL) = TITLE_NAME Then
-            Let letTriggerFlag = True
             Let hasListSheet = True
         Else
-            Let letTriggerFlag = False
             Let hasListSheet = False
         End If
     End With
@@ -148,7 +147,7 @@ Private Sub addSheetsAsRange()
             'Trim if sheet name too long
             Let cellText = trimSheetName(cellText, 30)
             'Check don't exist and not null
-            If Not isExistSheet(cellText) And Not cellText = "" Then
+            If Not system.hasSheet(cellText) And cellText <> vbNullString Then
                 'Add at the end
                 wss.add(After:=wss(wss.Count)).Name = cellText
             End If
@@ -254,11 +253,10 @@ Private Sub triggerListAllSheets( _
     If onSheet Is Nothing Then Set onSheet = system.ws
     If hasListSheet(onSheet) Then
         Call deleteListAllSheets(onSheet)
-        Let letTriggerFlag = False
+        Call Class_Terminate 'Clear Event
     Else
         Call insertListAllSheets(onSheet)
         Call formatListAllSheets(onSheet)
-        Let letTriggerFlag = True
     End If
 End Sub
 'G3.1-Show/Hide/Veryhide All Sheets
@@ -341,34 +339,46 @@ End Sub
 Public Sub selectNext()
     If ActiveSheet Is Nothing Then Exit Sub
     If Sheets Is Nothing Then Exit Sub
-    If ActiveSheet.index = Sheets.Count Then Exit Sub
-    ActiveSheet.Next.Select
+    If ActiveSheet.index = Sheets.Count Then
+        Sheets(1).Visible = xlSheetVisible
+        Sheets(1).Select
+    Else
+        ActiveSheet.Next.Visible = xlSheetVisible
+        ActiveSheet.Next.Select
+    End If
 End Sub
 
 Public Sub selectPrevious()
     If ActiveSheet Is Nothing Then Exit Sub
     If Sheets Is Nothing Then Exit Sub
-    If ActiveSheet.index = 1 Then Exit Sub
-    ActiveSheet.Previous.Select
+    If ActiveSheet.index = 1 Then
+        Sheets(Sheets.Count).Visible = xlSheetVisible
+        Sheets(Sheets.Count).Select
+    Else
+        ActiveSheet.Previous.Visible = xlSheetVisible
+        ActiveSheet.Previous.Select
+    End If
 End Sub
 
 'EVENTS
-
 Private Sub appEvent_SheetActivate(ByVal sheetObject As Object)
-    If _
-        getTriggerFlag And _
-        TypeName(sheetObject) = "Worksheet" Then
+    If getTriggerFlag And _
+        system.hasWorkPlace(hasMsg:=True, workPlaceType:="xlWorksheet") Then
         Call insertListAllSheets(sheetObject)
         Call formatListAllSheets(sheetObject)
     Else
-        Call Class_Terminate 'Clear Event
+'        Call Class_Terminate 'Clear Event
     End If
 End Sub
 
 Private Sub appEvent_SheetDeactivate(ByVal sheetObject As Object)
-    If _
-        hasListSheet(sheetObject) And _
-        TypeName(sheetObject) = "Worksheet" Then
-        Call deleteListAllSheets(sheetObject)
+    '2 levels check previous sheet
+    If (TypeName(sheetObject) = "Worksheet") Then
+       If sheetObject.Type = xlWorksheet Then ' xlWorksheet = -4167
+            If hasListSheet(sheetObject) Then
+                Call deleteListAllSheets(sheetObject)
+                Let letTriggerFlag = True
+            End If
+        End If
     End If
 End Sub
