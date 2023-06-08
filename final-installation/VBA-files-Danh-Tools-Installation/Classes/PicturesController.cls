@@ -77,33 +77,33 @@ Public Property Let selectObjectMode(ByRef objectMode As Boolean)
 End Property
 '2
 Public Property Let hasFakeBorder(ByRef isFake As Boolean)
-    Dim sh As Shape
+    Dim Sh As Shape
     Dim fakeBorderName As String
     Let fakeBorderName = info.getAuthor & "_fakeBorder_"
     If isFake Then
-        For Each sh In system.ws.Shapes
+        For Each Sh In system.ws.Shapes
             With system.ws.Shapes.AddShape( _
                 Type:=msoShapeRectangle, _
-                Left:=sh.Left - MARKER_LINE_WEIGHT / 2, _
-                Top:=sh.Top - MARKER_LINE_WEIGHT / 2, _
-                Width:=sh.Width + MARKER_LINE_WEIGHT, _
-                Height:=sh.Height + MARKER_LINE_WEIGHT)
+                Left:=Sh.Left - MARKER_LINE_WEIGHT / 2, _
+                Top:=Sh.Top - MARKER_LINE_WEIGHT / 2, _
+                Width:=Sh.Width + MARKER_LINE_WEIGHT, _
+                Height:=Sh.Height + MARKER_LINE_WEIGHT)
                 .Name = fakeBorderName & .Name
                 .Fill.Visible = msoTrue
                 .Fill.ForeColor.RGB = FAKE_BORDER_COLOR
                 .line.Visible = msoFalse
                 .ZOrder msoSendToBack
             End With
-        Next sh
+        Next Sh
     Else
-        For Each sh In system.ws.Shapes
-            If sh.Name Like (fakeBorderName & "*") Then Call sh.Delete
-        Next sh
+        For Each Sh In system.ws.Shapes
+            If Sh.Name Like (fakeBorderName & "*") Then Call Sh.Delete
+        Next Sh
     End If
 End Property
 '2
 Public Property Let hasMarkTargetPlace(ByRef isMarked As Boolean)
-    Dim sh As Shape
+    Dim Sh As Shape
     Dim markUpName As String
     Let markUpName = info.getAuthor & "_marker"
     If isMarked Then
@@ -133,14 +133,14 @@ Public Property Let hasMarkTargetPlace(ByRef isMarked As Boolean)
             .TextFrame2.TextRange.ParagraphFormat.Alignment = msoAlignCenter
         End With
     Else
-        For Each sh In system.ws.Shapes
-            If sh.Name = markUpName Then Call sh.Delete
-        Next sh
+        For Each Sh In system.ws.Shapes
+            If Sh.Name = markUpName Then Call Sh.Delete
+        Next Sh
     End If
 End Property
 '3
 Public Property Let hasMarkTargetObject(ByRef isMarked As Boolean)
-    Dim sh As Shape
+    Dim Sh As Shape
     Dim groupSh As Shape
     Dim tearSh As Shape
     Dim tearName As String
@@ -148,13 +148,13 @@ Public Property Let hasMarkTargetObject(ByRef isMarked As Boolean)
     Let tearName = info.getAuthor & "_tear_"
     Let groupName = info.getAuthor & "_group_"
     If isMarked Then
-        For Each sh In system.ws.Shapes
+        For Each Sh In system.ws.Shapes
             Set tearSh = system.ws.Shapes.AddShape( _
                 Type:=msoShapeTear, _
-                Left:=sh.Left, _
-                Top:=sh.Top, _
-                Width:=sh.Width / 20, _
-                Height:=sh.Width / 20)
+                Left:=Sh.Left, _
+                Top:=Sh.Top, _
+                Width:=Sh.Width / 20, _
+                Height:=Sh.Width / 20)
             With tearSh
                 .line.Visible = msoFalse
                 .Fill.ForeColor.RGB = MARKER_TEAR_COLOR
@@ -163,9 +163,9 @@ Public Property Let hasMarkTargetObject(ByRef isMarked As Boolean)
                 .Name = tearName & .Name 're-name for marker_delete
             End With
             'Group and rename tear with target object
-            Set groupSh = system.ws.Shapes.Range(Array(tearSh.Name, sh.Name)).Group
+            Set groupSh = system.ws.Shapes.Range(Array(tearSh.Name, Sh.Name)).Group
             Let groupSh.Name = groupName & groupSh.Name
-        Next sh
+        Next Sh
     Else
         'Loop all shapes in sheet
         For Each groupSh In system.ws.Shapes
@@ -174,9 +174,9 @@ Public Property Let hasMarkTargetObject(ByRef isMarked As Boolean)
                 groupSh.Type = msoGroup _
                 And groupSh.Name Like (groupName & "*") Then
                 'Loop all shapes in group
-                For Each sh In groupSh.GroupItems
-                    If sh.Name Like (tearName & "*") Then Call sh.Delete
-                Next sh
+                For Each Sh In groupSh.GroupItems
+                    If Sh.Name Like (tearName & "*") Then Call Sh.Delete
+                Next Sh
             End If
         Next groupSh
     End If
@@ -248,16 +248,16 @@ Private Sub deleteOldPicture()
 End Sub
 '2.
 Private Sub setTargetObject(ByRef objectName As String)
-    Dim sh As Shape
+    Dim Sh As Shape
     Dim shGItem As Shape
-        For Each sh In system.ws.Shapes
-            If sh.Type = msoGroup Then
-                For Each shGItem In sh.GroupItems
-                    If shGItem.Name = objectName Then Set targetObject = sh
+        For Each Sh In system.ws.Shapes
+            If Sh.Type = msoGroup Then
+                For Each shGItem In Sh.GroupItems
+                    If shGItem.Name = objectName Then Set targetObject = Sh
                 Next shGItem
             End If
-            If sh.Name = objectName Then Set targetObject = sh
-        Next sh
+            If Sh.Name = objectName Then Set targetObject = Sh
+        Next Sh
 End Sub
 '1.
 Private Sub capturePicture()
@@ -281,10 +281,10 @@ Private Sub capturePicture()
 End Sub
 '2
 Private Sub assignOnAction(ByRef script As String)
-    Dim sh As Shape
-    For Each sh In system.ws.Shapes
-        Let sh.OnAction = script
-    Next sh
+    Dim Sh As Shape
+    For Each Sh In system.ws.Shapes
+        Let Sh.OnAction = script
+    Next Sh
 End Sub
 '1,2,3
 Private Sub scalePicture(ByVal isLockRatio As Boolean)

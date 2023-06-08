@@ -10,7 +10,7 @@ This project is my VBA tool for my resume porfolio.
 
 # Changelog
 
-## v2.2.0 - 2023/05/03
+## v2.3.1 - 2023/06/08
 
 ### Added
 
@@ -28,7 +28,8 @@ This project is my VBA tool for my resume porfolio.
 
 ### Changed
 
-- Fix unknown erorrs.
+- NEW: Sheet Controller - Rename mutliple sheets feature.
+- NEW: Now can display current mode in Excel's status bar.
 
 ### Removed
 

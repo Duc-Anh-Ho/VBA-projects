@@ -88,7 +88,7 @@ Private Sub enableAddin(ByRef isEnable As Boolean)
 End Sub
 
 Private Sub changeWBAcessToReadOnly(ByRef wb As Workbook)
-    If Not wb.ReadOnly Then wb.ChangeFileAccess Mode:=xlReadOnly
+    If Not wb.ReadOnly Then wb.ChangeFileAccess MODE:=xlReadOnly
 End Sub
 
 Private Sub installAddin()

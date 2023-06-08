@@ -12,7 +12,7 @@ Private Const NUM_OFFSET_ITEMS As Byte = 6
 Private Const MAX_OFFSET As Byte = 200
 Private Const MIN_OFFSET As Byte = 0
 Private Const DEFAULT_OFFSET_VALUE  As Byte = 0
-Private Const RIBBON_ID As String = "Ribbon_ID_Danh_Tools_Tab"
+'Private Const RIBBON_ID As String = "Danh_Tools_Tab_Ribbon_ID_"
 
 Private system As SystemUpdate
 Private fileSystem As Object
@@ -38,6 +38,7 @@ Private highlightUpSize As Byte
 Private highlightTransparent As Byte
 Private highlightColor As Long
 Public hasListSheet As Boolean  'Used in customEvents Class
+Public hasRenameSheet As Boolean
 Public isAutoArrange As Boolean 'Used in customEvents Class
 Public isArranging As Boolean 'Used in ThisWorkbook Module And customEvents Class
 Public offsetValue As Byte 'Used in ThisWorkbook Module
@@ -140,6 +141,7 @@ Private Sub configTags()
     Dim isOnHighlight As Boolean
     Dim isOnAll As Boolean
     If hasWorksheet Then Let hasPageBreak = ActiveSheet.DisplayPageBreaks
+    If hasListSheet Then Let hasRenameSheet = sheetCEvent.hasRenameSheet ' Reset when changed sheets
     Let isOnHighlight = hasWorksheet And Not hasHighlight
     Let isOnAutoArrange = hasWorksheet And Not isAutoArrange
     Let isOnListSheet = hasWorksheet And Not hasListSheet
@@ -224,7 +226,7 @@ Private Sub configTags()
     Set renameSheetsButton = New CustomUITag
     With renameSheetsButton
         .letID = "rename-sheets"
-        .letEnabled = Not isOnListSheet
+        .letEnabled = hasListSheet And hasWorksheet
         .letVisible = ALWAYS_SHOW
         .letShowImage = ALWAYS_SHOW
         .letShowLabel = ALWAYS_SHOW
@@ -1122,7 +1124,12 @@ Private Sub configTags()
         .letSupertip = ""
     End With
     
-    'Overriding attributes
+    Call setButtonAsMode
+    Call setStatusBarAsMode
+    
+End Sub
+' Override Labels & Images of buttons as modes
+Private Sub setButtonAsMode()
     If hasSYNCPivot Then
         Let refreshPivotButton.letImage = "GroupSyncStatus"
         Let refreshPivotButton.letLabel = "OFF SYNC"
@@ -1143,6 +1150,35 @@ Private Sub configTags()
     Else
         Let autoArrangeButton.letImage = "PicturesCompress"
         Let autoArrangeButton.letLabel = "Auto Arrange"
+    End If
+    If hasRenameSheet Then
+        Let renameSheetsButton.letImage = "TagMarkComplete"
+        Let renameSheetsButton.letLabel = "Confirm"
+    Else
+        Let renameSheetsButton.letImage = "TableColumnsInsertRight"
+        Let renameSheetsButton.letLabel = "Rename Sheets"
+    End If
+    If Not hasListSheet Then
+        Let renameSheetsButton.letImage = "TableColumnsInsertRight"
+        Let renameSheetsButton.letLabel = "Rename Sheets"
+        Let hasRenameSheet = False ' Reset rename
+    End If
+End Sub
+
+' Display Application Status Bar as Modes
+Private Sub setStatusBarAsMode()
+    Dim content As String
+    Let content = "Mode: || "
+    If hasSYNCPivot Then Let content = content & "AUTO SYNC PIVOT || "
+    If hasHighlight Then Let content = content & "AUTO HIGHLIGHT || "
+    If isArranging Then Let content = content & "ARRANGING OBJECT || "
+    If isAutoArrange Then Let content = content & "AUTO ARRANGE ONJECTS || "
+    If hasListSheet Then Let content = content & "LIST SHEETS || "
+    If hasRenameSheet Then Let content = content & "RANAME SHEETS || "
+    If content <> "Mode: || " Then
+        Let system.setStatusBar = content
+    Else
+        Let system.setStatusBar = False
     End If
 End Sub
 
@@ -1256,6 +1292,7 @@ Public Sub setDefaultSettings()
     Let hasWorksheet = system.hasWorkPlace(False, "xlWorksheet")
     Let hasWorkChart = system.hasWorkPlace(False, "Chart")
     Let hasWorkDialog = system.hasWorkPlace(False, "DialogSheet")
+'    system.ws.Unprotect
     Let highlightIsBold = False
     Let highlightUpSize = DEFAULT_HIGHLIGHT_UP_SIZE
     Let highlightTransparent = DEFAULT_HIGHLIGHT_TRANSPARENT
@@ -1267,6 +1304,7 @@ Public Sub setDefaultSettings()
     Let isArranging = False
     Let isAutoArrange = False
     Let hasListSheet = False
+    Let hasRenameSheet = False
     Let hasSYNCPivot = False
     Let hasHighlight = False
 End Sub
@@ -1277,10 +1315,10 @@ On Error GoTo ErrorHandle
     Set system = New SystemUpdate
     Set info = New InfoConstants
     If loadedRibbon Is Nothing Then
-        Debug.Print ("loadedRibbon Is Nothing") 'For watching
-        Set info = New InfoConstants
+        Debug.Print ("loadedRibbon Is Nothing") 'For watching debug
         ' Reload Ribbon from Pointer (Preprocessor.GetRibbon is Public)
-        Set loadedRibbon = GetRibbon(Workbooks(info.getAddinName).Names(RIBBON_ID))
+'        Set loadedRibbon = GetRibbon(Workbooks(info.getAddinName).Names(RIBBON_ID))
+        Set loadedRibbon = GetRibbon(Workbooks(info.getAddinName).Names(info.getRibbonID))
         ' Reload setting
         Call setDefaultSettings
     End If
@@ -1303,7 +1341,7 @@ On Error GoTo ErrorHandle
     Set loadedRibbon = ribbon
     'Store pointer to IRibbonUI in a Named Range within add-in file
     Workbooks(info.getAddinName).Names.add _
-        Name:=RIBBON_ID, _
+        Name:=info.getRibbonID, _
         RefersTo:=ObjPtr(ribbon)
     'Create Custom Event (Ex. Change Sheet,)
     Call setDefaultSettings
@@ -1995,8 +2033,11 @@ On Error GoTo ErrorHandle
         Case listSheetsButton.getID
             Call sheetCEvent.list
             Let hasListSheet = sheetCEvent.hasListSheet
-            'If hasListSheet Then Set sheetCEvent = Nothing 'Clear Event
+        Case renameSheetsButton.getID
+            Call sheetCEvent.rename
+            Let hasRenameSheet = sheetCEvent.hasRenameSheet
     End Select
+    If Not hasListSheet Then Set sheetCEvent = Nothing 'Clear Event
     Call refreshCustomRibbon(loadedRibbon)
 GoTo ExecuteProcedure
 ErrorHandle:
@@ -2194,6 +2235,7 @@ On Error GoTo ErrorHandle
                 Call HighlightRange
             Else
                 Call ClearHighLight
+                Set rangeCEvent = Nothing 'Clear event
             End If
     End Select
     Call refreshCustomRibbon(loadedRibbon)
@@ -2431,5 +2473,4 @@ ErrorHandle:
     Call tackleErrors
 ExecuteProcedure:
 End Sub
-
 

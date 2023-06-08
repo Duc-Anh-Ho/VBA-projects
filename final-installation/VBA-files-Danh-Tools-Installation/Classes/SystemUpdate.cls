@@ -69,6 +69,7 @@ Private Sub Class_Terminate()
 End Sub
 
 'ASSESSORS
+
 'CHECK
 Private Function wsDetailType() As String
     Select Case Application.ActiveSheet.Type
@@ -463,13 +464,13 @@ Public Property Get hasWorkbook(wbName As String) As Boolean
 End Property
 'SHEET
 Public Property Get hasSheet(shName As String) As Boolean
-    Dim sh As Worksheet
-    For Each sh In wb.Worksheets
-        If sh.Name = shName Then
+    Dim Sh As Object ' Object for Special Worksheets
+    For Each Sh In wb.Sheets
+        If Sh.Name = shName Then
             Let hasSheet = True
             Exit Property
         End If
-    Next sh
+    Next Sh
     Let hasSheet = False
 End Property
 '//OBJECT CREATE BY SCRIPTS
@@ -550,6 +551,10 @@ GoTo ExecuteProcedure
 ErrorHandle:
     Call tackleErrors
 ExecuteProcedure:
+End Property
+'CUSTOMIZE
+Public Property Get getFomulaSeparator() As String
+    Let getFomulaSeparator = app.International(xlListSeparator)
 End Property
 'POSITION
 Public Property Get getLastRow(ByVal ws As Worksheet, Optional ByVal atColumn As Long) As Long
@@ -690,7 +695,21 @@ Public Property Get mergeMulArrays(ParamArray Arrays() As Variant) As Variant
     Next j
     Let mergeMulArrays = arr
 End Property
+
 'MUTATORS
+
+'STATUS BAR
+Public Property Let setStatusBar(ByVal content As Variant)
+     If Not hasWorkPlace(True, EXCEL_TYPE) Then Exit Property
+    Let app.DisplayStatusBar = False
+    If TypeName(content) = "String" Then
+        Let app.statusBar = content
+    Else
+        Let app.statusBar = vbNullString
+    End If
+    Let app.DisplayStatusBar = True
+End Property
+
 'RIBBON
 Public Property Let isHideRibbon(ByRef isHide As Boolean)
     If isHide Then
@@ -699,11 +718,14 @@ Public Property Let isHideRibbon(ByRef isHide As Boolean)
         app.ExecuteExcel4Macro "show.toolbar(""Ribbon"",True)"
     End If
 End Property
+
 'METHODS
+
 'TIMER
 Public Sub restartTimer()
     Let systemTimer = Timer ' Restart timer
 End Sub
+
 'SHORTCUT
 Public Sub createShortcut(ByVal key As String, ByVal functionName As String, Optional ByVal isActive As Boolean = True, Optional ByVal isRemove As Boolean = False)
     ' Add Shortcut
@@ -713,13 +735,13 @@ Public Sub createShortcut(ByVal key As String, ByVal functionName As String, Opt
     ' Delete Shortcut
     If Not isRemove Then Application.OnKey key, vbNullString
 End Sub
+
 'SPEED
 Public Sub speedOn( _
     Optional ByVal screenStt As Boolean = False, _
     Optional ByVal eventsStt As Boolean = False, _
     Optional ByVal linksStt As Boolean = False, _
     Optional ByVal alertsStt As Boolean = False)
-    
     With Application
         If .ScreenUpdating <> screenStt Then .ScreenUpdating = screenStt
         If .EnableEvents <> eventsStt Then .EnableEvents = eventsStt
@@ -730,6 +752,7 @@ Public Sub speedOn( _
         End If
     End With
 End Sub
+
 'SPEED
 Public Sub speedOff( _
     Optional ByVal screenStt As Boolean = True, _
@@ -758,6 +781,7 @@ Public Sub storeSheetFormat(fromSheet As Worksheet, Optional toSheetName As Stri
     'Paste format to stored sheet
     ThisWorkbook.Worksheets(toSheetName).Cells(1, 1).PasteSpecial Paste:=xlPasteFormats
 End Sub
+
 'FORMAT
 Public Sub pasteSheetFormat(toSheetName As Worksheet, Optional fromSheet As String = "formatStored")
     'Create format sheet if not exist
@@ -822,19 +846,8 @@ Private Sub errorDisplay()
         Context:=Err.HelpContext)
 End Sub
 
-'EVENTS
-'Update actived workbook and actived sheet when changed
-'Private Sub app_SheetActivate(ByVal sh As Object)
-'    If hasWorkPlace(hasMsg:=False, workPlaceType:= SHEET_TYPE Then
-'    End If
-'End Sub
-'Private Sub app_WorkbookActivate(ByVal Wb As Workbook)
-'    Call hasWorkplace
-'End Sub
-
 'VBE - DEBUGGER
 Public Sub debugAssert(condition As Boolean)
-
 #If debugger Then
     Debug.Assert condition
 #End If

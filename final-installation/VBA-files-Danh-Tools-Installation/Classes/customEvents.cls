@@ -105,7 +105,6 @@ Private Sub appEvent_WorkbookDeactivate(ByVal wb As Workbook)
     Else
         Let isOnlySh = False
     End If
-    
    Set previousWb = wb
 End Sub
 

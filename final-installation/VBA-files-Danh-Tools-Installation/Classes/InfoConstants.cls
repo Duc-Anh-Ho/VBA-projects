@@ -11,13 +11,14 @@ Attribute VB_Exposed = False
 Option Explicit
 'Declare Variables
 'My Info
-Private Const VERSION As String = "v2.2.1"
-Private Const UPDATE_DATE  As String = "2022/10/11"
+Private Const VERSION As String = "v2.3.1"
+Private Const UPDATE_DATE  As String = "2023/06/08"
 Private Const AUTHOR_PROMPT As String = "AUTHOR: "
 Private Const AUTHOR_NAME As String = "DANH"
 'Addin Info
 Private Const ADDIN_SHORT_NAME As String = "Danh-Tools" ' ' <-- ***DON'T ADD _AddIn IN THIS NAME, BECAUSE OF UNKNOW ERROR EX. Danh_Tools_Addin
 Private Const ADDIN_EXTENSION As String = ".xlam"
+Private Const RIBBON_ID As String = "Danh_Tools_Tab_Ribbon_ID_"
 'BuildIn Properties
 'Private Const TOOL_TITLE As String = "" ' "Title"
 'Private Const TOOL_SUBJECT As String = "" ' "Subject"
@@ -80,3 +81,6 @@ Public Property Get getAddinName() As String
     Let getAddinName = ADDIN_SHORT_NAME & ADDIN_EXTENSION
 End Property
 
+Public Property Get getRibbonID() As String
+    Let getRibbonID = RIBBON_ID
+End Property

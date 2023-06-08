@@ -88,10 +88,10 @@ Private Sub pasteFormatOtherObject()
 End Sub
 '2-0  Move or  Size With Cell
 Private Sub MoveAndSize(Optional ByVal placementStt As Byte = xlMoveAndSize)
-    Dim sh As Object
-    For Each sh In system.ws.Shapes
-        sh.Placement = placementStt
-    Next sh
+    Dim Sh As Object
+    For Each Sh In system.ws.Shapes
+        Sh.Placement = placementStt
+    Next Sh
 End Sub
 'MAIN
 '1.1 For override shortcut
