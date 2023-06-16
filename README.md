@@ -33,11 +33,12 @@ This project is my VBA tool for my resume porfolio.
 ### Removed
 
 - Display current mode in Excel's status bar because bugs.
-s
+
+# Contact
 
 - Facebook: https://www.fb.com/meo658
 - Linkedin: https://www.linkedin.com/in/meo658
-- Github: https://github.com/Duc-Anh-Ho
+- Github: https://github.com/Duc-Anh-Ho``
 - Email:
   1. meo658@yahoo.com
   2. hoducanh123@outlook.com
