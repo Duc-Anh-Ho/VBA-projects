@@ -11,8 +11,8 @@ Attribute VB_Exposed = False
 Option Explicit
 'Declare Variables
 'My Info
-Private Const VERSION As String = "v2.3.1"
-Private Const UPDATE_DATE  As String = "2023/06/08"
+Private Const VERSION As String = "v2.3.2"
+Private Const UPDATE_DATE  As String = "2023/06/16"
 Private Const AUTHOR_PROMPT As String = "AUTHOR: "
 Private Const AUTHOR_NAME As String = "DANH"
 'Addin Info

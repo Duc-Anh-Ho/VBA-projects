@@ -30,6 +30,7 @@ Private rangeCEvent As RangesController
 Public hasWorksheet As Boolean 'Used in customEvents Class
 Public hasWorkChart As Boolean ' nt
 Public hasWorkDialog As Boolean 'nt
+Private hasCutCopy As Boolean
 Public hasSYNCPivot As Boolean 'Used in customEvents Class
 Private hasPageBreak As Boolean 'Used in customEvents Class
 Public hasHighlight As Boolean 'Used in customEvents Class
@@ -140,6 +141,7 @@ Private Sub configTags()
     Dim isOnListSheet As Boolean
     Dim isOnHighlight As Boolean
     Dim isOnAll As Boolean
+    Let hasCutCopy = Application.CutCopyMode
     If hasWorksheet Then Let hasPageBreak = ActiveSheet.DisplayPageBreaks
     If hasListSheet Then Let hasRenameSheet = sheetCEvent.hasRenameSheet ' Reset when changed sheets
     Let isOnHighlight = hasWorksheet And Not hasHighlight
@@ -1125,7 +1127,8 @@ Private Sub configTags()
     End With
     
     Call setButtonAsMode
-    Call setStatusBarAsMode
+    'TO-DO: FIX cut/copy mode auto turn off when updateStatusBar
+'    Call setStatusBarAsMode
     
 End Sub
 ' Override Labels & Images of buttons as modes
@@ -1169,6 +1172,7 @@ End Sub
 Private Sub setStatusBarAsMode()
     Dim content As String
     Let content = "Mode: || "
+    If hasCutCopy Then Let content = content & "CUT/COPY ||"
     If hasSYNCPivot Then Let content = content & "AUTO SYNC PIVOT || "
     If hasHighlight Then Let content = content & "AUTO HIGHLIGHT || "
     If isArranging Then Let content = content & "ARRANGING OBJECT || "
@@ -1300,6 +1304,7 @@ Public Sub setDefaultSettings()
     Let offsetValue = DEFAULT_OFFSET_VALUE
     Let isRateLock = False
     If hasWorksheet Then Let hasPageBreak = ActiveSheet.DisplayPageBreaks
+    Let hasCutCopy = Application.CutCopyMode
     'Reset Event Flags
     Let isArranging = False
     Let isAutoArrange = False

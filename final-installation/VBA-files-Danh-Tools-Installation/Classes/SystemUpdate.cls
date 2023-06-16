@@ -700,7 +700,7 @@ End Property
 
 'STATUS BAR
 Public Property Let setStatusBar(ByVal content As Variant)
-     If Not hasWorkPlace(True, EXCEL_TYPE) Then Exit Property
+    If Not hasWorkPlace(True, EXCEL_TYPE) Then Exit Property
     Let app.DisplayStatusBar = False
     If TypeName(content) = "String" Then
         Let app.statusBar = content
