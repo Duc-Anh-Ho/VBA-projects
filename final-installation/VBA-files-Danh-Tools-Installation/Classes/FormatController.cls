@@ -34,11 +34,11 @@ ExecuteProcedure:
 End Function
 'Constructor
 Private Sub Class_Initialize()
-'
+    '
 End Sub
 'Destructor
 Private Sub Class_Terminate()
-    
+    '
 End Sub
 
 'ASSESSORS
@@ -52,22 +52,42 @@ End Sub
 
 Private Sub pasteFormatRanges()
     If Application.CutCopyMode = xlCopy Then
-    targetObject.PasteSpecial _
-        Paste:=xlPasteFormats, _
-        Operation:=xlNone, _
-        SkipBlanks:=False, _
-        Transpose:=False
-    Application.CutCopyMode = False
+        targetObject.PasteSpecial _
+            Paste:=xlPasteFormats, _
+            Operation:=xlNone, _
+            SkipBlanks:=False, _
+            Transpose:=False
+        Application.CutCopyMode = False
     Else
-    MsgBox _
-            Prompt:=info.getPrompt & _
-                "Can not paste formating" & _
-                vbNewLine & _
-                "Please copy formating by Ctrl + Shift + C first!!", _
-            Buttons:=vbOKOnly + vbExclamation, _
-            Title:=info.getAuthor
+        MsgBox _
+                Prompt:=info.getPrompt & _
+                    "Can not paste formating" & _
+                    vbNewLine & _
+                    "Please copy formating by Ctrl + Shift + C first!!", _
+                Buttons:=vbOKOnly + vbExclamation, _
+                Title:=info.getAuthor
     End If
 End Sub
+
+Private Sub pasteValueRanges()
+    If Application.CutCopyMode = xlCopy Then
+        targetObject.PasteSpecial _
+            Paste:=xlPasteValues, _
+            Operation:=xlNone, _
+            SkipBlanks:=False, _
+            Transpose:=False
+        Application.CutCopyMode = False
+    Else
+        MsgBox _
+                Prompt:=info.getPrompt & _
+                    "Can not paste value" & _
+                    vbNewLine & _
+                    "Please copy value by Ctrl + C first!!", _
+                Buttons:=vbOKOnly + vbExclamation, _
+                Title:=info.getAuthor
+    End If
+End Sub
+
 
 Private Sub copyFormatDrawingObjects()
     'system.ws.Shapes(targetObject.name).PickUp
@@ -132,7 +152,21 @@ ErrorHandle:
 ExecuteProcedure:
 '   Call system.speedOff
 End Sub
-
+'1.3 For override shortcut
+Public Sub pasteValue()
+On Error GoTo ErrorHandle
+    If Not hasVariables Then GoTo ExecuteProcedure
+'    Call system.speedOn
+    Select Case TypeName(targetObject)
+        Case "Range"
+            Call pasteValueRanges
+    End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call system.tackleErrors
+ExecuteProcedure:
+'   Call system.speedOff
+End Sub
 '2. Move Or Size with Cell all shape
 Public Sub setPlacement(Optional ByVal placementStt As Byte = xlMoveAndSize)
 On Error GoTo ErrorHandle
