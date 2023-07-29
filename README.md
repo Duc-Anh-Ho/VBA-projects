@@ -1,6 +1,6 @@
 # About Project
 This project is my VBA tool for my resume portfolio.
-<img src="./images/Screenshot 2023-07-29 174139.png" alt="Screenshot">
+<img src="./Images/Screenshot 2023-07-29 174139.png" alt="Screenshot">
 - [About Project](#about-project)
 - [Download](#download)
 - [Installation Instructions](#installation-instructions)
@@ -30,8 +30,8 @@ This project is my VBA tool for my resume portfolio.
 ---
 # Download
 - Click here: 
-  *[Danh-Tools-Installation.xlsb](./Danh-Tools-Installation.xlsb)* 
-  [<img src="./images/icon.png" alt="icon" width="50">](./Danh-Tools-Installation.xlsb) 
+  *[Danh-Tools-Installation.xlsb](https://github.com/Duc-Anh-Ho/VBA-projects/raw/main/Danh-Tools-Installation.xlsb)* 
+  [<img src="./Images/icon.png" alt="icon" width="50">](https://github.com/Duc-Anh-Ho/VBA-projects/raw/main/Danh-Tools-Installation.xlsb) 
 # Installation Instructions
 1. Enable all macros and Trust access to the VBA project object model.
 2. Open file 
