@@ -108,6 +108,7 @@ This project is my VBA tool for my resume portfolio.
 - Email:
   1. meo658@yahoo.com
   2. hoducanh123@outlook.com
+- Trello: [Link trello of this project](https://trello.com/b/vYOUmHMM/danh-tools-kanban)
 # Acknowledgments
 Author: D. Anh
 # License
