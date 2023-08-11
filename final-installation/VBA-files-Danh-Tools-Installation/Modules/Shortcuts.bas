@@ -58,6 +58,27 @@ Private Sub shapeFree()
     Set formatC = Nothing
 End Sub
 
+Private Sub clearContent()
+    Dim formatC As FormatController
+    Set formatC = New FormatController
+    Call formatC.clearContent
+    Set formatC = Nothing
+End Sub
+
+Private Sub clearFormat()
+    Dim formatC As FormatController
+    Set formatC = New FormatController
+    Call formatC.clearFormat
+    Set formatC = Nothing
+End Sub
+
+Private Sub clearAll()
+    Dim formatC As FormatController
+    Set formatC = New FormatController
+    Call formatC.clearAll
+    Set formatC = Nothing
+End Sub
+
 'MAIN
 ' TODO: Menu ribbon create shortcut
 Public Sub add()
@@ -92,15 +113,23 @@ Public Sub install()
     ' Ctrl + M -> Duplicate system shortkey
     Application.OnKey _
         key:="^{M}", _
-        procedure:="Shortcuts.shapeMove"
+        procedure:="Shortcuts.shapeMoveAndSize"
     ' Ctrl + Shift + M
     Application.OnKey _
         key:="^+{M}", _
-        procedure:="Shortcuts.shapeFree"
+        procedure:="Shortcuts.shapeMove"
     ' Ctrl + Shift + Alt + M
     Application.OnKey _
         key:="^+%{M}", _
-        procedure:="Shortcuts.shapeMoveAndSize"
+        procedure:="Shortcuts.shapeFree"
+    ' Ctrl + Delete
+    Application.OnKey _
+        key:="^{DEL}", _
+        procedure:="Shortcuts.clearFormat"
+    ' Ctrl + Shift + Delete
+    Application.OnKey _
+        key:="^+{DEL}", _
+        procedure:="Shortcuts.clearAll"
 End Sub
 
 Public Sub uninstall()
@@ -112,4 +141,6 @@ Public Sub uninstall()
     Application.OnKey key:="^{M}"
     Application.OnKey key:="^+{M}"
     Application.OnKey key:="^+%{M}"
+    Application.OnKey key:="^{DEL}"
+    Application.OnKey key:="^+{DEL}"
 End Sub

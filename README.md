@@ -15,7 +15,7 @@ This project is my VBA tool for my resume portfolio.
   - [Network Controller](#network-controller)
   - [Shortcuts](#shortcuts)
 - [Release Notes](#release-notes)
-  - [v2.3.2 - 2023/06/16](#v232---20230616)
+  - [v2.3.3 - 2023/08/11](#v233---20230811)
     - [Added](#added)
     - [Changed](#changed)
     - [Removed](#removed)
@@ -77,12 +77,14 @@ This project is my VBA tool for my resume portfolio.
 |Ctrl + Shift + Tab|Previous Sheet||
 |Ctrl + Shift + M|Shape Move and Size||
 |Ctrl + Shift + Alt + M|Shape Don't Move and Size||
+|Ctrl + Del|Delete Format||
+|Ctrl + Shift + Del|Delete All||
 # Release Notes
-## v2.3.2 - 2023/06/16
+## v2.3.3 - 2023/08/11
 ### Added
-- Updating.
+- Shortcut for delete format only and delete all
 ### Changed
-- Updating.
+- Update Refresh Ribbon button will remove then add custom shortcuts back.
 ### Removed
 - Display current mode in Excel's status bar due to bugs.
 # Incoming Feature
@@ -94,6 +96,7 @@ This project is my VBA tool for my resume portfolio.
 - **Ctrl + M:** Shape move and don't size with cells (duplicate system shortcuts).
 - **Add and remove shortcuts:**
 ### Options
+- **Customize Undo and redo**
 - **Customize user settings:**
 ### Auto Add-In
 - **Auto Update:** Ask for updating and update information

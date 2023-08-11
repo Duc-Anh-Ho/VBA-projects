@@ -36,7 +36,7 @@ On Error GoTo ErrorHandle
     Set system = New SystemUpdate
     Set fileSystem = system.createFileSystem
     If Not system.hasWorkPlace(hasMsg:=True, workPlaceType:="xlWorksheet") Then
-        hasVariables = False
+        Let hasVariables = False
         GoTo ExecuteProcedure
     End If
     Set appEvent = system.app
@@ -92,9 +92,9 @@ End Property
 '2-0 Bold First Line 'Check newline special character
 Private Property Get getNewLine() As String
     If system.app.OperatingSystem Like "Windows*" Then
-        getNewLine = Chr(10)
+        Let getNewLine = Chr(10)
     Else
-        getNewLine = vbNewLine
+        Let getNewLine = vbNewLine
     End If
 End Property
 '3-0 Get Highlight Color

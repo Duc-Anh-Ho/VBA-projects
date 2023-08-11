@@ -2299,6 +2299,8 @@ On Error GoTo ErrorHandle
             Call newAddin.remove(hasConfirm:=True)
         Case refreshAddinButton.getID
             Call refreshCustomRibbon(loadedRibbon)
+            Call Shortcuts.uninstall
+            Call Shortcuts.install
     End Select
     Set newAddin = Nothing ' Clear Cache
 GoTo ExecuteProcedure

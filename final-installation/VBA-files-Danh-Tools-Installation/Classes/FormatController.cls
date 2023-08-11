@@ -25,7 +25,7 @@ On Error GoTo ErrorHandle
         Let hasVariables = False
         GoTo ExecuteProcedure
     End If
-    hasVariables = True
+    Let hasVariables = True
     Set targetObject = Selection
     GoTo ExecuteProcedure
 ErrorHandle:
@@ -88,7 +88,7 @@ Private Sub pasteValueRanges()
     End If
 End Sub
 
-
+'Used default function don't need to override
 Private Sub copyFormatDrawingObjects()
     'system.ws.Shapes(targetObject.name).PickUp
 End Sub
@@ -113,6 +113,19 @@ Private Sub MoveAndSize(Optional ByVal placementStt As Byte = xlMoveAndSize)
         Sh.Placement = placementStt
     Next Sh
 End Sub
+'3-0 Clear content (default Del)
+Public Sub clearContentRanges()
+    targetObject.ClearContents
+End Sub
+'3-1 Clear format
+Public Sub clearFormatRanges()
+    targetObject.ClearFormats
+End Sub
+'3-2 Clear all
+Public Sub clearFormatContentRange()
+    targetObject.Clear
+End Sub
+
 'MAIN
 '1.1 For override shortcut
 Public Sub copyFormat()
@@ -179,5 +192,48 @@ ErrorHandle:
 ExecuteProcedure:
     Call system.speedOff
 End Sub
-
-
+'3.0 Clear format
+Public Sub clearContent()
+On Error GoTo ErrorHandle
+    If Not hasVariables Then GoTo ExecuteProcedure
+    Call system.speedOn
+    Select Case TypeName(targetObject)
+        Case "Range"
+            Call clearContentRanges
+    End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call system.tackleErrors
+ExecuteProcedure:
+    Call system.speedOff
+End Sub
+'3.1 Clear format
+Public Sub clearFormat()
+On Error GoTo ErrorHandle
+    If Not hasVariables Then GoTo ExecuteProcedure
+    Call system.speedOn
+    Select Case TypeName(targetObject)
+        Case "Range"
+            Call clearFormatRanges
+    End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call system.tackleErrors
+ExecuteProcedure:
+    Call system.speedOff
+End Sub
+'3.2 Clear content and format
+Public Sub clearAll()
+On Error GoTo ErrorHandle
+    If Not hasVariables Then GoTo ExecuteProcedure
+    Call system.speedOn
+    Select Case TypeName(targetObject)
+        Case "Range"
+            Call clearFormatContentRange
+    End Select
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call system.tackleErrors
+ExecuteProcedure:
+    Call system.speedOff
+End Sub
