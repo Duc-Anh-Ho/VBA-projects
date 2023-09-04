@@ -3,7 +3,9 @@ This project is my VBA tool for my resume portfolio.
 <img src="./Images/Screenshot 2023-07-29 174139.png" alt="Screenshot">
 - [About Project](#about-project)
 - [Download](#download)
+  - [](#)
 - [Installation Instructions](#installation-instructions)
+  - [ ](#-)
 - [Release Features](#release-features)
   - [Auto Add-In](#auto-add-in)
   - [Sheet Controller](#sheet-controller)
@@ -31,13 +33,14 @@ This project is my VBA tool for my resume portfolio.
 # Download
 - Click here: 
   *[Danh-Tools-Installation.xlsb](https://github.com/Duc-Anh-Ho/VBA-projects/raw/main/Danh-Tools-Installation.xlsb)* 
-  [<img src="./Images/icon.png" alt="icon" width="50">](https://github.com/Duc-Anh-Ho/VBA-projects/raw/main/Danh-Tools-Installation.xlsb) 
+  ## [<img src="./Images/icon.png" alt="icon" width="50">](https://github.com/Duc-Anh-Ho/VBA-projects/raw/main/Danh-Tools-Installation.xlsb) 
 # Installation Instructions
 1. Enable all macros and Trust access to the VBA project object model.
+   ## <img src="./Images/Screenshot 2023-09-04 031733.png" alt="icon" width="300"> <img src="./Images/Screenshot 2023-09-04 031852.png" alt="icon" width="300"> 
 2. Open file 
   *[Danh-Tools-Installation.xlsb](./Danh-Tools-Installation.xlsb)* 
   and it will be installed automatically.
-3. ***IMPORTANT:*** DO NOT enable auto-sending function, as antivirus software (e.g., Kaspersky) may detect it as a virus and delete core MS-Excel files. Please turn off Windows Defender and antivirus before enabling.
+1. ***IMPORTANT:*** DO NOT enable auto-sending function, as antivirus software (e.g., Kaspersky) may detect it as a virus and delete core MS-Excel files. Please turn off Windows Defender and antivirus before enabling.
 
 # Release Features
 ## Auto Add-In
