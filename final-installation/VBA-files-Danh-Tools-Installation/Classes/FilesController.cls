@@ -84,7 +84,7 @@ End Function
 Private Sub Class_Initialize()
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
-    Select Case Application.Name
+    Select Case Application.name
         Case "Microsoft Excel"
             Set activeFile = Application.ActiveWorkbook
         Case "Microsoft Word"
@@ -123,7 +123,7 @@ Private Property Get getUserReponse(Optional ByVal defaultReponse As Integer) As
             Prompt:= _
                 info.getPrompt & _
                 "Do you want to replace " & _
-                (component.Name) & _
+                (component.name) & _
                 " VBA file?", _
             Buttons:=vbYesNo, _
             Title:="VBA file already exists") ' TODO : Refactor code
@@ -133,7 +133,7 @@ Private Property Get getUserReponse(Optional ByVal defaultReponse As Integer) As
 End Property
 
 Private Property Get isValidVBAFileExtension(ByVal path As String) As Boolean
-        Select Case "." & fileSystem.getExtensionName(path) 'Add dot cause this method get extension only
+        Select Case "." & fileSystem.GetExtensionName(path) 'Add dot cause this method get extension only
             Case MODULE_EXTENSION
                 Let isValidVBAFileExtension = True
             Case CLASS_EXTENSION
@@ -163,7 +163,7 @@ Private Sub createFolders()
     Dim path As Variant
     Let pathArray(VBAfolder.MAIN) = activeFile.path & _
         VBA_FOLDER & _
-        fileSystem.getBaseName(activeFile.Name)
+        fileSystem.GetBaseName(activeFile.name)
     Let pathArray(VBAfolder.Module) = pathArray(VBAfolder.MAIN) & MODULE_FOLDER
     Let pathArray(VBAfolder.Class) = pathArray(VBAfolder.MAIN) & CLASS_FOLDER
     Let pathArray(VBAfolder.Form) = pathArray(VBAfolder.MAIN) & FORM_FOLDER
@@ -195,7 +195,7 @@ Private Sub replaceVBAFile(ByVal path As String)
     components.remove component
     'Check case can't remove immediately (in use VBA file)
     If amountVBAfile = components.Count Then
-        component.Name = component.Name & info.getAuthor
+        component.name = component.name & info.getAuthor
     End If
     'Add VBA file with path
     If isValidVBAFileExtension(path) Then
@@ -208,7 +208,7 @@ Private Sub importVBAFile(ByVal path As String, Optional ByVal defaultReponse As
     'Loop through all VBA files
     For Each component In components
             'Check VBA files already exist
-        If component.Name = fileSystem.getBaseName(path) Then
+        If component.name = fileSystem.GetBaseName(path) Then
             Let isExist = True: Exit For 'Trick do task when check is true
         End If
     Next component
@@ -245,7 +245,7 @@ On Error GoTo ErrorHandle
     Dim path As Variant
     Let filePaths = getFilePaths
     ' Check if don't select files
-    If TypeName(filePaths) = "Boolean" Then GoTo ExecuteProcedure
+    If typeName(filePaths) = "Boolean" Then GoTo ExecuteProcedure
     'Loop through all paths
     For Each path In filePaths
         Call importVBAFile(path)
@@ -290,15 +290,15 @@ On Error GoTo ErrorHandle
     For Each component In components
         Select Case component.Type
             Case VBAfile.Module
-                Let path = pathArray(VBAfolder.Module) & component.Name & MODULE_EXTENSION
+                Let path = pathArray(VBAfolder.Module) & component.name & MODULE_EXTENSION
             Case VBAfile.ClassModule
-                Let path = pathArray(VBAfolder.Class) & component.Name & CLASS_EXTENSION
+                Let path = pathArray(VBAfolder.Class) & component.name & CLASS_EXTENSION
             Case VBAfile.Form
-                Let path = pathArray(VBAfolder.Form) & component.Name & FORM_EXTENSION
+                Let path = pathArray(VBAfolder.Form) & component.name & FORM_EXTENSION
             Case VBAfile.Document
-                Let path = pathArray(VBAfolder.Els) & component.Name & CLASS_EXTENSION
+                Let path = pathArray(VBAfolder.Els) & component.name & CLASS_EXTENSION
             Case Else
-                Let path = pathArray(VBAfolder.Els) & component.Name & TEXT_EXTENSION
+                Let path = pathArray(VBAfolder.Els) & component.name & TEXT_EXTENSION
         End Select
         Call component.Export(path)
     Next component
@@ -309,7 +309,26 @@ ErrorHandle:
 ExecuteProcedure:
 End Sub
 
-
+'File Name to clipboard
+Public Sub copyFileName(Optional ByRef typeName As String = "name")
+On Error GoTo ErrorHandle
+    Dim name As String
+    Let name = system.getFileName(typeName)
+    If name = vbNullString Then
+         MsgBox _
+                Prompt:=info.getPrompt & _
+                    "This file doesn't have " & typeName & _
+                    vbNewLine & _
+                    "Please save it first!!", _
+                Buttons:=vbOKOnly + vbExclamation, _
+                Title:=info.getAuthor
+        GoTo ExecuteProcedure
+    End If
+    Let system.setClipboard = system.getFileName(typeName)
+ErrorHandle:
+    Call system.tackleErrors
+ExecuteProcedure:
+End Sub
 
 
 

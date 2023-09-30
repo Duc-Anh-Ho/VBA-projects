@@ -18,6 +18,8 @@ Private Const POWER_SHELL_SCRIPT As String = "Wscript.Shell" '  Windows Script H
 Private Const FILE_STREAM_SCRIPT As String = "ADODB.Stream"
 Private Const CDO_CONFIG_SCRIPT As String = "CDO.Configuration"
 Private Const CDO_MESS_SCRIPT As String = "CDO.Message"
+Private Const HTML_FILE_SCRIPT As String = "HtmlFile"
+Private Const CLIPBOARD_SCRIPT As String = "New:{1C3B4210-F441-11CE-B9EA-00AA006B1A69}"
 Private Const EXCEL_TYPE As String = "Microsoft Excel"
 Private Const WB_TYPE As String = "Workbook"
 Private Const WS_TYPE As String = "Worksheet"
@@ -114,7 +116,7 @@ On Error GoTo ErrorHandle
                         Let resultStr = EXCEL_TYPE
                     Case Else
                         ' Set app = Application
-                        Let resultStr = Application.Name & "_Un-handle"
+                        Let resultStr = Application.name & "_Un-handle"
                         GoTo ExecuteProcedure
                 End Select
             End If
@@ -123,13 +125,13 @@ On Error GoTo ErrorHandle
             If app.ActiveWorkbook Is Nothing Then
                 GoTo ExecuteProcedure
             Else
-                Select Case TypeName(app.ActiveWorkbook)
+                Select Case typeName(app.ActiveWorkbook)
                     Case WB_TYPE
                         Set wb = app.ActiveWorkbook
                         Let resultStr = resultStr & "_" & WB_TYPE
                     Case Else
                         ' Set wb = app.ActiveWorkbook
-                        Let resultStr = resultStr & "_" & TypeName(app.ActiveWorkbook) & "_Un-Handle"
+                        Let resultStr = resultStr & "_" & typeName(app.ActiveWorkbook) & "_Un-Handle"
                         GoTo ExecuteProcedure
                 End Select
             End If
@@ -138,7 +140,7 @@ On Error GoTo ErrorHandle
                 GoTo ExecuteProcedure
             Else
                 Set sheetOb = wb.ActiveSheet
-                Select Case TypeName(wb.ActiveSheet)
+                Select Case typeName(wb.ActiveSheet)
                     Case WS_TYPE
                         Set ws = wb.ActiveSheet
                         Set chartSh = Nothing
@@ -156,7 +158,7 @@ On Error GoTo ErrorHandle
                         Let resultStr = resultStr & "_" & DIALOG_TYPE
                         GoTo ExecuteProcedure ' DialogSheet DON'T have type attribute
                     Case Else
-                        Let resultStr = resultStr & "_" & TypeName(wb.ActiveSheet) & "_Un-Handle"
+                        Let resultStr = resultStr & "_" & typeName(wb.ActiveSheet) & "_Un-Handle"
                         GoTo ExecuteProcedure
                 End Select
             End If
@@ -205,10 +207,10 @@ On Error GoTo ErrorHandle
             ElseIf Application.ActiveSheet Is Nothing Then
                 Let mess = "Don't active any sheet yet, please select one!"
                 GoTo ExecuteProcedure
-            ElseIf TypeName(Application.ActiveSheet) <> WS_TYPE Then
+            ElseIf typeName(Application.ActiveSheet) <> WS_TYPE Then
                 Let mess = _
                     "You've selected a " & _
-                    TypeName(Application.ActiveSheet) & _
+                    typeName(Application.ActiveSheet) & _
                     ", need to select a " & _
                     workPlaceType
                 GoTo ExecuteProcedure
@@ -236,10 +238,10 @@ On Error GoTo ErrorHandle
             ElseIf Application.ActiveSheet Is Nothing Then
                 Let mess = "Don't active any sheet yet, please select one!"
                 GoTo ExecuteProcedure
-            ElseIf TypeName(Application.ActiveSheet) <> CHART_TYPE Then
+            ElseIf typeName(Application.ActiveSheet) <> CHART_TYPE Then
                 Let mess = _
                     "You've selected a " & _
-                    TypeName(Application.ActiveSheet) & _
+                    typeName(Application.ActiveSheet) & _
                     ", need to select a " & _
                     workPlaceType
                 GoTo ExecuteProcedure
@@ -261,10 +263,10 @@ On Error GoTo ErrorHandle
             ElseIf Application.ActiveSheet Is Nothing Then
                 Let mess = "Don't active any sheet yet, please select one!"
                 GoTo ExecuteProcedure
-            ElseIf TypeName(Application.ActiveSheet) <> DIALOG_TYPE Then
+            ElseIf typeName(Application.ActiveSheet) <> DIALOG_TYPE Then
                Let mess = _
                     "You've selected a " & _
-                    TypeName(Application.ActiveSheet) & _
+                    typeName(Application.ActiveSheet) & _
                     ", need to select a " & _
                     workPlaceType
                 GoTo ExecuteProcedure
@@ -286,10 +288,10 @@ On Error GoTo ErrorHandle
             ElseIf Application.ActiveSheet Is Nothing Then
                 Let mess = "Don't active any sheet yet, please select one!"
                 GoTo ExecuteProcedure
-            ElseIf TypeName(Application.ActiveSheet) <> WS_TYPE Then
+            ElseIf typeName(Application.ActiveSheet) <> WS_TYPE Then
                 Let mess = _
                     "You've selected a " & _
-                    TypeName(Application.ActiveSheet) & _
+                    typeName(Application.ActiveSheet) & _
                     ", need to select a " & _
                     workPlaceType
                 GoTo ExecuteProcedure
@@ -319,10 +321,10 @@ On Error GoTo ErrorHandle
             ElseIf Application.ActiveSheet Is Nothing Then
                 Let mess = "Don't active any sheet yet, please select one!"
                 GoTo ExecuteProcedure
-            ElseIf TypeName(Application.ActiveSheet) <> CHART_TYPE Then
+            ElseIf typeName(Application.ActiveSheet) <> CHART_TYPE Then
                 Let mess = _
                     "You've selected a " & _
-                    TypeName(Application.ActiveSheet) & _
+                    typeName(Application.ActiveSheet) & _
                     ", need to select a " & _
                     workPlaceType
                 GoTo ExecuteProcedure
@@ -352,10 +354,10 @@ On Error GoTo ErrorHandle
             ElseIf Application.ActiveSheet Is Nothing Then
                 Let mess = "Don't active any sheet yet, please select one!"
                 GoTo ExecuteProcedure
-            ElseIf TypeName(Application.ActiveSheet) <> WS_TYPE Then
+            ElseIf typeName(Application.ActiveSheet) <> WS_TYPE Then
                 Let mess = _
                     "You've selected a " & _
-                    TypeName(Application.ActiveSheet) & _
+                    typeName(Application.ActiveSheet) & _
                     ", need to select a " & _
                     workPlaceType
                 GoTo ExecuteProcedure
@@ -385,10 +387,10 @@ On Error GoTo ErrorHandle
             ElseIf Application.ActiveSheet Is Nothing Then
                 Let mess = "Don't active any sheet yet, please select one!"
                 GoTo ExecuteProcedure
-            ElseIf TypeName(Application.ActiveSheet) <> WS_TYPE Then
+            ElseIf typeName(Application.ActiveSheet) <> WS_TYPE Then
                 Let mess = _
                     "You've selected a " & _
-                    TypeName(Application.ActiveSheet) & _
+                    typeName(Application.ActiveSheet) & _
                     ", need to select a " & _
                     workPlaceType
                 GoTo ExecuteProcedure
@@ -445,7 +447,7 @@ ExecuteProcedure:
 End Property
 'APPLICATION
 Public Property Get hasApplication(Optional appName As String = EXCEL_TYPE) As Boolean
-    If Application.Name = appName Then
+    If Application.name = appName Then
         Let hasApplication = True
     Else
         Let hasApplication = False
@@ -455,7 +457,7 @@ End Property
 Public Property Get hasWorkbook(wbName As String) As Boolean
     Dim wo As Workbook
     For Each wo In app.Workbooks
-        If wo.Name = wbName Then
+        If wo.name = wbName Then
             Let hasWorkbook = True
             Exit Property
         End If
@@ -466,7 +468,7 @@ End Property
 Public Property Get hasSheet(shName As String) As Boolean
     Dim Sh As Object ' Object for Special Worksheets
     For Each Sh In wb.Sheets
-        If Sh.Name = shName Then
+        If Sh.name = shName Then
             Let hasSheet = True
             Exit Property
         End If
@@ -493,6 +495,14 @@ End Property
 'CDO MESS
 Public Property Get createCDOMess() As Object
     Set createCDOMess = CreateObject(CDO_MESS_SCRIPT)
+End Property
+'HTMLFILE
+Public Property Get createHTMLFile() As Object
+    Set createHTMLFile = CreateObject(HTML_FILE_SCRIPT)
+End Property
+'CLIPBOARD
+Public Property Get createClipboard() As Object
+    Set createClipboard = CreateObject(CLIPBOARD_SCRIPT)
 End Property
 'TIMER
 Public Property Get getTimerMilestone() As String
@@ -527,6 +537,32 @@ On Error GoTo ErrorHandle
                 fileName:=path, _
                 ReadOnly:=True)
     End With
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call tackleErrors
+ExecuteProcedure:
+End Property
+'FILE
+Public Property Get getFileName(Optional ByRef typeName As String = "name") As String
+On Error GoTo ErrorHandle
+    If Application.ActiveWorkbook Is Nothing Then GoTo ExecuteProcedure
+    Dim fileSystem As Object
+    Set fileSystem = createFileSystem()
+    With Application.ActiveWorkbook
+        Select Case typeName
+            Case "name"
+                Let getFileName = .name
+            Case "path"
+                Let getFileName = .path
+            Case "fullName"
+                Let getFileName = .FullName
+            Case "shortName"
+                Let getFileName = fileSystem.GetBaseName(.name)
+            Case "extension"
+                Let getFileName = fileSystem.GetExtensionName(.name)
+    End Select
+    Set fileSystem = Nothing
+End With
 GoTo ExecuteProcedure
 ErrorHandle:
     Call tackleErrors
@@ -695,6 +731,19 @@ Public Property Get mergeMulArrays(ParamArray Arrays() As Variant) As Variant
     Next j
     Let mergeMulArrays = arr
 End Property
+'CLIPBOARD
+Public Property Get getClipboard() As Variant
+    Dim clipboardObj As Object
+     Set clipboardObj = createHTMLFile()
+    If Not clipboardObj Is Nothing Then
+        getClipboard = clipboardObj.ParentWindow.ClipboardData.GetData("text")
+    Else
+        Set clipboardObj = createClipboard()
+        clipboardObj.GetFromClipboard
+        getClipboard = clipboardObj.getText()
+    End If
+    Set clipboardObj = Nothing
+End Property
 
 'MUTATORS
 
@@ -702,14 +751,13 @@ End Property
 Public Property Let setStatusBar(ByVal content As Variant)
     If Not hasWorkPlace(True, EXCEL_TYPE) Then Exit Property
     Let app.DisplayStatusBar = False
-    If TypeName(content) = "String" Then
+    If typeName(content) = "String" Then
         Let app.statusBar = content
     Else
         Let app.statusBar = vbNullString
     End If
     Let app.DisplayStatusBar = True
 End Property
-
 'RIBBON
 Public Property Let isHideRibbon(ByRef isHide As Boolean)
     If isHide Then
@@ -717,6 +765,21 @@ Public Property Let isHideRibbon(ByRef isHide As Boolean)
     Else
         app.ExecuteExcel4Macro "show.toolbar(""Ribbon"",True)"
     End If
+End Property
+'CLIPBOARD
+' NOTE: use text as Variant for 64-bit VBA support
+Public Property Let setClipboard(ByRef text As Variant)
+    Dim clipboardObj As Object
+    Set clipboardObj = createHTMLFile()
+    If Not clipboardObj Is Nothing Then
+        clipboardObj.ParentWindow.ClipboardData.SetData "text", text
+    ' NOTE: below some case can cause encoding bug
+    Else
+        Set clipboardObj = createClipboard()
+        clipboardObj.SetText (text)
+        clipboardObj.PutInClipboard
+    End If
+    Set clipboardObj = Nothing
 End Property
 
 'METHODS
@@ -774,10 +837,10 @@ End Sub
 Public Sub storeSheetFormat(fromSheet As Worksheet, Optional toSheetName As String = "formatStored")
     'Create format sheet if not exist
     If toSheetName <> "formatStored" Then
-        If Not hasSheet(toSheetName) Then ThisWorkbook.Worksheets.add.Name = toSheetName
+        If Not hasSheet(toSheetName) Then ThisWorkbook.Worksheets.add.name = toSheetName
     End If
     'Copy all from object sheet
-    fromSheet.Cells.Copy
+    fromSheet.Cells.copy
     'Paste format to stored sheet
     ThisWorkbook.Worksheets(toSheetName).Cells(1, 1).PasteSpecial Paste:=xlPasteFormats
 End Sub
@@ -786,10 +849,10 @@ End Sub
 Public Sub pasteSheetFormat(toSheetName As Worksheet, Optional fromSheet As String = "formatStored")
     'Create format sheet if not exist
     If fromSheet <> "formatStored" Then
-        If Not hasSheet(fromSheet) Then ThisWorkbook.Worksheets.add.Name = toSheetName
+        If Not hasSheet(fromSheet) Then ThisWorkbook.Worksheets.add.name = toSheetName
     End If
 '    Copy all from object sheet
-    ThisWorkbook.Worksheets(fromSheet).Cells.Copy
+    ThisWorkbook.Worksheets(fromSheet).Cells.copy
     'Paste format to stored sheet
     toSheetName.Cells(1, 1).PasteSpecial Paste:=xlPasteFormats
 End Sub

@@ -63,7 +63,7 @@ End Sub
 'ASSESSORS
 '0- Check targetRange
 Private Property Get isRange(selectedRange As Variant, Optional hasMessage As Boolean = True) As Boolean
-    If TypeName(selectedRange) = "Range" Then
+    If typeName(selectedRange) = "Range" Then
 '    If TypeName(Selection) = "ChartArea" Then
         Set targetRange = selectedRange
         Let isRange = True
@@ -275,20 +275,20 @@ End Sub
 'EVENTS
 
 Private Sub appEvent_SheetDeactivate(ByVal sheetObject As Object)
-    If TypeName(sheetObject) = SHEET_TYPE Then
+    If typeName(sheetObject) = SHEET_TYPE Then
         Call pasteHighlightFormat(sheetObject)
     End If
 End Sub
 
 Private Sub appEvent_SheetActivate(ByVal sheetObject As Object)
-   If TypeName(sheetObject) = SHEET_TYPE Then
+   If typeName(sheetObject) = SHEET_TYPE Then
         Call storeHighlightFormat(sheetObject)
         Call highlight(Selection)
    End If
 End Sub
 
 Private Sub appEvent_SheetSelectionChange(ByVal sheetObject As Object, ByVal Target As Range)
-    If TypeName(sheetObject) = SHEET_TYPE Then
+    If typeName(sheetObject) = SHEET_TYPE Then
         Call pasteHighlightFormat(sheetObject)
         Call highlight(Target)
     End If

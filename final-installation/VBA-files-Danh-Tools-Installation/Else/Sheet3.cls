@@ -25,7 +25,7 @@ Private Enum InternetStt
 End Enum
 Private Enum Column
     No = 1
-    Name = 2
+    name = 2
     Address = 3
     Status = 4
 End Enum

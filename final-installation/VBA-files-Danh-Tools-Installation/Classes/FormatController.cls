@@ -47,7 +47,7 @@ End Sub
 'METHODS
 
 Private Sub copyFormatRanges()
-    targetObject.Copy
+    targetObject.copy
 End Sub
 
 Private Sub pasteFormatRanges()
@@ -96,15 +96,15 @@ End Sub
 Private Sub pasteFormatDrawingObjects()
     Dim targetObjectItem As Variant
     For Each targetObjectItem In targetObject
-        system.ws.Shapes(targetObjectItem.Name).Apply
+        system.ws.Shapes(targetObjectItem.name).Apply
     Next targetObjectItem
 End Sub
 
 Private Sub copyFormatOtherObject()
-    system.ws.Shapes(targetObject.Name).PickUp
+    system.ws.Shapes(targetObject.name).PickUp
 End Sub
 Private Sub pasteFormatOtherObject()
-    system.ws.Shapes(targetObject.Name).Apply
+    system.ws.Shapes(targetObject.name).Apply
 End Sub
 '2-0  Move or  Size With Cell
 Private Sub MoveAndSize(Optional ByVal placementStt As Byte = xlMoveAndSize)
@@ -132,7 +132,7 @@ Public Sub copyFormat()
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
 '    Call system.speedOn
-    Select Case TypeName(targetObject)
+    Select Case typeName(targetObject)
         Case "Range"
             Call copyFormatRanges
         Case "DrawingObjects"
@@ -151,7 +151,7 @@ Public Sub pasteFormat()
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
 '    Call system.speedOn
-    Select Case TypeName(targetObject)
+    Select Case typeName(targetObject)
         Case "Range"
             Call pasteFormatRanges
         Case "DrawingObjects"
@@ -170,7 +170,7 @@ Public Sub pasteValue()
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
 '    Call system.speedOn
-    Select Case TypeName(targetObject)
+    Select Case typeName(targetObject)
         Case "Range"
             Call pasteValueRanges
     End Select
@@ -197,7 +197,7 @@ Public Sub clearContent()
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
     Call system.speedOn
-    Select Case TypeName(targetObject)
+    Select Case typeName(targetObject)
         Case "Range"
             Call clearContentRanges
     End Select
@@ -212,7 +212,7 @@ Public Sub clearFormat()
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
     Call system.speedOn
-    Select Case TypeName(targetObject)
+    Select Case typeName(targetObject)
         Case "Range"
             Call clearFormatRanges
     End Select
@@ -227,7 +227,7 @@ Public Sub clearAll()
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
     Call system.speedOn
-    Select Case TypeName(targetObject)
+    Select Case typeName(targetObject)
         Case "Range"
             Call clearFormatContentRange
     End Select

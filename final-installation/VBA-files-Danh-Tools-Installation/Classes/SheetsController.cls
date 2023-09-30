@@ -59,7 +59,7 @@ On Error GoTo ErrorHandle
 '    Set wss = system.wb.Worksheets
     Set wss = system.wb.Sheets
     Set wsEvent = system.ws
-    Set selectedWss = system.app.Windows(wbEvent.Name).SelectedSheets
+    Set selectedWss = system.app.Windows(wbEvent.name).SelectedSheets
     Let hasVariables = True
     GoTo ExecuteProcedure
 ErrorHandle:
@@ -138,7 +138,7 @@ End Property
 Private Sub addSheetsAsRange()
     Dim cellText As String
     'Check Selected Range
-    If TypeName(Selection) = "Range" Then
+    If typeName(Selection) = "Range" Then
         Set addSheetRange = Selection
         'Loop through selected range
         For Each cell In addSheetRange
@@ -149,7 +149,7 @@ Private Sub addSheetsAsRange()
             'Check don't exist and not null
             If Not system.hasSheet(cellText) And cellText <> vbNullString Then
                 'Add at the end
-                wss.add(After:=wss(wss.Count)).Name = cellText
+                wss.add(After:=wss(wss.Count)).name = cellText
             End If
         Next cell
         'Return to origin sheet
@@ -177,7 +177,7 @@ Private Sub deleteAllSheets()
         'Loop through all worksheets
         For Each ws In wss
             'Check don't delete current sheet
-            If ws.Name <> system.ws.Name And ws.Visible = xlSheetVisible Then
+            If ws.name <> system.ws.name And ws.Visible = xlSheetVisible Then
                 ws.Delete
             End If
         Next ws
@@ -205,7 +205,7 @@ Private Sub insertListSheetsColumn(Optional ByVal onSheet As Worksheet)
             .Interior.Color = LIST_HEADER_COLOR
             .Font.Bold = LIST_ISBOLD
             .Font.size = LIST_FONT_SIZE
-            .Font.Name = LIST_FONT_NAME
+            .Font.name = LIST_FONT_NAME
             .Borders.Color = LIST_BORDER_COLOR
             .Borders.LineStyle = LIST_BORDER_STYLE
             .NumberFormat = LIST_FORMAT_TEXT
@@ -236,7 +236,7 @@ Private Sub insertListSheetsColumn(Optional ByVal onSheet As Worksheet)
             .Interior.Color = LIST_HEADER_COLOR
             .Font.Bold = LIST_ISBOLD
             .Font.size = LIST_FONT_SIZE
-            .Font.Name = LIST_FONT_NAME
+            .Font.name = LIST_FONT_NAME
             .Borders.Color = LIST_BORDER_COLOR
             .Borders.LineStyle = LIST_BORDER_STYLE
             .NumberFormat = LIST_FORMAT_TEXT
@@ -267,7 +267,7 @@ Private Sub insertListSheetsColumn(Optional ByVal onSheet As Worksheet)
                 .ClearFormats
                 .Font.Bold = LIST_ISBOLD
                 .Font.size = LIST_FONT_SIZE
-                .Font.Name = LIST_FONT_NAME
+                .Font.name = LIST_FONT_NAME
                 .Borders.Color = LIST_BORDER_COLOR
                 .Borders.LineStyle = LIST_BORDER_STYLE
                 .NumberFormat = LIST_FORMAT_TEXT
@@ -296,26 +296,26 @@ Private Sub insertListSheetsColumn(Optional ByVal onSheet As Worksheet)
                 ws.Hyperlinks.add _
                     Anchor:=onSheet.Range(TITLE_NAME_CELL).Offset(ws.index), _
                     Address:="", _
-                    SubAddress:="'" & ws.Name & "'" & "!" & TITLE_NO_CELL, _
-                    screentip:=CStr("Click here to go to " & ws.index & ": " & ws.Name)
+                    SubAddress:="'" & ws.name & "'" & "!" & TITLE_NO_CELL, _
+                    screentip:=CStr("Click here to go to " & ws.index & ": " & ws.name)
                 ' Add format
                 '.ClearFormats
                 .Font.Bold = LIST_ISBOLD
                 .Font.size = LIST_FONT_SIZE
-                .Font.Name = LIST_FONT_NAME
+                .Font.name = LIST_FONT_NAME
                 .Borders.Color = LIST_BORDER_COLOR
                 .Borders.LineStyle = LIST_BORDER_STYLE
                 .NumberFormat = LIST_FORMAT_TEXT
                 .HorizontalAlignment = xlLeft
                 ' Add SheetName to Name column
-                .value = CStr(ws.Name)
+                .value = CStr(ws.name)
                 ' Add data validation
                 .Validation.Delete
                 .Validation.add _
                     Type:=xlValidateCustom, _
                     AlertStyle:=xlValidAlertStop, _
                     Operator:=xlBetween, _
-                    Formula1:="=" & .Address & "=" & Chr(34) & ws.Name & Chr(34)
+                    Formula1:="=" & .Address & "=" & Chr(34) & ws.name & Chr(34)
                 .Validation.IgnoreBlank = False
                 .Validation.ErrorTitle = info.getAuthor
                 .Validation.errorMessage = info.getPrompt & _
@@ -324,7 +324,7 @@ Private Sub insertListSheetsColumn(Optional ByVal onSheet As Worksheet)
                 .Validation.ShowInput = False
                 .Validation.ShowError = True
                 ' Highlight current sheet
-                If .text = onSheet.Name Then Let .Interior.Color = SELECTED_SHEET_COLOR
+                If .text = onSheet.name Then Let .Interior.Color = SELECTED_SHEET_COLOR
             End With
         Next ws
     End If
@@ -348,7 +348,7 @@ Private Sub insertRenameColumn(Optional ByVal onSheet As Worksheet)
             .Interior.Color = LIST_HEADER_COLOR
             .Font.Bold = LIST_ISBOLD
             .Font.size = LIST_FONT_SIZE
-            .Font.Name = LIST_FONT_NAME
+            .Font.name = LIST_FONT_NAME
             .Borders.Color = LIST_BORDER_COLOR
             .Borders.LineStyle = LIST_BORDER_STYLE
             .NumberFormat = LIST_FORMAT_TEXT
@@ -378,7 +378,7 @@ Private Sub insertRenameColumn(Optional ByVal onSheet As Worksheet)
             .ClearFormats
             .Font.Bold = LIST_ISBOLD
             .Font.size = LIST_FONT_SIZE
-            .Font.Name = LIST_FONT_NAME
+            .Font.name = LIST_FONT_NAME
             .Borders.Color = LIST_BORDER_COLOR
             .Borders.LineStyle = LIST_BORDER_STYLE
             .NumberFormat = LIST_FORMAT_TEXT
@@ -457,7 +457,7 @@ Private Sub renameSheet( _
                 'Check don't exist and not null
                 If Not system.hasSheet(info.getAuthor & "___" & newName) And newName <> vbNullString Then
                     ' Change to dump name
-                    Let wss(cell.row - 1).Name = info.getAuthor & "___" & newName
+                    Let wss(cell.row - 1).name = info.getAuthor & "___" & newName
                   End If
             Next cell
             ' Rename Sheets
@@ -469,7 +469,7 @@ Private Sub renameSheet( _
                 'Check don't exist and not null
                 If Not system.hasSheet(newName) And newName <> vbNullString Then
                     ' Change to dump name
-                    Let wss(cell.row - 1).Name = newName
+                    Let wss(cell.row - 1).name = newName
                     Let onSheet.Range(TITLE_NAME_CELL).Offset(cell.row - 1).value = CStr(newName)
                 End If
             Next cell
@@ -512,7 +512,7 @@ Private Sub hideAllSheets( _
     'Loop through all worksheets
     For Each ws In wss
         'Check don't hide current sheet
-        If ws.Name <> system.ws.Name Then
+        If ws.name <> system.ws.name Then
             ws.Visible = visibleStatus 'Hide all except current sheet
         End If
     Next ws
@@ -613,7 +613,7 @@ Private Sub appEvent_SheetActivate(ByVal sheetObject As Object)
 On Error GoTo ErrorHandle
     Call system.speedOn
     '2 levels check previous sheet
-    If (TypeName(sheetObject) = "Worksheet") Then
+    If (typeName(sheetObject) = "Worksheet") Then
         If sheetObject.Type = xlWorksheet Then ' xlWorksheet = -4167
             Call insertListSheetsColumn(sheetObject)
         End If
@@ -629,7 +629,7 @@ Private Sub appEvent_SheetDeactivate(ByVal sheetObject As Object)
 On Error GoTo ErrorHandle
     Call system.speedOn
     '2 levels check previous sheet
-    If (TypeName(sheetObject) = "Worksheet") Then
+    If (typeName(sheetObject) = "Worksheet") Then
         If sheetObject.Type = xlWorksheet Then ' xlWorksheet = -4167
             Call deleteListColumn(sheetObject)
         End If

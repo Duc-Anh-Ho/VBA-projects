@@ -14,7 +14,7 @@ Option Explicit
             ByVal Length As Long)
         'Subs/Functions
         ' Get Ribbon From Pointer Memory
-        Public Function GetRibbon(ByVal lRibbonName As Name) As IRibbonUI
+        Public Function GetRibbon(ByVal lRibbonName As name) As IRibbonUI
             Dim objRibbon As Object
             Dim lRibbonPointer As LongPtr
             Let lRibbonPointer = CLngPtr(Replace(lRibbonName.RefersTo, "=", ""))

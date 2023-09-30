@@ -1346,7 +1346,7 @@ On Error GoTo ErrorHandle
     Set loadedRibbon = ribbon
     'Store pointer to IRibbonUI in a Named Range within add-in file
     Workbooks(info.getAddinName).Names.add _
-        Name:=info.getRibbonID, _
+        name:=info.getRibbonID, _
         RefersTo:=ObjPtr(ribbon)
     'Create Custom Event (Ex. Change Sheet,)
     Call setDefaultSettings

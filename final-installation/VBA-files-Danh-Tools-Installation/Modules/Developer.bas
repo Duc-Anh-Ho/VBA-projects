@@ -12,7 +12,7 @@ Private fileSystem As Object
 Private userResponse As VbMsgBoxResult
 
 Public Sub aSaveBackup()
-    If ThisWorkbook.Name = ADDIN_FILE_NAME Then
+    If ThisWorkbook.name = ADDIN_FILE_NAME Then
         ThisWorkbook.SaveAs _
             fileName:=INSTALL_FILE_FULLNAME, _
             FileFormat:=xlExcel12 ' xlExcel12 = xlsb
@@ -52,8 +52,11 @@ Public Sub aaTestCode()
 '''''''''''''''''
     Dim system As New SystemUpdate
     Debug.Print "====="
-    Debug.Print system.hasWorkPlace(True)
+'    Debug.Print system.hasWorkPlace(True)
 '    Debug.Print system.hasWorkPlace(True, "asd")
+    Dim fileController As New FilesController
+    fileController.copyFileName
+    Debug.Print system.getClipboard()
     Debug.Print "====="
     'Microsoft Excel
     'Workbook

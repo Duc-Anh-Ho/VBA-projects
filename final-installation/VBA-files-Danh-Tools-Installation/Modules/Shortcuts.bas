@@ -2,6 +2,41 @@ Attribute VB_Name = "Shortcuts"
 Option Explicit
 
 'METHODS
+Private Sub copyName()
+      Dim fileController As FilesController
+      Set fileController = New FilesController
+      Call fileController.copyFileName("name")
+      Set fileController = Nothing
+End Sub
+
+Private Sub copyFullName()
+      Dim fileController As FilesController
+      Set fileController = New FilesController
+      Call fileController.copyFileName("fullName")
+      Set fileController = Nothing
+End Sub
+
+Private Sub copyShortName()
+      Dim fileController As FilesController
+      Set fileController = New FilesController
+      Call fileController.copyFileName("shortName")
+      Set fileController = Nothing
+End Sub
+
+Private Sub copyPath()
+      Dim fileController As FilesController
+      Set fileController = New FilesController
+      Call fileController.copyFileName("path")
+      Set fileController = Nothing
+End Sub
+
+Private Sub copyExtensionName()
+      Dim fileController As FilesController
+      Set fileController = New FilesController
+      Call fileController.copyFileName("extension")
+      Set fileController = Nothing
+End Sub
+
 Private Sub copyF()
     Dim formatC As FormatController
     Set formatC = New FormatController
@@ -130,6 +165,10 @@ Public Sub install()
     Application.OnKey _
         key:="^+{DEL}", _
         procedure:="Shortcuts.clearAll"
+    'Shift + F12
+    Application.OnKey _
+        key:="+{F12}", _
+        procedure:="Shortcuts.copyFullName"
 End Sub
 
 Public Sub uninstall()
@@ -143,4 +182,5 @@ Public Sub uninstall()
     Application.OnKey key:="^+%{M}"
     Application.OnKey key:="^{DEL}"
     Application.OnKey key:="^+{DEL}"
+    Application.OnKey key:="+{F12}"
 End Sub

@@ -17,7 +17,7 @@ This project is my VBA tool for my resume portfolio.
   - [Network Controller](#network-controller)
   - [Shortcuts](#shortcuts)
 - [Release Notes](#release-notes)
-  - [v2.3.3 - 2023/08/11](#v233---20230811)
+  - [v2.3.3 - 2023/10/01](#v233---20231001)
     - [Added](#added)
     - [Changed](#changed)
     - [Removed](#removed)
@@ -82,10 +82,12 @@ This project is my VBA tool for my resume portfolio.
 |Ctrl + Shift + Alt + M|Shape Don't Move and Size||
 |Ctrl + Del|Delete Format||
 |Ctrl + Shift + Del|Delete All||
+|Shift + F12|Copy Worksheet Fullname||
 # Release Notes
-## v2.3.3 - 2023/08/11
+## v2.3.3 - 2023/10/01
 ### Added
-- Shortcut for delete format only and delete all
+- Shortcut for delete format only and delete all.
+- Shortcut for copy fullname of active workbook.
 ### Changed
 - Update Refresh Ribbon button will remove then add custom shortcuts back.
 ### Removed

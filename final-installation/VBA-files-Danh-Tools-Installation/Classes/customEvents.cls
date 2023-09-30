@@ -79,7 +79,7 @@ Private Sub appEvent_WorkbookActivate(ByVal wb As Workbook)
     
     'Check case deleted workbook to reset  Custom UI
     ' *Can't check Is Nothing because after remove previousWb, somehow, it's become object type not workbook or nothing
-    If TypeName(previousWb) <> "Workbook" Then
+    If typeName(previousWb) <> "Workbook" Then
         Set CustomUi.loadedRibbon = Nothing
         Call CustomUi.refreshCustomRibbon
     Else

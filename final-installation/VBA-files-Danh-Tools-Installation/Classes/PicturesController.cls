@@ -88,7 +88,7 @@ Public Property Let hasFakeBorder(ByRef isFake As Boolean)
                 Top:=Sh.Top - MARKER_LINE_WEIGHT / 2, _
                 Width:=Sh.Width + MARKER_LINE_WEIGHT, _
                 Height:=Sh.Height + MARKER_LINE_WEIGHT)
-                .Name = fakeBorderName & .Name
+                .name = fakeBorderName & .name
                 .Fill.Visible = msoTrue
                 .Fill.ForeColor.RGB = FAKE_BORDER_COLOR
                 .line.Visible = msoFalse
@@ -97,7 +97,7 @@ Public Property Let hasFakeBorder(ByRef isFake As Boolean)
         Next Sh
     Else
         For Each Sh In system.ws.Shapes
-            If Sh.Name Like (fakeBorderName & "*") Then Call Sh.Delete
+            If Sh.name Like (fakeBorderName & "*") Then Call Sh.Delete
         Next Sh
     End If
 End Property
@@ -113,7 +113,7 @@ Public Property Let hasMarkTargetPlace(ByRef isMarked As Boolean)
             Top:=targetPlace.Top, _
             Width:=targetPlace.Width, _
             Height:=targetPlace.Height)
-            .Name = markUpName
+            .name = markUpName
             .Fill.Visible = msoTrue
             .Fill.ForeColor.RGB = MARKER_COLOR
             .Fill.Transparency = MARKER_TRANSPARENT_RATE / 100
@@ -123,7 +123,7 @@ Public Property Let hasMarkTargetPlace(ByRef isMarked As Boolean)
             .line.Weight = MARKER_LINE_WEIGHT
             .line.DashStyle = msoLineSysDot
             .TextFrame.Characters.text = MARKER_TEXT
-            .TextFrame.Characters.Font.Name = MARKER_TEXT_FONT
+            .TextFrame.Characters.Font.name = MARKER_TEXT_FONT
             .TextFrame.Characters.Font.Bold = msoTrue
             .TextFrame.Characters.Font.Italic = msoFalse
             .TextFrame.Characters.Font.size = .Height / 5
@@ -134,7 +134,7 @@ Public Property Let hasMarkTargetPlace(ByRef isMarked As Boolean)
         End With
     Else
         For Each Sh In system.ws.Shapes
-            If Sh.Name = markUpName Then Call Sh.Delete
+            If Sh.name = markUpName Then Call Sh.Delete
         Next Sh
     End If
 End Property
@@ -160,11 +160,11 @@ Public Property Let hasMarkTargetObject(ByRef isMarked As Boolean)
                 .Fill.ForeColor.RGB = MARKER_TEAR_COLOR
                 .Adjustments.item(1) = 1.85
                 .IncrementRotation 270
-                .Name = tearName & .Name 're-name for marker_delete
+                .name = tearName & .name 're-name for marker_delete
             End With
             'Group and rename tear with target object
-            Set groupSh = system.ws.Shapes.Range(Array(tearSh.Name, Sh.Name)).Group
-            Let groupSh.Name = groupName & groupSh.Name
+            Set groupSh = system.ws.Shapes.Range(Array(tearSh.name, Sh.name)).Group
+            Let groupSh.name = groupName & groupSh.name
         Next Sh
     Else
         'Loop all shapes in sheet
@@ -172,10 +172,10 @@ Public Property Let hasMarkTargetObject(ByRef isMarked As Boolean)
             'Check if shape is tear group
             If _
                 groupSh.Type = msoGroup _
-                And groupSh.Name Like (groupName & "*") Then
+                And groupSh.name Like (groupName & "*") Then
                 'Loop all shapes in group
                 For Each Sh In groupSh.GroupItems
-                    If Sh.Name Like (tearName & "*") Then Call Sh.Delete
+                    If Sh.name Like (tearName & "*") Then Call Sh.Delete
                 Next Sh
             End If
         Next groupSh
@@ -184,7 +184,7 @@ End Property
 'METHODS
 '1,2,3
 Public Sub lockRatio(ByRef targetObject As Object)
-    Select Case TypeName(targetObject)
+    Select Case typeName(targetObject)
         Case "Shape"
             Let targetObject.LockAspectRatio = isLockRatio
             Call targetObject.ZOrder(msoBringToFront)
@@ -195,12 +195,12 @@ Public Sub lockRatio(ByRef targetObject As Object)
 End Sub
 '1,2
 Private Sub setTargetPlace(targetOj As Object, Optional hasConfirm As Boolean = True)
-    Select Case TypeName(targetOj)
+    Select Case typeName(targetOj)
         Case "Range"
             Set targetPlace = targetOj
         Case "DrawingObjects"
             MsgBox _
-                Prompt:="Sorry! we've not supported " & TypeName(targetOj) & " yet" _
+                Prompt:="Sorry! we've not supported " & typeName(targetOj) & " yet" _
                     & vbNewLine & "Please select another object type !!!!", _
                 Buttons:=vbOKOnly + vbCritical, _
                 Title:=info.getAuthor
@@ -208,9 +208,9 @@ Private Sub setTargetPlace(targetOj As Object, Optional hasConfirm As Boolean = 
             'Optional user response
             If hasConfirm Then
                 userResponse = MsgBox( _
-                    Prompt:="You've selected: '" & targetOj.Name & _
-                        "' as type: " & TypeName(targetOj) & vbNewLine & _
-                        "Do you want to replace " & targetOj.Name & "?", _
+                    Prompt:="You've selected: '" & targetOj.name & _
+                        "' as type: " & typeName(targetOj) & vbNewLine & _
+                        "Do you want to replace " & targetOj.name & "?", _
                     Buttons:=vbYesNoCancel + vbQuestion, _
                     Title:=info.getAuthor)
             Else
@@ -232,10 +232,10 @@ End Sub
 Private Sub deleteOldPicture()
     If targetPlace Is Nothing Then Exit Sub
     If userResponse = vbYes Then
-        Select Case TypeName(targetPlace)
+        Select Case typeName(targetPlace)
             Case "ChartArea"
                 MsgBox _
-                    Prompt:="The captured picture is inside the " & TypeName(Selection) _
+                    Prompt:="The captured picture is inside the " & typeName(Selection) _
                         & vbNewLine & "Can't delete it automatically", _
                     Buttons:=vbOKOnly + vbExclamation, _
                     Title:=info.getAuthor
@@ -253,10 +253,10 @@ Private Sub setTargetObject(ByRef objectName As String)
         For Each Sh In system.ws.Shapes
             If Sh.Type = msoGroup Then
                 For Each shGItem In Sh.GroupItems
-                    If shGItem.Name = objectName Then Set targetObject = Sh
+                    If shGItem.name = objectName Then Set targetObject = Sh
                 Next shGItem
             End If
-            If Sh.Name = objectName Then Set targetObject = Sh
+            If Sh.name = objectName Then Set targetObject = Sh
         Next Sh
 End Sub
 '1.
@@ -265,7 +265,7 @@ Private Sub capturePicture()
         .ScreenUpdating = False
         .CommandBars.ExecuteMso "ScreenClipping" 'important key
     End With
-    If TypeName(Selection) = "Picture" Then
+    If typeName(Selection) = "Picture" Then
         Set targetObject = Selection
 '        targetObject.Cut
 '    'Paste to A1 as default
@@ -291,7 +291,7 @@ Private Sub scalePicture(ByVal isLockRatio As Boolean)
     'Scale up when too small
     If targetPlace.Height < customOffset * 2 Or _
     targetPlace.Width < customOffset * 2 Then
-        If TypeName(targetPlace) <> "Range" Then
+        If typeName(targetPlace) <> "Range" Then
             Let targetPlace.Height = targetPlace.Height + customOffset * 2
             Let targetPlace.Width = targetPlace.Width + customOffset * 2
         End If
@@ -418,9 +418,9 @@ Public Sub arrangeToMerge()
     On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
     Call system.speedOn
-    If TypeName(Selection) = "GroupObject" Then
+    If typeName(Selection) = "GroupObject" Then
         Call setTargetPlace(Selection.TopLeftCell.MergeArea)
-        Call setTargetObject(Selection.Name)
+        Call setTargetObject(Selection.name)
         Call scalePicture(isLockRatio)
     End If
 GoTo ExecuteProcedure
