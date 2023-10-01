@@ -83,11 +83,13 @@ This project is my VBA tool for my resume portfolio.
 |Ctrl + Del|Delete Format||
 |Ctrl + Shift + Del|Delete All||
 |Shift + F12|Copy Worksheet Fullname||
+|Ctrl + Shift + S|Copy Worksheet Path||
 # Release Notes
 ## v2.3.3 - 2023/10/01
 ### Added
 - Shortcut for delete format only and delete all.
 - Shortcut for copy fullname of active workbook.
+- Shortcut for copy path of active workbook.
 ### Changed
 - Update Refresh Ribbon button will remove then add custom shortcuts back.
 ### Removed

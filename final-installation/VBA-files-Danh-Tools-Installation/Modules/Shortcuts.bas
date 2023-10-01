@@ -165,10 +165,14 @@ Public Sub install()
     Application.OnKey _
         key:="^+{DEL}", _
         procedure:="Shortcuts.clearAll"
-    'Shift + F12
+    ' Shift + F12
     Application.OnKey _
         key:="+{F12}", _
         procedure:="Shortcuts.copyFullName"
+    ' Ctrl + Shift + S
+    Application.OnKey _
+        key:="^+{S}", _
+        procedure:="Shortcuts.copyPath"
 End Sub
 
 Public Sub uninstall()
@@ -183,4 +187,5 @@ Public Sub uninstall()
     Application.OnKey key:="^{DEL}"
     Application.OnKey key:="^+{DEL}"
     Application.OnKey key:="+{F12}"
+    Application.OnKey key:="^+{S}"
 End Sub
