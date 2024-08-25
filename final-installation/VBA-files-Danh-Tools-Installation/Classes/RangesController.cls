@@ -7,7 +7,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-' AUTO INVERT COLOR
+' Check README.md for more information
 Option Explicit
 'Declare Variables
 Private info As InfoConstants
@@ -272,6 +272,60 @@ ErrorHandle:
 ExecuteProcedure:
     Call system.speedOff
 End Sub
+'5 Replace
+Public Function multipleReplace( _
+    ByVal findArea As Range _
+    , ByVal replaceArea As Range _
+    , ByVal withinIndex As Byte _
+    , Optional ByVal selectedArea As Range _
+    , Optional ByVal isMatchCase As Boolean _
+    , Optional ByVal isMatchByte As Boolean _
+    , Optional ByVal isMatchContent As Boolean _
+    , Optional ByVal searchOrderCd As Byte _
+) As Boolean
+On Error GoTo ErrorHandle
+    If Not hasVariables Then GoTo ExecuteProcedure
+    Call system.speedOn
+    Dim i As Long
+    Dim lookAtCd As Byte: Let lookAtCd = IIf(isMatchContent, xlPart, xlWhole)
+    Let searchOrderCd = IIf(searchOrderCd = 0, xlByRows, xlByColumns)
+    ' TODO optional below
+    Dim isSearchFormat As Boolean: Let isSearchFormat = False
+    Dim isReplaceFormat As Boolean: Let isReplaceFormat = False
+    Dim within As Object ' 0: Selection, 1: ActiveSheet, 2: ActiveWorkbook,
+
+    Select Case withinIndex
+        ' Selection
+        Case 0: Set within = selectedArea
+        ' ActiveSheet
+        Case 1: Set within = system.ws.UsedRange
+        ' ActiveWorkbook
+        Case 2: Set within = Cells
+    End Select
+    For i = 1 To findArea.Count
+        If Len(findArea.Cells(i)) > 0 Then
+            within.Replace _
+                What:=findArea.Cells(i).value _
+                , Replacement:=replaceArea.Cells(i).value _
+                , LookAt:=lookAtCd _
+                , SearchOrder:=searchOrderCd _
+                , MatchCase:=isMatchCase _
+                , MatchByte:=isMatchByte _
+                , SearchFormat:=isSearchFormat _
+                , ReplaceFormat:=isReplaceFormat
+        End If
+    Next i
+        Let userResponse = MsgBox( _
+            Prompt:=info.getPrompt & "Multiple replacment successfull!", _
+            Buttons:=vbOKOnly + vbInformation, _
+            Title:=info.getAuthor)
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call system.tackleErrors
+ExecuteProcedure:
+    Call system.speedOff
+    Call MultipleReplaceForm.closeForm
+End Function
 'EVENTS
 
 Private Sub appEvent_SheetDeactivate(ByVal sheetObject As Object)

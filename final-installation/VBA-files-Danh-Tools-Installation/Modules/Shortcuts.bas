@@ -114,6 +114,20 @@ Private Sub clearAll()
     Set formatC = Nothing
 End Sub
 
+Private Sub toggleZenMode()
+    Dim modeC As ModeController
+    Set modeC = New ModeController
+    Call modeC.toggleZenMode
+    Set modeC = Nothing
+End Sub
+
+Private Sub multipleReplace()
+    Dim form As MultipleReplaceForm
+    Set form = New MultipleReplaceForm
+    form.Show vbModal ' vbModeless or vbModal
+    Set form = Nothing
+End Sub
+
 'MAIN
 ' TODO: Menu ribbon create shortcut
 Public Sub add()
@@ -169,13 +183,29 @@ Public Sub install()
     Application.OnKey _
         key:="+{F12}", _
         procedure:="Shortcuts.copyFullName"
+    ' Ctrl + Shift + Alt  + C
+    Application.OnKey _
+        key:="^+%{C}", _
+        procedure:="Shortcuts.copyFullName"
     ' Ctrl + Shift + S
     Application.OnKey _
         key:="^+{S}", _
         procedure:="Shortcuts.copyPath"
+    ' F11
+    Application.OnKey _
+        key:="{F11}", _
+        procedure:="Shortcuts.toggleZenMode"
+    ' F1 - Override Help
+    Application.OnKey _
+        key:="{F1}", _
+        procedure:=""
+    ' Ctrl + Shift + H
+    Application.OnKey _
+        key:="^+{H}", _
+        procedure:="Shortcuts.multipleReplace"
 End Sub
 
-Public Sub uninstall()
+Public Sub unInstall()
     Application.OnKey key:="^+{C}"
     Application.OnKey key:="^+{V}"
     Application.OnKey key:="^+%{V}"
@@ -188,4 +218,5 @@ Public Sub uninstall()
     Application.OnKey key:="^+{DEL}"
     Application.OnKey key:="+{F12}"
     Application.OnKey key:="^+{S}"
+    Application.OnKey key:="{F11}"
 End Sub

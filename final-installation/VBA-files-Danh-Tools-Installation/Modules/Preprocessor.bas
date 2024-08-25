@@ -65,3 +65,4 @@ Option Explicit
 '        Set GetRibbon = objRibbon
 '        Set objRibbon = Nothing
 'End Function
+

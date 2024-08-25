@@ -40,7 +40,8 @@ End Sub
 
 ' TEST
 Public Sub aaTestCode()
-'    If ActiveWorkbook.path = "" Then MsgBox "Not saved"
+
+ '    If ActiveWorkbook.path = "" Then MsgBox "Not saved"
 ''''''''''''''''''''
 '    Dim system As SystemUpdate
 '    Dim PWShell As PowerShellController
@@ -49,15 +50,15 @@ Public Sub aaTestCode()
 '    Set PWShell = New PowerShellController
     
 '    Debug.Print PWShell.executeScript("ipconfig /all")
-'''''''''''''''''
-    Dim system As New SystemUpdate
-    Debug.Print "====="
-'    Debug.Print system.hasWorkPlace(True)
-'    Debug.Print system.hasWorkPlace(True, "asd")
-    Dim fileController As New FilesController
-    fileController.copyFileName
-    Debug.Print system.getClipboard()
-    Debug.Print "====="
+''''''''''''''''''
+'    Dim system As New SystemUpdate
+'    Debug.Print "====="
+''    Debug.Print system.hasWorkPlace(True)
+''    Debug.Print system.hasWorkPlace(True, "asd")
+'    Dim fileController As New FilesController
+'    fileController.copyFileName
+'    Debug.Print system.getClipboard()
+'    Debug.Print "====="
     'Microsoft Excel
     'Workbook
     'Worksheet

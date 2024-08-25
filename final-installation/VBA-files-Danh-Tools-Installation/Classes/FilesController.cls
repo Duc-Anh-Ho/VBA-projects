@@ -44,7 +44,7 @@ Private codeModule As Object
 Private Enum VBAfile ' Codes for  type of VBAfile
     Module = 1 'vbext_ct_StdModule
     ClassModule = 2 'vbext_ct_ClassModule
-    Form = 3 'vbext_ct_MSForm
+    form = 3 'vbext_ct_MSForm
     ActiveX = 11 'vbext_ct_ActiveXDesigner
     Document = 100 'vbext_ct_Document
 End Enum
@@ -52,7 +52,7 @@ Private Enum VBAfolder ' Codes for path array
     MAIN = 0 'VBA-files
     Module = 1
     Class = 2
-    Form = 3
+    form = 3
     Els = 4
 End Enum
 Private Enum UserReponse 'Codes for msgBox selection
@@ -166,7 +166,7 @@ Private Sub createFolders()
         fileSystem.GetBaseName(activeFile.name)
     Let pathArray(VBAfolder.Module) = pathArray(VBAfolder.MAIN) & MODULE_FOLDER
     Let pathArray(VBAfolder.Class) = pathArray(VBAfolder.MAIN) & CLASS_FOLDER
-    Let pathArray(VBAfolder.Form) = pathArray(VBAfolder.MAIN) & FORM_FOLDER
+    Let pathArray(VBAfolder.form) = pathArray(VBAfolder.MAIN) & FORM_FOLDER
     Let pathArray(VBAfolder.Els) = pathArray(VBAfolder.MAIN) & ELSE_FOLDER
     'Loop through my path array and create folder
     For Each path In pathArray
@@ -220,7 +220,7 @@ Private Sub importVBAFile(ByVal path As String, Optional ByVal defaultReponse As
                     Call replaceVBAFile(path)
                 Case VBAfile.ClassModule
                     Call replaceVBAFile(path)
-                Case VBAfile.Form
+                Case VBAfile.form
                     Call replaceVBAFile(path)
 '                Case VBAfile.ActiveX ' TO-DO: Research what is this file extension
 '                    Call replaceVBAFile(path)
@@ -293,8 +293,8 @@ On Error GoTo ErrorHandle
                 Let path = pathArray(VBAfolder.Module) & component.name & MODULE_EXTENSION
             Case VBAfile.ClassModule
                 Let path = pathArray(VBAfolder.Class) & component.name & CLASS_EXTENSION
-            Case VBAfile.Form
-                Let path = pathArray(VBAfolder.Form) & component.name & FORM_EXTENSION
+            Case VBAfile.form
+                Let path = pathArray(VBAfolder.form) & component.name & FORM_EXTENSION
             Case VBAfile.Document
                 Let path = pathArray(VBAfolder.Els) & component.name & CLASS_EXTENSION
             Case Else

@@ -12,7 +12,7 @@ Option Explicit
 'Declare Variables
 Private id As String
 Private size As String
-Private description As String
+Private Description As String
 Private isEnabled As Boolean
 Private image As String
 Private isShowImage As Boolean
@@ -41,7 +41,7 @@ Public Property Get getSize() As String
     Let getSize = size
 End Property
 Public Property Get getDescription() As String
-    Let getDescription = description
+    Let getDescription = Description
 End Property
 Public Property Get getEnabled() As Boolean
     Let getEnabled = isEnabled
@@ -78,7 +78,7 @@ Public Property Let letSize(ByVal newSize As String)
     Let size = newSize
 End Property
 Public Property Let letDescription(ByVal newDescription As String)
-    Let description = newDescription
+    Let Description = newDescription
 End Property
 Public Property Let letEnabled(ByVal newEnabled As Boolean)
     Let isEnabled = newEnabled

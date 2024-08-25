@@ -47,7 +47,7 @@ This project is my VBA tool for my resume portfolio.
   - **Auto installation:** Auto install add-in by only open file *[Danh-Tools-Installation.xlsb](./Danh-Tools-Installation.xlsb)*
   - **Remove button:** Remove add-in by *Remove AddIn* button.
   - **Refesh button:** Clean cache, stored memory and restart hanging tools.
-##  Sheet Controller
+## Sheet Controller
   - **Fast add sheets:**
   - **Fast list sheets:**
   - **Fast rename sheets:**
@@ -63,7 +63,8 @@ This project is my VBA tool for my resume portfolio.
   - **Hide/show (all) page breaks:**
   - **Bold first line:**
   - **Invert color:**
-  - **Highlight range:**
+  - **Highlight range:** Highligh row and column of selected ranges.
+  - **Multiple Remplacement:** Multiple replace values as seleted ranges.
 ## Picture Controller
   - **Arrange Picure:**
   - **Auto Arrange**
@@ -83,13 +84,20 @@ This project is my VBA tool for my resume portfolio.
 |Ctrl + Del|Delete Format||
 |Ctrl + Shift + Del|Delete All||
 |Shift + F12|Copy Worksheet Fullname||
+|Ctrl + Shift + Alt + C|Copy Worksheet Fullname||
 |Ctrl + Shift + S|Copy Worksheet Path||
+|Ctrl + Shift + H|Multiple Replacment||
 # Release Notes
+## v2.4.4 - 2024/08/26
+### Added
+- Multiple replacment feature and form.
+- Shortcut for multiple replacment.
 ## v2.3.3 - 2023/10/01
 ### Added
 - Shortcut for delete format only and delete all.
 - Shortcut for copy fullname of active workbook.
-- Shortcut for copy path of active workbook.
+- Shortcut for copy path of active workbook. (Ctrl + Shift + Alt + C - For left-hand
+operation)
 ### Changed
 - Update Refresh Ribbon button will remove then add custom shortcuts back.
 ### Removed

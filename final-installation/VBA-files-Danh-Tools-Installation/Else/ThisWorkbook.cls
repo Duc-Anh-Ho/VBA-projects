@@ -32,7 +32,7 @@ End Sub
 '
 Private Sub Workbook_BeforeClose(Cancel As Boolean)
     'Auto uninstall custom shortcuts
-    Call Shortcuts.uninstall
+    Call Shortcuts.unInstall
 End Sub
 'CUSTOM EVENTS
 'Picture Controller

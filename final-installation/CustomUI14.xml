@@ -44,7 +44,7 @@
                 getScreentip="getScreentip"
                 getSupertip="getSupertip"
                 getVisible="getVisible"
-                onAction="sheetController" />
+                onAction="sheetControllerEvent" />
             </menu>
           </splitButton>
           <button id="delete-sheets"
@@ -210,6 +210,18 @@
               id="show-all-page-break-item"
               label="Show All" />
           </dropDown>
+          <button id="multiple-replace"
+            getSize="getSize"
+            imageMso="ReplaceDialog"
+            getEnabled="getEnabled"
+            getShowImage="getShowImage"
+            getKeytip="getKeytip"
+            getLabel="getLabel"
+            getShowLabel="getShowLabel"
+            getScreentip="getScreentip"
+            getSupertip="getSupertip"
+            getVisible="getVisible"
+            onAction="rangeController" />
           <separator id="range-separator-third" />
           <button id="bold-first-line"
             getSize="getSize"
