@@ -21,6 +21,7 @@ Private Const CDO_MESS_SCRIPT As String = "CDO.Message"
 Private Const HTML_FILE_SCRIPT As String = "HtmlFile"
 Private Const CLIPBOARD_SCRIPT As String = "New:{1C3B4210-F441-11CE-B9EA-00AA006B1A69}"
 Private Const EXCEL_TYPE As String = "Microsoft Excel"
+Private Const WD_TYPE As String = "Window"
 Private Const WB_TYPE As String = "Workbook"
 Private Const WS_TYPE As String = "Worksheet"
 Private Const WS_TYPE_DETAIL_SHEET As String = "xlWorksheet"
@@ -38,6 +39,8 @@ Public WithEvents wb As Workbook
 Attribute wb.VB_VarHelpID = -1
 Public WithEvents ws As Worksheet
 Attribute ws.VB_VarHelpID = -1
+Public wd As Window
+Attribute wd.VB_VarHelpID = -1
 'Public wss As Worksheets 'TODO: Refactor as global accessor get wss for sheets controller
 'Public wsObs As Sheets 'wsObs could be Charts || DialogSheets || Worksheets (ws regular || ws marcro)
 Public sheetOb As Object 'SheetOb could be Chart || DialogSheet || Worksheet (ws regular || ws marcro)
@@ -106,7 +109,7 @@ On Error GoTo ErrorHandle
         Case vbNullString
             'LV-1
             'TO-DO: Make cases for MS: Work, PPT, Access, Outlook...
-            If Not hasApplication() Then
+            If Not hasApplication(EXCEL_TYPE) Then
                 Let resultStr = "NOTHING"
                 GoTo ExecuteProcedure
             Else
@@ -117,6 +120,20 @@ On Error GoTo ErrorHandle
                     Case Else
                         ' Set app = Application
                         Let resultStr = Application.name & "_Un-handle"
+                        GoTo ExecuteProcedure
+                End Select
+            End If
+            'LV-1.5
+            If Not app.ActiveWindow Is Nothing Then
+                GoTo ExecuteProcedure
+            Else
+                Select Case typeName(app.ActiveWindow)
+                    Case WD_TYPE
+                        Set wd = app.ActiveWindow
+                        Let resultStr = resultStr & "_" & WD_TYPE
+                    Case Else
+                        ' Set app = Application
+                        Let resultStr = resultStr & "_" & typeName(app.ActiveWindow) & "_Un-handle"
                         GoTo ExecuteProcedure
                 End Select
             End If
@@ -178,15 +195,27 @@ On Error GoTo ErrorHandle
             GoTo ExecuteProcedure
         'Return *BOOLEAN Cases
         Case EXCEL_TYPE ' LV-1 'TO-DO: Make cases for MS: Work, PPT, Access, Outlook...
-            If Not hasApplication() Then
+            If Not hasApplication(EXCEL_TYPE) Then
                 Let mess = "Sorry, this tool currently is just working with MS-EXCEL!"
                 GoTo ExecuteProcedure
             Else
                 Set app = Application
                 GoTo ExecuteProcedure
             End If
+        Case WD_TYPE  ' LV-1.5
+            If Not hasApplication(EXCEL_TYPE) Then
+                   Let mess = "Sorry, this tool currently is just working with MS-EXCEL!"
+                   GoTo ExecuteProcedure
+            ElseIf Application.ActiveWindow Is Nothing Then
+                Let mess = "Don't exist any window yet, please open one!"
+                GoTo ExecuteProcedure
+            Else
+                Set app = Application
+                Set wd = app.ActiveWindow
+                GoTo ExecuteProcedure
+            End If
         Case WB_TYPE ' LV-2
-            If Not hasApplication() Then
+            If Not hasApplication(EXCEL_TYPE) Then
                 Let mess = "Sorry, this tool currently is just working with MS-EXCEL!"
                 GoTo ExecuteProcedure
             ElseIf Application.ActiveWorkbook Is Nothing Then
@@ -198,7 +227,7 @@ On Error GoTo ErrorHandle
                 GoTo ExecuteProcedure
             End If
         Case WS_TYPE ' LV-3
-            If Not hasApplication() Then
+            If Not hasApplication(EXCEL_TYPE) Then
                 Let mess = "Sorry, this tool currently is just working with MS-EXCEL!"
                 GoTo ExecuteProcedure
             ElseIf Application.ActiveWorkbook Is Nothing Then
@@ -229,7 +258,7 @@ On Error GoTo ErrorHandle
                 GoTo ExecuteProcedure
             End If
         Case CHART_TYPE ' LV-3
-             If Not hasApplication() Then
+             If Not hasApplication(EXCEL_TYPE) Then
                 Let mess = "Sorry, this tool currently is just working with MS-EXCEL!"
                 GoTo ExecuteProcedure
             ElseIf Application.ActiveWorkbook Is Nothing Then
@@ -254,7 +283,7 @@ On Error GoTo ErrorHandle
                 GoTo ExecuteProcedure
             End If
         Case DIALOG_TYPE 'LV-3
-            If Not hasApplication() Then
+            If Not hasApplication(EXCEL_TYPE) Then
                 Let mess = "Sorry, this tool currently is just working with MS-EXCEL!"
                 GoTo ExecuteProcedure
             ElseIf Application.ActiveWorkbook Is Nothing Then
@@ -279,7 +308,7 @@ On Error GoTo ErrorHandle
                 GoTo ExecuteProcedure
             End If
         Case WS_TYPE_DETAIL_SHEET 'LV-4
-            If Not hasApplication() Then
+            If Not hasApplication(EXCEL_TYPE) Then
                 Let mess = "Sorry, this tool currently is just working with MS-EXCEL!"
                 GoTo ExecuteProcedure
             ElseIf Application.ActiveWorkbook Is Nothing Then
@@ -312,7 +341,7 @@ On Error GoTo ErrorHandle
                 GoTo ExecuteProcedure
             End If
         Case WS_TYPE_DETAIL_CHART 'LV-4
-            If Not hasApplication() Then
+            If Not hasApplication(EXCEL_TYPE) Then
                 Let mess = "Sorry, this tool currently is just working with MS-EXCEL!"
                 GoTo ExecuteProcedure
             ElseIf Application.ActiveWorkbook Is Nothing Then
@@ -345,7 +374,7 @@ On Error GoTo ErrorHandle
                 GoTo ExecuteProcedure
             End If
         Case WS_TYPE_DETAIL_MACRO 'LV-4
-            If Not hasApplication() Then
+            If Not hasApplication(EXCEL_TYPE) Then
                 Let mess = "Sorry, this tool currently is just working with MS-EXCEL!"
                 GoTo ExecuteProcedure
             ElseIf Application.ActiveWorkbook Is Nothing Then
@@ -378,7 +407,7 @@ On Error GoTo ErrorHandle
                 GoTo ExecuteProcedure
             End If
         Case WS_TYPE_DETAIL_INT_MACRO 'LV-4
-            If Not hasApplication() Then
+            If Not hasApplication(EXCEL_TYPE) Then
                 Let mess = "Sorry, this tool currently is just working with MS-EXCEL!"
                 GoTo ExecuteProcedure
             ElseIf Application.ActiveWorkbook Is Nothing Then
@@ -415,6 +444,7 @@ On Error GoTo ErrorHandle
                 "-hasWorkPlace- only accept below options: " & _
                 vbNewLine & EXCEL_TYPE & _
                 vbNewLine & WB_TYPE & _
+                vbNewLine & WD_TYPE & _
                 vbNewLine & WS_TYPE & _
                 vbNewLine & CHART_TYPE & _
                 vbNewLine & DIALOG_TYPE & _

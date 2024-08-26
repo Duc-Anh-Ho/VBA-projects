@@ -14,11 +14,15 @@ This project is my VBA tool for my resume portfolio.
   - [Files Controller](#files-controller)
   - [Range Controller](#range-controller)
   - [Picture Controller](#picture-controller)
+  - [Mode Controller](#mode-controller)
   - [Network Controller](#network-controller)
   - [Shortcuts](#shortcuts)
 - [Release Notes](#release-notes)
-  - [v2.3.3 - 2023/10/01](#v233---20231001)
+  - [v2.4.4 - 2024/08/26](#v244---20240826)
     - [Added](#added)
+    - [Change](#change)
+  - [v2.3.3 - 2023/10/01](#v233---20231001)
+    - [Added](#added-1)
     - [Changed](#changed)
     - [Removed](#removed)
 - [Incoming Feature](#incoming-feature)
@@ -69,6 +73,9 @@ This project is my VBA tool for my resume portfolio.
   - **Arrange Picure:**
   - **Auto Arrange**
   - **Auto Snipping**
+## Mode Controller
+  - **Toggle Zen Mode**
+  - **Toggle Zoom Mode**
 ## Network Controller
 - **Export Wifi:** Saved Wi-Fi connection information to csv/txt/json files.
 ## Shortcuts
@@ -87,11 +94,17 @@ This project is my VBA tool for my resume portfolio.
 |Ctrl + Shift + Alt + C|Copy Worksheet Fullname||
 |Ctrl + Shift + S|Copy Worksheet Path||
 |Ctrl + Shift + H|Multiple Replacment||
+|F1|Toggle Zoom Mode||
+|F11|Toggle Zen Mode||
 # Release Notes
 ## v2.4.4 - 2024/08/26
 ### Added
 - Multiple replacment feature and form.
 - Shortcut for multiple replacment.
+- More Shortcut for Copy Worksheet Fullname.
+- Feature toggle zoom mode and toggle zen mode (shortcut also).
+### Change
+- Update check workplace: Has Window.
 ## v2.3.3 - 2023/10/01
 ### Added
 - Shortcut for delete format only and delete all.
