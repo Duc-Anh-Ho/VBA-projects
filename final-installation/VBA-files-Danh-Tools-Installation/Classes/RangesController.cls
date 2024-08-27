@@ -28,6 +28,8 @@ Attribute wsEvent.VB_VarHelpID = -1
 'Private Const INPUT_BOX_RANGE_TYPE As Byte = 8
 Private Const START_CHAR As Byte = 1
 Private Const SHEET_TYPE As String = "Worksheet"
+Private Const WS_TYPE_DETAIL_SHEET As String = "xlWorksheet"
+Private Const MULTI_REPLACE_TMP_SHEET_NAME As String = "mult-replace-tmp"
 
 'Initialize Variables
 Private Function hasVariables() As Boolean
@@ -35,7 +37,10 @@ On Error GoTo ErrorHandle
     Set info = New InfoConstants
     Set system = New SystemUpdate
     Set fileSystem = system.createFileSystem
-    If Not system.hasWorkPlace(hasMsg:=True, workPlaceType:="xlWorksheet") Then
+    If Not system.hasWorkPlace( _
+        hasMsg:=True, _
+        workPlaceType:=WS_TYPE_DETAIL_SHEET _
+    ) Then
         Let hasVariables = False
         GoTo ExecuteProcedure
     End If
@@ -274,26 +279,28 @@ ExecuteProcedure:
 End Sub
 '5 Replace
 Public Function multipleReplace( _
-    ByVal findArea As Range _
-    , ByVal replaceArea As Range _
+    ByRef findArea As Range _
+    , ByRef replaceArea As Range _
     , ByVal withinIndex As Byte _
     , Optional ByVal selectedArea As Range _
     , Optional ByVal isMatchCase As Boolean _
     , Optional ByVal isMatchByte As Boolean _
     , Optional ByVal isMatchContent As Boolean _
     , Optional ByVal searchOrderCd As Byte _
+    , Optional ByVal isOrderByLength As Boolean _
 ) As Boolean
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
     Call system.speedOn
     Dim i As Long
-    Dim lookAtCd As Byte: Let lookAtCd = IIf(isMatchContent, xlPart, xlWhole)
+    Dim lookAtCd As Byte: Let lookAtCd = IIf(isMatchContent, xlWhole, xlPart)
     Let searchOrderCd = IIf(searchOrderCd = 0, xlByRows, xlByColumns)
     ' TODO optional below
     Dim isSearchFormat As Boolean: Let isSearchFormat = False
     Dim isReplaceFormat As Boolean: Let isReplaceFormat = False
     Dim within As Object ' 0: Selection, 1: ActiveSheet, 2: ActiveWorkbook,
-
+    Dim tmpWs As Worksheet
+    
     Select Case withinIndex
         ' Selection
         Case 0: Set within = selectedArea
@@ -302,6 +309,35 @@ On Error GoTo ErrorHandle
         ' ActiveWorkbook
         Case 2: Set within = Cells
     End Select
+    
+    If isOrderByLength Then
+        Dim size As Long: Let size = findArea.Rows.Count
+        Dim keyArea As Range
+        Dim sortArea As Range
+        Set tmpWs = ThisWorkbook.Sheets(MULTI_REPLACE_TMP_SHEET_NAME)
+        
+        With tmpWs
+            Set keyArea = .Range("C1:C" & size)
+            Set sortArea = .Range("A1:C" & size)
+            Let .Range("A1").Resize(size, 1).value = findArea.value
+            Let .Range("B1").Resize(size, 1).value = replaceArea.value
+            Let .Range("C1").Resize(size, 1).Formula = "=LEN(A1)"
+            With .Sort
+                .SortFields.Clear
+                .SortFields.add _
+                    key:=keyArea, _
+                    SortOn:=xlSortOnValues, _
+                    Order:=xlDescending, _
+                    DataOption:=xlSortNormal
+                .SetRange sortArea
+                .Header = xlNo
+                .Apply
+            End With
+            Set findArea = .Range("A1:A" & size)
+            Set replaceArea = .Range("B1:B" & size)
+         End With
+    End If
+    
     For i = 1 To findArea.Count
         If Len(findArea.Cells(i)) > 0 Then
             within.Replace _
@@ -315,6 +351,10 @@ On Error GoTo ErrorHandle
                 , ReplaceFormat:=isReplaceFormat
         End If
     Next i
+    If isOrderByLength Then
+        Set tmpWs = ThisWorkbook.Sheets(MULTI_REPLACE_TMP_SHEET_NAME)
+        tmpWs.UsedRange.Clear
+    End If
         Let userResponse = MsgBox( _
             Prompt:=info.getPrompt & "Multiple replacment successfull!", _
             Buttons:=vbOKOnly + vbInformation, _

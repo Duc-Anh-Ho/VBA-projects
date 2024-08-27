@@ -2,9 +2,9 @@ VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} MultipleReplaceForm 
    Caption         =   "Multiple Replace"
    ClientHeight    =   2955
-   ClientLeft      =   119
-   ClientTop       =   462
-   ClientWidth     =   7336
+   ClientLeft      =   120
+   ClientTop       =   465
+   ClientWidth     =   7335
    OleObjectBlob   =   "MultipleReplaceForm.frx":0000
    StartUpPosition =   1  'CenterOwner
 End
@@ -24,6 +24,10 @@ Private selectedArea As Range
 Private findArea As Range
 Private replaceArea As Range
 
+Private Sub LengthOrderCheckBox_Click()
+
+End Sub
+
 'EVENTS
 
 Private Sub UserForm_Initialize()
@@ -33,6 +37,7 @@ Private Sub UserForm_Initialize()
     MatchCaseCheckBox.value = False
     MatchByteCheckBox.value = False
     MatchContentCheckBox.value = False
+    LengthOrderCheckBox.value = True
     With WithInComboBox
         .Style = fmStyleDropDownList
         .AddItem "Selection" ' 0 Or False
@@ -90,6 +95,10 @@ End Sub
 
 Private Sub MatchContentUnderLIneLabel_click()
     MatchContentCheckBox.value = Not MatchContentCheckBox.value
+End Sub
+
+Private Sub LengthOrderUnderlineLabel_click()
+    LengthOrderCheckBox.value = Not LengthOrderCheckBox.value
 End Sub
 
 Private Sub UserForm_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
@@ -183,7 +192,8 @@ Private Sub SelectedAreaInput_Exit(ByVal Cancel As MSForms.ReturnBoolean)
 End Sub
 
 Private Sub ReplaceAllButton_Click()
-    Dim rangeC As New RangesController
+    Dim rangeC As RangesController
+    Set rangeC = New RangesController
     If Trim(FindAreaInput.text & vbNullString) = vbNullString Then
         Let userResponse = MsgBox( _
             Prompt:=info.getPrompt & "Please choose 'Find What'!", _
@@ -223,7 +233,8 @@ Private Sub ReplaceAllButton_Click()
             , isMatchCase:=MatchCaseCheckBox.value _
             , isMatchByte:=MatchByteCheckBox.value _
             , isMatchContent:=MatchContentCheckBox.value _
-            , searchOrderCd:=SearchComboBox.value _
+            , searchOrderCd:=SearchComboBox.ListIndex _
+            , isOrderByLength:=LengthOrderCheckBox.value _
         )
     End If
 End Sub
