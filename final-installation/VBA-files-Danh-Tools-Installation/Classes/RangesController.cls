@@ -299,7 +299,6 @@ On Error GoTo ErrorHandle
     Dim isSearchFormat As Boolean: Let isSearchFormat = False
     Dim isReplaceFormat As Boolean: Let isReplaceFormat = False
     Dim within As Object ' 0: Selection, 1: ActiveSheet, 2: ActiveWorkbook,
-    Dim tmpWs As Worksheet
     
     Select Case withinIndex
         ' Selection
@@ -311,6 +310,7 @@ On Error GoTo ErrorHandle
     End Select
     
     If isOrderByLength Then
+        Dim tmpWs As Worksheet
         Dim size As Long: Let size = findArea.Rows.Count
         Dim keyArea As Range
         Dim sortArea As Range

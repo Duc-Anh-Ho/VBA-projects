@@ -53,7 +53,7 @@ End Sub
 'ASSESSORS
 '1,2,3
 Public Property Get hasSelectObjectMode() As Boolean
-    Let hasSelectObjectMode = CommandBars("Drawing").Controls("Select Objects").State
+    Let hasSelectObjectMode = CommandBars("Drawing").controls("Select Objects").State
 End Property
 'MUTATORS
 '1,2,3
@@ -69,10 +69,10 @@ Public Property Let letLockRatio(ByRef newLockRatio As Boolean)
 End Property
 '2.
 Public Property Let selectObjectMode(ByRef objectMode As Boolean)
-    If objectMode And Not CommandBars("Drawing").Controls("Select Objects").State Then
-        Call CommandBars("Drawing").Controls("Select Objects").execute
-    ElseIf Not objectMode And CommandBars("Drawing").Controls("Select Objects").State Then
-        Call CommandBars("Drawing").Controls("Select Objects").execute
+    If objectMode And Not CommandBars("Drawing").controls("Select Objects").State Then
+        Call CommandBars("Drawing").controls("Select Objects").execute
+    ElseIf Not objectMode And CommandBars("Drawing").controls("Select Objects").State Then
+        Call CommandBars("Drawing").controls("Select Objects").execute
     End If
 End Property
 '2
