@@ -143,23 +143,23 @@ Private Sub triggerBoldFirstLine(ByRef cell As Range)
     Let cell.Characters( _
             Start:=START_CHAR, _
             Length:=InStr( _
-                cell.value, _
+                cell.Value, _
                 getNewLine)) _
-        .Font.Bold = Not cell.Characters( _
+        .Font.bold = Not cell.Characters( _
             Start:=START_CHAR, _
             Length:=InStr( _
-                cell.value, _
+                cell.Value, _
                 getNewLine)) _
-        .Font.Bold
+        .Font.bold
 End Sub
 '3-0 Highlight Range
 Private Sub HighlightRange(ByRef Target As Range)
     With Target
-        .EntireRow.Interior.Color = getHighlightColor
-        .EntireColumn.Interior.Color = getHighlightColor
+        .EntireRow.Interior.color = getHighlightColor
+        .EntireColumn.Interior.color = getHighlightColor
         .Interior.TintAndShade = getBlurRate / 100
         .Font.size = .Font.size + getAddSize
-        .Font.Bold = checkBold
+        .Font.bold = checkBold
         .EntireRow.AutoFit
         .EntireColumn.AutoFit
         .Select
@@ -181,14 +181,14 @@ End Sub
 Public Sub invertColor()
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
-    If Not isRange(Selection) Then GoTo ExecuteProcedure
+    If Not isRange(selection) Then GoTo ExecuteProcedure
     Call system.speedOn
     Dim cell As Object
     'Loop through range areas
     For Each cell In targetRange
-        Let cell.Interior.Color = getInvertColor(cell.Interior.Color)
-        Let cell.Font.Color = getInvertColor(cell.Font.Color)
-        Let cell.Borders.Color = getInvertColor(cell.Borders.Color)
+        Let cell.Interior.color = getInvertColor(cell.Interior.color)
+        Let cell.Font.color = getInvertColor(cell.Font.color)
+        Let cell.Borders.color = getInvertColor(cell.Borders.color)
     Next cell
 GoTo ExecuteProcedure
 ErrorHandle:
@@ -200,7 +200,7 @@ End Sub
 Public Sub boldFirstLine()
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
-    If Not isRange(Selection) Then GoTo ExecuteProcedure
+    If Not isRange(selection) Then GoTo ExecuteProcedure
     Call system.speedOn
     Dim cell As Range
     'Loop through ranges
@@ -237,7 +237,7 @@ On Error GoTo ErrorHandle
     Call system.speedOn
     '  Change sheets address because targetRange now is in revious sheet *
     If targetRange Is Nothing Then
-        If isRange(Selection, False) Then
+        If isRange(selection, False) Then
             'Do Nothing
         End If
     End If
@@ -319,8 +319,8 @@ On Error GoTo ErrorHandle
         With tmpWs
             Set keyArea = .Range("C1:C" & size)
             Set sortArea = .Range("A1:C" & size)
-            Let .Range("A1").Resize(size, 1).value = findArea.value
-            Let .Range("B1").Resize(size, 1).value = replaceArea.value
+            Let .Range("A1").Resize(size, 1).Value = findArea.Value
+            Let .Range("B1").Resize(size, 1).Value = replaceArea.Value
             Let .Range("C1").Resize(size, 1).Formula = "=LEN(A1)"
             With .Sort
                 .SortFields.Clear
@@ -341,8 +341,8 @@ On Error GoTo ErrorHandle
     For i = 1 To findArea.Count
         If Len(findArea.Cells(i)) > 0 Then
             within.Replace _
-                What:=findArea.Cells(i).value _
-                , Replacement:=replaceArea.Cells(i).value _
+                What:=findArea.Cells(i).Value _
+                , Replacement:=replaceArea.Cells(i).Value _
                 , LookAt:=lookAtCd _
                 , SearchOrder:=searchOrderCd _
                 , MatchCase:=isMatchCase _
@@ -364,7 +364,7 @@ ErrorHandle:
     Call system.tackleErrors
 ExecuteProcedure:
     Call system.speedOff
-    Call MultipleReplaceForm.closeForm
+    Call MultipleReplaceForm.CloseForm
 End Function
 'EVENTS
 
@@ -377,7 +377,7 @@ End Sub
 Private Sub appEvent_SheetActivate(ByVal sheetObject As Object)
    If typeName(sheetObject) = SHEET_TYPE Then
         Call storeHighlightFormat(sheetObject)
-        Call highlight(Selection)
+        Call highlight(selection)
    End If
 End Sub
 

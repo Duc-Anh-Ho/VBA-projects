@@ -1,4 +1,5 @@
 Attribute VB_Name = "Shortcuts"
+'Must put Onkey procedure methods in a module for calling as full global scope
 Option Explicit
 
 'METHODS
@@ -124,7 +125,14 @@ End Sub
 Private Sub toggleZoomMode()
     Dim modeC As ModeController
     Set modeC = New ModeController
-    Call modeC.toggleZoomMode
+    Call modeC.toggleZoomMode(False)
+    Set modeC = Nothing
+End Sub
+
+Private Sub toggleZoomModeMax()
+    Dim modeC As ModeController
+    Set modeC = New ModeController
+    Call modeC.toggleZoomMode(True)
     Set modeC = Nothing
 End Sub
 
@@ -133,101 +141,4 @@ Private Sub multipleReplace()
     Set form = New MultipleReplaceForm
     form.Show vbModal ' vbModeless or vbModal
     Set form = Nothing
-End Sub
-
-'MAIN
-' TODO: Menu ribbon create shortcut
-Public Sub add()
-    'TODO:
-End Sub
-
-Public Sub remove()
-    'TODO
-End Sub
-
-Public Sub install()
-    With Application
-        ' Ctrl + Shift +C
-        .OnKey _
-            key:="^+{C}", _
-            procedure:="Shortcuts.copyF"
-        ' Ctrl + Shift + V
-        .OnKey _
-            key:="^+{V}", _
-            procedure:="Shortcuts.pasteF"
-        ' Ctrl + Shift + Alt + V
-        .OnKey _
-            key:="^+%{V}", _
-            procedure:="Shortcuts.pasteV"
-        ' Ctrl + Tab
-        .OnKey _
-            key:="^{TAB}", _
-            procedure:="Shortcuts.sheetSelectN"
-        ' Ctrl + Shift + Tab
-        .OnKey _
-            key:="^+{TAB}", _
-            procedure:="Shortcuts.sheetSelectP"
-        ' Ctrl + M -> Duplicate system shortkey
-        .OnKey _
-            key:="^{M}", _
-            procedure:="Shortcuts.shapeMoveAndSize"
-        ' Ctrl + Shift + M
-        .OnKey _
-            key:="^+{M}", _
-            procedure:="Shortcuts.shapeMove"
-        ' Ctrl + Shift + Alt + M
-        .OnKey _
-            key:="^+%{M}", _
-            procedure:="Shortcuts.shapeFree"
-        ' Ctrl + Delete
-        .OnKey _
-            key:="^{DEL}", _
-            procedure:="Shortcuts.clearFormat"
-        ' Ctrl + Shift + Delete
-        .OnKey _
-            key:="^+{DEL}", _
-            procedure:="Shortcuts.clearAll"
-        ' Shift + F12
-        .OnKey _
-            key:="+{F12}", _
-            procedure:="Shortcuts.copyFullName"
-        ' Ctrl + Shift + Alt  + C
-        .OnKey _
-            key:="^+%{C}", _
-            procedure:="Shortcuts.copyFullName"
-        ' Ctrl + Shift + S
-        .OnKey _
-            key:="^+{S}", _
-            procedure:="Shortcuts.copyPath"
-        ' F11
-        .OnKey _
-            key:="{F11}", _
-            procedure:="Shortcuts.toggleZenMode"
-        ' F1 - Override Help
-        .OnKey _
-            key:="{F1}", _
-            procedure:="Shortcuts.toggleZoomMode"
-        ' Ctrl + Shift + H
-        .OnKey _
-            key:="^+{H}", _
-            procedure:="Shortcuts.multipleReplace"
-    End With
-End Sub
-
-Public Sub unInstall()
-    With Application
-        .OnKey key:="^+{C}"
-        .OnKey key:="^+{V}"
-        .OnKey key:="^+%{V}"
-        .OnKey key:="^{TAB}"
-        .OnKey key:="^+{TAB}"
-        .OnKey key:="^{M}"
-        .OnKey key:="^+{M}"
-        .OnKey key:="^+%{M}"
-        .OnKey key:="^{DEL}"
-        .OnKey key:="^+{DEL}"
-        .OnKey key:="+{F12}"
-        .OnKey key:="^+{S}"
-        .OnKey key:="{F11}"
-    End With
 End Sub

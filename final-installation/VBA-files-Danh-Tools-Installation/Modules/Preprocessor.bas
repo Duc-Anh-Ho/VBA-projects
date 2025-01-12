@@ -6,7 +6,7 @@ Option Explicit
     MsgBox "MacOS chay khong duoc, cai win di"
 #Else '<-- Window
     #If VBA7 Then '<-- VBA7 - Office Ver > 2007
-        'Library kernel32
+        ' Library kernel32
         Public Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal Milliseconds As LongPtr)
         Public Declare PtrSafe Function GetTickCount Lib "kernel32" () As LongPtr
         Public Declare PtrSafe Sub CopyMemory Lib "kernel32.dll" Alias _
@@ -26,19 +26,19 @@ Option Explicit
             Set objRibbon = Nothing
         End Function
         
-        
         #If Win64 Then '<-- Win 64 Bit
         #Else '<-- Win 32 Bit || Win 16 Bit
         #End If
         
-        
     #Else '<-- VBA6 - Office Ver <= 2007
-        'Library kernel32
-        Public Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal Milliseconds As Long)
-        Public Declare PtrSafe Function GetTickCount Lib "kernel32" () As Long
-        Public Declare PtrSafe Sub CopyMemory Lib "kernel32.dll" Alias _
+        ' Library kernel32
+        Public Declare Sub Sleep Lib "kernel32" (ByVal Milliseconds As Long)
+        Public Declare Function GetTickCount Lib "kernel32" () As Long
+        Public Declare Sub CopyMemory Lib "kernel32.dll" Alias _
            "RtlMoveMemory" (ByRef Destination As Any, ByRef Source As Any, _
             ByVal Length As Long)
+        'Subs/Functions
+        ' Get Ribbon From Pointer Memory
         Public Function GetRibbon(ByVal lRibbonPointer As Long) As IRibbonUI
             Dim objRibbon As Object
             CopyMemory _
@@ -50,6 +50,8 @@ Option Explicit
         End Function
     #End If
 #End If
+
+
 
 ' Get Ribbon From Pointer Memory
 '#If VBA7 Then

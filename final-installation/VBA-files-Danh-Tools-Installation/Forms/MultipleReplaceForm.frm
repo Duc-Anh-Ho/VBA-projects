@@ -28,10 +28,10 @@ Private replaceArea As Range
 
 Private Sub UserForm_Initialize()
     Set info = New InfoConstants
-    SelectedAreaInput.Visible = False
+    SelectedAreaInput.visible = False
     Call InitCheckbox
     Call InitComboBox
-    Call FindWhatLabel_Click
+    Call FindWhatLabel_Click 'Indirect focus in FindWhatArea for prevent bug
     Call InitTabIndexes( _
         , FindWhatLabel _
         , FindAreaInput _
@@ -49,6 +49,11 @@ Private Sub UserForm_Initialize()
         , ReplaceAllButton _
         , CloseButton _
     )
+End Sub
+
+Private Sub UserForm_Terminate()
+    Set info = Nothing
+    Call MultipleReplaceForm.CloseForm
 End Sub
 
 Private Sub SearchLabel_Click()
@@ -76,15 +81,11 @@ End Sub
 'End Sub
 
 Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
-    Call closeForm
-End Sub
-
-Private Sub UserForm_Terminate()
-    Call closeForm
+    Call MultipleReplaceForm.CloseForm
 End Sub
 
 Private Sub CloseButton_Click()
-    Call closeForm
+     Call MultipleReplaceForm.CloseForm
 End Sub
 
 Private Sub WithInComboBox_Change()
@@ -92,10 +93,10 @@ Private Sub WithInComboBox_Change()
     Let withinIndex = WithInComboBox.ListIndex
     ' Within Selection
     If Not CBool(withinIndex) Then
-        SelectedAreaInput.Visible = True
+        SelectedAreaInput.visible = True
         SelectedAreaInput.SetFocus
     Else
-        SelectedAreaInput.Visible = False
+        SelectedAreaInput.visible = False
         ReplaceAllButton.SetFocus
     End If
 End Sub
@@ -188,13 +189,14 @@ Private Sub ReplaceAllButton_Click()
             , replaceArea:=replaceArea _
             , withinIndex:=withinIndex _
             , selectedArea:=selectedArea _
-            , isMatchCase:=MatchCaseCheckBox.value _
-            , isMatchByte:=MatchByteCheckBox.value _
-            , isMatchContent:=MatchContentCheckBox.value _
+            , isMatchCase:=MatchCaseCheckBox.Value _
+            , isMatchByte:=MatchByteCheckBox.Value _
+            , isMatchContent:=MatchContentCheckBox.Value _
             , searchOrderCd:=SearchComboBox.ListIndex _
-            , isOrderByLength:=LengthOrderCheckBox.value _
+            , isOrderByLength:=LengthOrderCheckBox.Value _
         )
     End If
+    Set rangeC = Nothing
 End Sub
 
 ' FUNCTIONS
@@ -221,7 +223,7 @@ End Sub
 '    End Select
 'End Sub
 
-Public Sub closeForm()
+Public Sub CloseForm()
     FindAreaInput.text = ""
     ReplaceAreaInput.text = ""
     FindAreaInput.Enabled = False
@@ -231,9 +233,9 @@ Public Sub closeForm()
 End Sub
 
 Private Sub InitCheckbox()
-    MatchCaseCheckBox.value = False
-    MatchByteCheckBox.value = False
-    MatchContentCheckBox.value = False
+    MatchCaseCheckBox.Value = False
+    MatchByteCheckBox.Value = False
+    MatchContentCheckBox.Value = False
 End Sub
 
 Private Sub InitComboBox()

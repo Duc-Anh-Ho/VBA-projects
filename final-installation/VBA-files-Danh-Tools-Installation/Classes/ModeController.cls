@@ -38,7 +38,8 @@ Private Function hasVariables() As Boolean
 On Error GoTo ErrorHandle
     Set info = New InfoConstants
     Set system = New SystemUpdate
-    If Not system.hasWorkPlace(hasMsg:=True, workPlaceType:="Window") Then
+'    If Not system.hasWorkPlace(hasMsg:=True, workPlaceType:="Window") Then
+    If Not system.hasWorkPlace(hasMsg:=True, workPlaceType:="xlWorksheet") Then
         Let hasVariables = False
         GoTo ExecuteProcedure
     End If
@@ -82,16 +83,35 @@ ExecuteProcedure:
     Call system.speedOff
 End Sub
 
-Public Sub toggleZoomMode()
+Public Sub toggleZoomMode(Optional isMax As Boolean = False)
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
     With wd
-        If .Zoom = 100 Then .Zoom = True Else .Zoom = 100
-        ' .Zoom = IIf(.Zoom = 100, True, 100) ' Shortage way
+    If .Zoom <> 100 Then
+        Let .Zoom = 100
+    ' Zoom To max
+    ElseIf isMax Then
+        Call zoomMax
+    ' Zoom to selection
+    Else
+        Let .Zoom = True
+    End If
+    ' .Zoom = IIf(.Zoom = 100, True, 100) ' Shortage way with iif
     End With
 GoTo ExecuteProcedure
 ErrorHandle:
     Call system.tackleErrors
 ExecuteProcedure:
     Call system.speedOff
+End Sub
+
+Sub zoomMax()
+    Dim lastRow As Long: Let lastRow = system.getLastRow(ws)
+    Dim lastColumn As Long: Let lastColumn = system.getLastColumn(ws)
+    If lastRow = 0 Or lastColumn = 0 Then Exit Sub 'Empty sheet
+    Dim selected As Variant: Set selected = selection
+    Dim rg As Range: Set rg = Range(Cells(1, 1), Cells(lastRow, lastColumn))
+    rg.Select
+    Let wd.Zoom = True
+    selected.Select
 End Sub
