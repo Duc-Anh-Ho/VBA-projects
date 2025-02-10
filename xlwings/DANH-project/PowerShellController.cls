@@ -63,6 +63,6 @@ Public Property Get executeScript(ByRef scrpit As String) As String
         'Failed
         Case PowerShellStt.Failed
             Let returnTxt = executionCmd.StdErr.ReadAll()
-     End Select
+    End Select
     Let executeScript = returnTxt
 End Property

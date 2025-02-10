@@ -58,8 +58,8 @@ End Property
 'MUTATORS
 '1,2,3
 Public Property Let letOffset(ByRef newOffset As Byte)
-     If newOffset > 100 Then newOffset = 100
-     Let customOffset = newOffset
+    If newOffset > 100 Then newOffset = 100
+    Let customOffset = newOffset
 End Property
 '1,2,3
 Public Property Let letLockRatio(ByRef newLockRatio As Boolean)

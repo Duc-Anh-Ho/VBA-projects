@@ -38,7 +38,7 @@ End Sub
 ' EVENTS
 
 Private Sub textBoxE_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
-     Call KeyboardShortcutForm.textBoxKeyDown(textBoxE, KeyCode, Shift)
+    Call KeyboardShortcutForm.textBoxKeyDown(textBoxE, KeyCode, Shift)
 End Sub
 
 Private Sub textBoxE_Change()

@@ -21,6 +21,7 @@ Private userResponse As VbMsgBoxResult
 Private info As InfoConstants
 Private shortcutTb As ListObject
 Private eventColl As Collection
+Private hoverLabel As MSForms.label
 Private editingLabel As MSForms.label
 Private editingTextBox As MSForms.textBox
 Private editingIndex As String 'Find index by replace so use String is better
@@ -40,6 +41,7 @@ Private Enum COLOR
     button_shadow = vbButtonShadow
     window_background = vbWindowBackground
     menu_text = vbMenuText
+    menu_bar = vbMenuBar
 End Enum
 Private Const FILTER_PLACEHOLDER As String = "<Type to filter text>"
 Private Const TITLE_TAG As String = "title"
@@ -90,7 +92,7 @@ Private Sub UserForm_Initialize()
     Set info = New InfoConstants
     Call invisiblePattern
     Call initComboBox
-    Call initLine
+    Call initRow
     Call initLabel
     Call storeCustomEvent
 '    Call InitTabIndexes( _
@@ -161,7 +163,7 @@ Private Sub initComboBox()
     End With
 End Sub
     
-Private Sub initLine()
+Private Sub initRow()
     Dim keybind As String
     Dim keybindDefault As String
     Dim lineIndex As String
@@ -175,7 +177,7 @@ Private Sub initLine()
         Let lineIndex = row.Range(1, shortcutC.getNoColumn())
         Let shortcut = shortcutC.convertCodeToName(keybind)
         Let defaultMark = IIf(keybind = keybindDefault, " *", vbNullString)
-        Call createLine( _
+        Call createRow( _
             index:=row.index _
             , command:=row.Range(1, shortcutC.getCommandColumn()) _
             , shortcut:=shortcut _
@@ -195,14 +197,14 @@ Private Sub createScrollBar(ByRef totalLines As Long)
     End If
 End Sub
 
-Private Sub createLine( _
+Private Sub createRow( _
     ByRef index As Long _
     , ByRef command As String _
     , ByRef shortcut As String _
     , ByRef when As String _
     , ByRef source As String _
 )
-    Call createLineLabel( _
+    Call createRowLabel( _
         name:=COMMAND_LABEL & index _
         , index:=index _
         , caption:=command _
@@ -212,7 +214,7 @@ Private Sub createLine( _
         , left:=CommandLabel_0.left _
     )
     ' TextBox need create first for it can be back of label
-    Call createLineTextBox( _
+    Call createRowTextBox( _
         name:=KEYBINDING_TEXTBOX & index _
         , index:=index _
         , width:=KeybindingTextBox_0.width _
@@ -223,7 +225,7 @@ Private Sub createLine( _
         , italic:=True _
         , visible:=False _
     )
-    Call createLineLabel( _
+    Call createRowLabel( _
         name:=KEYBINDING_LABEL & index _
         , index:=index _
         , caption:=shortcut _
@@ -232,7 +234,7 @@ Private Sub createLine( _
         , top:=KeyBindingLabel_0.top _
         , left:=KeyBindingLabel_0.left _
     )
-    Call createLineLabel( _
+    Call createRowLabel( _
         name:=WHEN_LABEL & index _
         , index:=index _
         , caption:=when _
@@ -241,7 +243,7 @@ Private Sub createLine( _
         , top:=WhenLabel_0.top _
         , left:=WhenLabel_0.left _
     )
-    Call createLineLabel( _
+    Call createRowLabel( _
         name:=SOURCE_LABEL & index _
         , index:=index _
         , caption:=source _
@@ -250,7 +252,7 @@ Private Sub createLine( _
         , top:=SourceLabel_0.top _
         , left:=SourceLabel_0.left _
     )
-    Call createLineLabel( _
+    Call createRowLabel( _
         name:=LINE_1 & index _
         , index:=index _
         , width:=Line1_0.width _
@@ -259,7 +261,7 @@ Private Sub createLine( _
         , left:=Line1_0.left _
         , hasBorder:=fmBorderStyleSingle _
     )
-    Call createLineLabel( _
+    Call createRowLabel( _
         name:=LINE_2 & index _
         , index:=index _
         , width:=Line2_0.width _
@@ -268,7 +270,7 @@ Private Sub createLine( _
         , left:=Line2_0.left _
         , hasBorder:=fmBorderStyleSingle _
     )
-    Call createLineLabel( _
+    Call createRowLabel( _
         name:=LINE_3 & index _
         , index:=index _
         , width:=Line3_0.width _
@@ -277,7 +279,7 @@ Private Sub createLine( _
         , left:=Line3_0.left _
         , hasBorder:=fmBorderStyleSingle _
     )
-    Call createLineLabel( _
+    Call createRowLabel( _
         name:=LINE_4 & index _
         , index:=index _
         , width:=Line4_0.width _
@@ -288,7 +290,7 @@ Private Sub createLine( _
     )
 End Sub
 
-Private Sub createLineLabel( _
+Private Sub createRowLabel( _
     ByRef name As String _
     , ByRef index As Long _
     , ByRef width As Single _
@@ -321,7 +323,7 @@ Private Sub createLineLabel( _
     Set lineLabel = Nothing
 End Sub
 
-Private Sub createLineTextBox( _
+Private Sub createRowTextBox( _
     ByRef name As String _
     , ByRef index As Long _
     , ByRef width As Single _
@@ -364,30 +366,44 @@ End Sub
 'INIT
 
 Private Sub initLabel()
+    Dim labelIndex As String
+    Dim isLabel As Boolean
+    Dim isHover As Boolean
+    Dim isPicking As Boolean
+    Dim isTitles As Boolean
+    Dim isLines As Boolean
+    Dim isKeybind As Boolean
     ' Loop thourgh all controls for find suitable
     For Each ctrl In Me.KeyboardFrameContainer.controls
         With ctrl
-        ' Skip reseting pickingLabel
-        If TypeOf ctrl Is MSForms.label _
-            And Not ctrl Is pickingLabel _
-            And pickingIndex <> Replace(.Tag, LINE_TAG, vbNullString) _
+        Let labelIndex = Replace(.Tag, LINE_TAG, vbNullString)
+        Let isLabel = (TypeOf ctrl Is MSForms.label)
+        Let isHover = (ctrl is hoverLabel)
+        Let isPicking = (ctrl Is pickingLabel) Or (labelIndex = pickingIndex)
+        ' Skip reset pickingLabel, hoverLabel
+        If  isLabel _
+            And Not isHover _
+            And Not isPicking _
         Then
-            'Titles Reset
+            Let isTitles = (.Tag = TITLE_TAG)
+            Let isLines = (.Tag Like (LINE_TAG & ASTERISK))
+            Let isKeybind = (.name Like (KEYBINDING_LABEL & ASTERISK))
+            'Titles reset
             If _
-                .Tag = TITLE_TAG _
-                And .backColor <> vbMenuBar _
+                isTitles _
+                And .backColor <> COLOR.menu_bar _
             Then
-                 Let .backColor = vbMenuBar
-            'Lines Reset
+                Let .backColor = COLOR.menu_bar
+            'Lines reset
             ElseIf _
-                .Tag Like (LINE_TAG & ASTERISK) _
+                isLines _
                 And .backColor <> COLOR.window_background _
             Then
                 Let .backColor = COLOR.window_background
             End If
-            'Keybind reset
+            'Keybind label reset
             If _
-                .name Like (KEYBINDING_LABEL & ASTERISK) _
+                isKeybind _
                 And .foreColor <> COLOR.menu_text _
             Then
                 Let .foreColor = COLOR.menu_text
@@ -442,33 +458,44 @@ End Function
 
 Public Sub labelMoveOn(ByRef label As MSForms.label)
     Dim keybindingLabel As MSForms.label
+    Dim labelIndex As String
+    Dim isHoverLabel As Boolean
+    Dim isPicking As Boolean
+    Dim isHover As Boolean
+    ' Reset Label
     Call initLabel
     ' Titles Hover
     If label.Tag = TITLE_TAG Then
         Let label.backColor = COLOR.title_hover
     ' Lines Hover
     ElseIf label.Tag Like (LINE_TAG & ASTERISK) Then
-        ' Hightlight line
+        ' Highlight lines
         For Each ctrl In Me.KeyboardFrameContainer.controls
             With ctrl
+            Let labelIndex = Replace(.Tag, LINE_TAG, vbNullString)
+            Let isHoverLabel = (TypeOf ctrl Is MSForms.label) And (.Tag = label.Tag)
+            Let isPicking = (ctrl Is pickingLabel) Or (labelIndex = pickingIndex)
+            ' Better performance
+            Let isHover = (.backColor = COLOR.line_hover)
             If _
-                TypeOf ctrl Is MSForms.label _
-                And .Tag = label.Tag _
-                And Not ctrl Is pickingLabel _
-                And pickingIndex <> Replace(.Tag, LINE_TAG, vbNullString) _
+                isHoverLabel _
+                And Not isPicking _
+                And Not isHover _
             Then
-                If .backColor <> COLOR.line_hover Then
-                    Let .backColor = COLOR.line_hover
-                End If
+                Let .backColor = COLOR.line_hover
+                Set hoverLabel = ctrl
             End If
             End With
         Next ctrl
         ' Highlight label
         Set keybindingLabel = Me.KeyboardFrame.controls(KEYBINDING_LABEL & Replace(label.Tag, LINE_TAG, vbNullString))
         With keybindingLabel
+        Let isPicking = label Is pickingLabel
+        ' Better performance
+        Let isHover = (.foreColor = COLOR.highlight)
         If _
-            Not label Is pickingLabel _
-            And .foreColor <> COLOR.highlight _
+            Not isPicking _
+            And Not isHover _
         Then
             Let .foreColor = COLOR.highlight
             Let .FontItalic = True
@@ -552,7 +579,7 @@ Private Sub hideEditing()
         key:=Replace(editingTextBox.Tag, LINE_TAG, vbNullString) _
         , value:=editingTextBox.text _
     )
-    Call xxx
+    Call test
     'Hide display
     Let editingTextBox.visible = False
     Let editingLabel.visible = True
@@ -581,7 +608,7 @@ End Sub
 
 ' Todo: create system update collection.exist
 
-Private Sub xxx()
+Private Sub test()
     Dim i As Integer
     For i = LBound(editedArr) To UBound(editedArr)
         Debug.Print i & ": " & editedArr(i)
