@@ -35,6 +35,8 @@ Private Enum COLOR
     line_hover = 16774117 'RGB(217, 235, 249)
     line_selected = 16772040 'RGB(200, 235, 255)
     line_border = 14935011 'RGB(227, 227, 227)
+    line_edited = 51450 'RGB(250, 200, 0)
+    line_edited_hover = 41210 'RGB(250, 160, 0)
     ' Default Variables
     highlight = vbHighlight
     window_text = vbWindowText
@@ -366,24 +368,24 @@ End Sub
 'INIT
 
 Private Sub initLabel()
-    Dim labelIndex As String
+    Dim lineIndex As String
     Dim isLabel As Boolean
-    Dim isHover As Boolean
-    Dim isPicking As Boolean
+    Dim isHoverLabel As Boolean
+    Dim isPickingLabel As Boolean
     Dim isTitles As Boolean
     Dim isLines As Boolean
     Dim isKeybind As Boolean
-    ' Loop thourgh all controls for find suitable
+    ' Loop through all controls for find suitable
     For Each ctrl In Me.KeyboardFrameContainer.controls
         With ctrl
-        Let labelIndex = Replace(.Tag, LINE_TAG, vbNullString)
+        Let lineIndex = Replace(.Tag, LINE_TAG, vbNullString)
         Let isLabel = (TypeOf ctrl Is MSForms.label)
-        Let isHover = (ctrl is hoverLabel)
-        Let isPicking = (ctrl Is pickingLabel) Or (labelIndex = pickingIndex)
+        Let isHoverLabel = (ctrl is hoverLabel)
+        Let isPickingLabel = (ctrl Is pickingLabel) Or (lineIndex = pickingIndex)
         ' Skip reset pickingLabel, hoverLabel
         If  isLabel _
-            And Not isHover _
-            And Not isPicking _
+            And Not isHoverLabel _
+            And Not isPickingLabel _
         Then
             Let isTitles = (.Tag = TITLE_TAG)
             Let isLines = (.Tag Like (LINE_TAG & ASTERISK))
@@ -458,9 +460,9 @@ End Function
 
 Public Sub labelMoveOn(ByRef label As MSForms.label)
     Dim keybindingLabel As MSForms.label
-    Dim labelIndex As String
+    Dim lineIndex As String
     Dim isHoverLabel As Boolean
-    Dim isPicking As Boolean
+    Dim isPickingLabel As Boolean
     Dim isHover As Boolean
     ' Reset Label
     Call initLabel
@@ -472,14 +474,14 @@ Public Sub labelMoveOn(ByRef label As MSForms.label)
         ' Highlight lines
         For Each ctrl In Me.KeyboardFrameContainer.controls
             With ctrl
-            Let labelIndex = Replace(.Tag, LINE_TAG, vbNullString)
+            Let lineIndex = Replace(.Tag, LINE_TAG, vbNullString)
             Let isHoverLabel = (TypeOf ctrl Is MSForms.label) And (.Tag = label.Tag)
-            Let isPicking = (ctrl Is pickingLabel) Or (labelIndex = pickingIndex)
+            Let isPickingLabel = (ctrl Is pickingLabel) Or (lineIndex = pickingIndex)
             ' Better performance
             Let isHover = (.backColor = COLOR.line_hover)
             If _
                 isHoverLabel _
-                And Not isPicking _
+                And Not isPickingLabel _
                 And Not isHover _
             Then
                 Let .backColor = COLOR.line_hover
@@ -490,11 +492,11 @@ Public Sub labelMoveOn(ByRef label As MSForms.label)
         ' Highlight label
         Set keybindingLabel = Me.KeyboardFrame.controls(KEYBINDING_LABEL & Replace(label.Tag, LINE_TAG, vbNullString))
         With keybindingLabel
-        Let isPicking = label Is pickingLabel
+        Let isPickingLabel = (label Is pickingLabel)
         ' Better performance
         Let isHover = (.foreColor = COLOR.highlight)
         If _
-            Not isPicking _
+            Not isPickingLabel _
             And Not isHover _
         Then
             Let .foreColor = COLOR.highlight
@@ -513,12 +515,12 @@ Public Sub labelClick(ByRef label As MSForms.label)
         MsgBox ("TODO: Sort By" & .caption)
     ' Lines Click
     ElseIf .Tag Like (LINE_TAG & ASTERISK) Then
-        Call hidePicking
+        Call resetPicking
         Call hideEditing
         ' Assign picked Label
         Let pickingIndex = Replace(label.Tag, LINE_TAG, vbNullString)
         Set pickingLabel = Me.KeyboardFrame.controls(KEYBINDING_LABEL & pickingIndex)
-        Call showPicking
+        Call highlightPicking
     End If
     End With
 End Sub
@@ -539,7 +541,7 @@ Public Sub textBoxKeyDown( _
     If editingShortcut = shortcutC.getEnterKey() Then
         Call hideEditing
     ElseIf editingShortcut = shortcutC.getEscKey() Then
-        ' Load before edit shotcut
+        ' Load before edit shortcut
         Let textBox.text = LTrim(editingLabel.caption)
         Call hideEditing
     ElseIf editingShortcut = shortcutC.getBackspaceKey() Then
@@ -579,13 +581,92 @@ Private Sub hideEditing()
         key:=Replace(editingTextBox.Tag, LINE_TAG, vbNullString) _
         , value:=editingTextBox.text _
     )
-    Call test
+    'Highlight edited
+    Call highlightEdited
     'Hide display
     Let editingTextBox.visible = False
     Let editingLabel.visible = True
     'Clean editing
     Set editingTextBox = Nothing
     Set editingLabel = Nothing
+End Sub
+
+Private Sub highlightPicking()
+    Dim lineIndex As String
+    Dim isLabel As Boolean
+    Dim isPickingLabel As Boolean
+    'Highlight line
+    For Each ctrl In Me.KeyboardFrame.controls
+        With ctrl
+        Let lineIndex = Replace(.Tag, LINE_TAG, vbNullString)
+        Let isLabel = (TypeOf ctrl Is MSForms.label)
+        Let isPickingLabel = (pickingIndex = lineIndex)
+        If _
+            isLabel _
+            And isPickingLabel _
+            And .backColor <> COLOR.line_selected _
+        Then
+            'Highlight line
+            Let .backColor = COLOR.line_selected
+            'Highlight label
+            Let .foreColor = COLOR.highlight
+            Let .FontItalic = False
+            Let .FontBold = True
+        End If
+        End With
+    Next ctrl
+End Sub
+
+Private Sub resetPicking()
+    Dim lineIndex As String
+    Dim isLabel As Boolean
+    Dim isPickingLabel As Boolean
+    For Each ctrl In Me.KeyboardFrame.controls
+        With ctrl
+        Let lineIndex = Replace(.Tag, LINE_TAG, vbNullString)
+        Let isLabel = (TypeOf ctrl Is MSForms.label)
+        Let isPickingLabel = (pickingIndex = lineIndex)
+        If _
+            isLabel _
+            And isPickingLabel _
+            And .backColor <> COLOR.window_background _
+        Then
+            'Highlight line
+            Let .backColor = COLOR.window_background
+            'Highlight label
+            Let .foreColor = COLOR.menu_text
+            Let .FontItalic = False
+            Let .FontBold = False
+        End If
+        End With
+    Next ctrl
+End Sub
+
+Private Sub highlightEdited()
+    Dim i As Integer
+    Dim lineIndex As String
+    Dim isLabel as Boolean
+    Dim isEditedLabel as Boolean
+    'Highlight line
+    For Each ctrl In Me.KeyBoardFrame.controls
+        With ctrl
+        Let lineIndex = Replace(.Tag, LINE_TAG, vbNullString)
+        Let isLabel = (TypeOf ctrl Is MsForms.label)
+        'Loop through edited array
+        For i = LBound(editedArr) To UBound(editedArr)
+            Let isEditedLabel = (lineIndex = i + 1) And Not (editedArr(i) = vbNullString)
+            If _
+                isLabel _
+                And isEditedLabel _
+            Then
+                ' And .font <> COLOR.line_edited _
+                debug.print here
+                Let .font.Underline  = xlUnderlineStyleSingle 
+                'TO BE CONTINUE
+            End If
+        Next i
+        End With
+    Next ctrl
 End Sub
 
 Private Sub checkEditedShortcut(ByRef key As String, ByRef value As String)
@@ -606,51 +687,7 @@ Private Sub checkEditedShortcut(ByRef key As String, ByRef value As String)
     Next row
 End Sub
 
-' Todo: create system update collection.exist
-
-Private Sub test()
-    Dim i As Integer
-    For i = LBound(editedArr) To UBound(editedArr)
-        Debug.Print i & ": " & editedArr(i)
-    Next i
-End Sub
-
-Private Sub showPicking()
-    'Highlight line
-    For Each ctrl In Me.KeyboardFrame.controls
-        With ctrl
-        If _
-            TypeOf ctrl Is MSForms.label _
-            And pickingIndex = Replace(.Tag, LINE_TAG, vbNullString) _
-        Then
-            'Highlight line
-            Let .backColor = COLOR.line_selected
-            'Highlight label
-            Let .foreColor = COLOR.highlight
-            Let .FontItalic = False
-            Let .FontBold = True
-        End If
-        End With
-    Next ctrl
-End Sub
-
-Private Sub hidePicking()
-    For Each ctrl In Me.KeyboardFrame.controls
-        With ctrl
-        If _
-            TypeOf ctrl Is MSForms.label _
-            And pickingIndex = Replace(.Tag, LINE_TAG, vbNullString) _
-        Then
-            'Highlight line
-            Let .backColor = COLOR.window_background
-            'Highlight label
-            Let .foreColor = COLOR.menu_text
-            Let .FontItalic = False
-            Let .FontBold = False
-        End If
-        End With
-    Next ctrl
-End Sub
+'Todo: create system update collection.exist
 
 ' CLEAN
 Private Sub invisiblePattern()
@@ -686,5 +723,3 @@ Private Sub cleanUp()
     ' Clear Arrays
     Erase editedArr
 End Sub
-
-
