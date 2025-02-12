@@ -35,8 +35,9 @@ Private Enum COLOR
     line_hover = 16774117 'RGB(217, 235, 249)
     line_selected = 16772040 'RGB(200, 235, 255)
     line_border = 14935011 'RGB(227, 227, 227)
-    line_edited = 51450 'RGB(250, 200, 0)
-    line_edited_hover = 41210 'RGB(250, 160, 0)
+    line_edited = 61690 'RGB(250, 240, 0)
+    line_edited_hover = 51450 'RGB(250, 200, 0)
+    line_edited_picking = 41210 'RGB(250, 160, 0)
     ' Default Variables
     highlight = vbHighlight
     window_text = vbWindowText
@@ -383,7 +384,7 @@ Private Sub initLabel()
         Let isHoverLabel = (ctrl is hoverLabel)
         Let isPickingLabel = (ctrl Is pickingLabel) Or (lineIndex = pickingIndex)
         ' Skip reset pickingLabel, hoverLabel
-        If  isLabel _
+        If isLabel _
             And Not isHoverLabel _
             And Not isPickingLabel _
         Then
@@ -645,9 +646,9 @@ End Sub
 Private Sub highlightEdited()
     Dim i As Integer
     Dim lineIndex As String
-    Dim isLabel as Boolean
-    Dim isEditedLabel as Boolean
-    'Highlight line
+    Dim isLabel As Boolean
+    Dim isEditedLabel As Boolean
+    Dim isEdited As Boolean
     For Each ctrl In Me.KeyBoardFrame.controls
         With ctrl
         Let lineIndex = Replace(.Tag, LINE_TAG, vbNullString)
@@ -655,14 +656,15 @@ Private Sub highlightEdited()
         'Loop through edited array
         For i = LBound(editedArr) To UBound(editedArr)
             Let isEditedLabel = (lineIndex = i + 1) And Not (editedArr(i) = vbNullString)
+            Let isEdited = (.backColor <> COLOR.line_edited_picking)
+            'Highlight line
             If _
                 isLabel _
                 And isEditedLabel _
+                And isEdited _
             Then
-                ' And .font <> COLOR.line_edited _
-                debug.print here
-                Let .font.Underline  = xlUnderlineStyleSingle 
-                'TO BE CONTINUE
+                Let .backColor = COLOR.line_edited_picking
+                Let .FontItalic = True
             End If
         Next i
         End With
