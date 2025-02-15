@@ -4,38 +4,38 @@ Option Explicit
 
 'METHODS
 Private Sub copyName()
-      Dim fileController As FilesController
-      Set fileController = New FilesController
-      Call fileController.copyFileName("name")
-      Set fileController = Nothing
+    Dim fileController As FilesController
+    Set fileController = New FilesController
+    Call fileController.copyFileName("name")
+    Set fileController = Nothing
 End Sub
 
 Private Sub copyFullName()
-      Dim fileController As FilesController
-      Set fileController = New FilesController
-      Call fileController.copyFileName("fullName")
-      Set fileController = Nothing
+    Dim fileController As FilesController
+    Set fileController = New FilesController
+    Call fileController.copyFileName("fullName")
+    Set fileController = Nothing
 End Sub
 
 Private Sub copyShortName()
-      Dim fileController As FilesController
-      Set fileController = New FilesController
-      Call fileController.copyFileName("shortName")
-      Set fileController = Nothing
+    Dim fileController As FilesController
+    Set fileController = New FilesController
+    Call fileController.copyFileName("shortName")
+    Set fileController = Nothing
 End Sub
 
 Private Sub copyPath()
-      Dim fileController As FilesController
-      Set fileController = New FilesController
-      Call fileController.copyFileName("path")
-      Set fileController = Nothing
+    Dim fileController As FilesController
+    Set fileController = New FilesController
+    Call fileController.copyFileName("path")
+    Set fileController = Nothing
 End Sub
 
 Private Sub copyExtensionName()
-      Dim fileController As FilesController
-      Set fileController = New FilesController
-      Call fileController.copyFileName("extension")
-      Set fileController = Nothing
+    Dim fileController As FilesController
+    Set fileController = New FilesController
+    Call fileController.copyFileName("extension")
+    Set fileController = Nothing
 End Sub
 
 Private Sub copyF()
@@ -136,9 +136,18 @@ Private Sub toggleZoomModeMax()
     Set modeC = Nothing
 End Sub
 
-Private Sub multipleReplace()
+Private Sub openMultipleReplaceForm()
     Dim form As MultipleReplaceForm
     Set form = New MultipleReplaceForm
-    form.Show vbModal ' vbModeless or vbModal
+    Call form.Show(vbModal)  ' vbModeless or vbModal
     Set form = Nothing
+End Sub
+
+Private Sub openShortcutForm()
+    ' NOTE: Reject Below cannot use Hover event (Maybe overload issue) need to research more)
+    ' Dim form As KeyboardShortcutForm
+    ' Set form = New KeyboardShortcutForm
+    ' Call form.Show(vbModal)  ' vbModeless or vbModal
+    ' Set form = Nothing
+    Call KeyboardShortcutForm.show(vbModal) 
 End Sub

@@ -2,9 +2,9 @@ VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} SnippingToolForm 
    Caption         =   "Snipping tool"
    ClientHeight    =   2884
-   ClientLeft      =   120
-   ClientTop       =   465
-   ClientWidth     =   3660
+   ClientLeft      =   119
+   ClientTop       =   462
+   ClientWidth     =   3661
    OleObjectBlob   =   "SnippingToolForm.frx":0000
    StartUpPosition =   1  'CenterOwner
 End
@@ -60,4 +60,3 @@ Private Sub UserForm_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, 
     CloseButton.backColor = vbButtonFace
     Scisors_Icon.SpecialEffect = fmSpecialEffectFlat
 End Sub
-

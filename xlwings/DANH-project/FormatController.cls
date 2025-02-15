@@ -44,6 +44,7 @@ End Sub
 'ASSESSORS
     
 'MUTATORS
+
 'METHODS
 
 Private Sub copyFormatRanges()

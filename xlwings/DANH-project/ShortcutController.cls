@@ -22,8 +22,17 @@ Private Enum COLUMN
     custom_keybind = default_keybind + 1
     command = custom_keybind + 1
     when = command + 1
-    source = when + 1
+    status = when + 1
 End Enum
+Private ENUM MASK
+    SHIFT =  1
+    CTRL = 2
+    ALT = 4
+End Enum
+
+Private Const NO_SET As String = "--No Set--"
+Private Const OPEN_CURLY_BRACKET As String = "{"
+Private Const CLOSE_CURLY_BRACKET As String = "}"
 Private Const CTRL_CODE As String = "^"
 Private Const SHIFT_CODE As String = "+"
 Private Const ALT_CODE As String = "%"
@@ -97,9 +106,6 @@ Private Const CTRL_SHIFT_KEY As String = CTRL_KEY & SHIFT_KEY
 Private Const CTRL_ALT_KEY As String = CTRL_KEY & ALT_KEY
 Private Const CTRL_SHIFT_ALT_KEY As String = CTRL_SHIFT_KEY & ALT_KEY
 Private Const SHIFT_ALT_KEY As String = SHIFT_KEY & ALT_KEY
-Private Const SHIFT_MASK As Byte = 1
-Private Const CTRL_MASK As Byte = 2
-Private Const ALT_MASK As Byte = 4
 
 ' Constructor
 Private Sub Class_Initialize()
@@ -114,49 +120,22 @@ Private Sub Class_Terminate()
 End Sub
 
 ' ACCESSORS
+
+Public Property Get getNoSet() As String: Let getNoSet = NO_SET: End Property 
+Public Property Get getNoColumn() As Byte: Let getNoColumn = COLUMN.no: End Property
+Public Property Get getProcedureColumn() As Byte: Let getProcedureColumn = COLUMN.procedure: End Property
+Public Property Get getDefaultKeybindColumn() As Byte: Let getDefaultKeybindColumn = COLUMN.default_keybind: End Property
+Public Property Get getCustomKeybindColumn() As Byte: Let getCustomKeybindColumn = COLUMN.custom_keybind: End Property
+Public Property Get getCommandColumn() As Byte: Let getCommandColumn = COLUMN.command: End Property
+Public Property Get getWhenColumn() As Byte: Let getWhenColumn = COLUMN.when: End Property
+Public Property Get getStatusColumn() As Byte: Let getStatusColumn = COLUMN.status: End Property
+Public Property Get getEnterKey() As String: Let getEnterKey = ENTER_KEY: End Property
+Public Property Get getEscKey() As String: Let getEscKey = ESCAPE_KEY: End Property
+Public Property Get getBackspaceKey() As String: Let getBackspaceKey = BACKSPACE_KEY: End Property
+
 Public Property Get getShortcutTable() As ListObject
     Set shortcutWs = ThisWorkbook.Sheets(SHORTCUT_SHEET_NAME)
     Set getShortcutTable = shortcutWs.ListObjects(SHORTCUT_TABLE_NAME)
-End Property
-
-Public Property Get getNoColumn() As Byte
-    Let getNoColumn = COLUMN.no
-End Property
-
-Public Property Get getProcedureColumn() As Byte
-    Let getProcedureColumn = COLUMN.procedure
-End Property
-
-Public Property Get getDefaultKeybindColumn() As Byte
-    Let getDefaultKeybindColumn = COLUMN.default_keybind
-End Property
-
-Public Property Get getCustomKeybindColumn() As Byte
-    Let getCustomKeybindColumn = COLUMN.custom_keybind
-End Property
-
-Public Property Get getCommandColumn() As Byte
-    Let getCommandColumn = COLUMN.command
-End Property
-
-Public Property Get getWhenColumn() As Byte
-    Let getWhenColumn = COLUMN.when
-End Property
-
-Public Property Get getSourceCoulmn() As Byte
-    Let getSourceCoulmn = COLUMN.source
-End Property
-
-Public Property Get getEnterKey() As String
-    Let getEnterKey = ENTER_KEY
-End Property
-
-Public Property Get getEscKey() As String
-    Let getEscKey = ESCAPE_KEY
-End Property
-
-Public Property Get getBackspaceKey() As String
-    Let getBackspaceKey = BACKSPACE_KEY
 End Property
 
 ' MAIN
@@ -180,7 +159,8 @@ Public Sub install()
     For Each row In shortcutTb.ListRows
         Let procedure = row.Range(1, getProcedureColumn()).value
         Let key = row.Range(1, getCustomKeybindColumn()).value
-        Call add(key, procedure)
+        ' Skip Blank Keybinding
+        If key <> vbNullString Then Call add(key, procedure)
     Next row
 End Sub
 
@@ -219,23 +199,23 @@ Public Function convertCodeToName(ByRef code As String) As String
     Let code = Replace(code, RIGHT_ARROW_CODE, RIGHT_ARROW_KEY)
     Let code = Replace(code, PAGE_DOWN_CODE, PAGE_DOWN_KEY)
     Let code = Replace(code, PAGE_UP_CODE, PAGE_UP_KEY)
-    Let code = Replace(code, "{", vbNullString) 'TODO: use constant
-    Let code = Replace(code, "}", vbNullString) 'TODO: use constant
-    Let convertCodeToName = code
+    Let code = Replace(code, OPEN_CURLY_BRACKET, vbNullString)
+    Let code = Replace(code, CLOSE_CURLY_BRACKET, vbNullString)
+    Let convertCodeToName = IIf(code = vbNullString, getNoSet(), code)
 End Function
 
-Public Function convertKeyToName(ByRef KeyCode As MSForms.ReturnInteger, ByRef Shift As Integer) As String
+Public Function convertKeyToName(ByRef KeyCode As MsForms.ReturnInteger, ByRef Shift As Integer) As String
     Dim modifier As String
     Dim key As String
     'Listen modifier
     Select Case Shift
-        Case (SHIFT_MASK): Let modifier = SHIFT_KEY
-        Case (CTRL_MASK): Let modifier = CTRL_KEY
-        Case (ALT_MASK): Let modifier = ALT_KEY
-        Case (CTRL_MASK + SHIFT_MASK): Let modifier = CTRL_SHIFT_KEY
-        Case (CTRL_MASK + ALT_MASK): Let modifier = CTRL_ALT_KEY
-        Case (CTRL_MASK + SHIFT_MASK + ALT_MASK): Let modifier = CTRL_SHIFT_ALT_KEY
-        Case (SHIFT_MASK + ALT_MASK): Let modifier = SHIFT_ALT_KEY
+        Case (MASK.SHIFT): Let modifier = SHIFT_KEY
+        Case (MASK.CTRL): Let modifier = CTRL_KEY
+        Case (MASK.ALT): Let modifier = ALT_KEY
+        Case (MASK.CTRL + MASK.SHIFT): Let modifier = CTRL_SHIFT_KEY
+        Case (MASK.CTRL + MASK.ALT): Let modifier = CTRL_ALT_KEY
+        Case (MASK.CTRL + MASK.SHIFT + MASK.ALT): Let modifier = CTRL_SHIFT_ALT_KEY
+        Case (MASK.SHIFT + MASK.ALT): Let modifier = SHIFT_ALT_KEY
     End Select
     'Listen main key
     Select Case KeyCode

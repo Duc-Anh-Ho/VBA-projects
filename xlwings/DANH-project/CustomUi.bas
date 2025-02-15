@@ -12,7 +12,6 @@ Private Const NUM_OFFSET_ITEMS As Byte = 6
 Private Const MAX_OFFSET As Byte = 200
 Private Const MIN_OFFSET As Byte = 0
 Private Const DEFAULT_OFFSET_VALUE  As Byte = 0
-'Private Const RIBBON_ID As String = "Danh_Tools_Tab_Ribbon_ID_"
 
 Private system As SystemUpdate
 Private fileSystem As Object
@@ -1341,7 +1340,6 @@ On Error GoTo ErrorHandle
     If loadedRibbon Is Nothing Then
         Debug.Print ("loadedRibbon Is Nothing") 'For watching debug
         ' Reload Ribbon from Pointer (Preprocessor.GetRibbon is Public)
-'        Set loadedRibbon = GetRibbon(Workbooks(info.getAddinName).Names(RIBBON_ID))
         Set loadedRibbon = GetRibbon(Workbooks(info.getAddinName).Names(info.getRibbonID))
         ' Reload setting
         Call setDefaultSettings
@@ -2156,7 +2154,7 @@ On Error GoTo ErrorHandle
     Select Case control.id
         Case multipleReplaceButton.getID
             Set form = New MultipleReplaceForm
-            form.Show vbModal ' vbModeless or vbModal
+            Call form.Show(vbModal)  ' vbModeless or vbModal
             Set form = Nothing
         Case boldFirstLineButton.getID
             Set rangeC = New RangesController

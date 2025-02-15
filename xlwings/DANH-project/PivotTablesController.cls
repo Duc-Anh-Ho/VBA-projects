@@ -15,11 +15,11 @@ Private system As SystemUpdate
 Private fileSystem As Object
 Private userResponse As VbMsgBoxResult
 Private WithEvents appEvent As Application
-Attribute appEvent.VB_VarHelpID = -1
+' Attribute appEvent.VB_VarHelpID = -1
 Private WithEvents wbEvent As Workbook
-Attribute wbEvent.VB_VarHelpID = -1
+' Attribute wbEvent.VB_VarHelpID = -1
 Private WithEvents wsEvent As Worksheet
-Attribute wsEvent.VB_VarHelpID = -1
+' Attribute wsEvent.VB_VarHelpID = -1
 'Initialize Variables
 Private Function hasVariables() As Boolean
 On Error GoTo ErrorHandle
@@ -40,23 +40,24 @@ ErrorHandle:
 ExecuteProcedure:
 End Function
 
-'Constructor
+' CONSTRUCTOR
 Private Sub Class_Initialize()
     Call refreshAllPivotTableCaches
 End Sub
-'Destructor
+' DESTRUCTOR
 Private Sub Class_Terminate()
     Set appEvent = Nothing
     Set wbEvent = Nothing
     Set wsEvent = Nothing
 End Sub
 
-'ASSESSORS
+' ASSESSORS
 
-'MUTATORS
-'METHODS
+' MUTATORS
 
-'MAIN
+' METHODS
+
+' MAIN
 Public Sub refreshAllPivotTableCaches()
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
@@ -77,3 +78,4 @@ End Sub
 Private Sub appEvent_SheetChange(ByVal sheetObject As Object, ByVal Target As Range)
     Call refreshAllPivotTableCaches
 End Sub
+

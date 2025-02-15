@@ -61,18 +61,24 @@ ErrorHandle:
     Call system.tackleErrors
 ExecuteProcedure:
 End Function
-' Constructor
+
+' CONSTRUCTOR
 Private Sub Class_Initialize()
-'
+    '
 End Sub
-' Destructor
+
+' DESTRUCTOR
 Private Sub Class_Terminate()
     Set info = Nothing
     Set system = Nothing
 End Sub
+
 ' ASSESSORS
+
 ' MUTATORS
+
 ' METHODS
+
 Private Sub setEmailConfig( _
     Optional ByRef username As String = EMAIL_USERNAME, _
     Optional ByRef password As String = EMAIL_PASSWORD)

@@ -9,18 +9,14 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-Private WithEvents labelE As MSForms.label
-Attribute labelE.VB_VarHelpID = -1
+Private WithEvents labelE As MsForms.label
+' Attribute labelE.VB_VarHelpID = -1
 
 ' MUTATORS
 
-Public Property Set setLabel(ByVal label As MSForms.label)
-    Set labelE = label
-End Property
+Public Property Set setLabel(ByVal label As MsForms.label): Set labelE = label: End Property
 
-Public Property Get getLabel() As MSForms.label
-    Set getLabel = labelE
-End Property
+Public Property Get getLabel() As MsForms.label: Set getLabel = labelE: End Property
 
 ' EVENTS
 
@@ -33,7 +29,7 @@ Private Sub LabelE_Click()
 End Sub
 
 
-Private Sub labelE_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+Private Sub labelE_DblClick(ByVal Cancel As MsForms.ReturnBoolean)
     Call KeyboardShortcutForm.labelDbClick(labelE)
 End Sub
 

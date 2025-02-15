@@ -58,31 +58,31 @@ Attribute VB_Exposed = False
 Option Explicit
 
 'Control types (MSForms.Control or MSForms.UserForm)
-Private WithEvents m_CheckBox As MSForms.CheckBox
+Private WithEvents m_CheckBox As MsForms.CheckBox
 Attribute m_CheckBox.VB_VarHelpID = -1
-Private WithEvents m_ComboBox As MSForms.ComboBox
+Private WithEvents m_ComboBox As MsForms.ComboBox
 Attribute m_ComboBox.VB_VarHelpID = -1
-Private WithEvents m_CommandButton As MSForms.CommandButton
+Private WithEvents m_CommandButton As MsForms.CommandButton
 Attribute m_CommandButton.VB_VarHelpID = -1
-Private WithEvents m_Frame As MSForms.Frame
+Private WithEvents m_Frame As MsForms.Frame
 Attribute m_Frame.VB_VarHelpID = -1
-Private WithEvents m_Image As MSForms.image
+Private WithEvents m_Image As MsForms.image
 Attribute m_Image.VB_VarHelpID = -1
-Private WithEvents m_Label As MSForms.label
+Private WithEvents m_Label As MsForms.label
 Attribute m_Label.VB_VarHelpID = -1
-Private WithEvents m_ListBox As MSForms.ListBox
+Private WithEvents m_ListBox As MsForms.ListBox
 Attribute m_ListBox.VB_VarHelpID = -1
-Private WithEvents m_MultiPage As MSForms.MultiPage
+Private WithEvents m_MultiPage As MsForms.MultiPage
 Attribute m_MultiPage.VB_VarHelpID = -1
-Private WithEvents m_OptionButton As MSForms.OptionButton
+Private WithEvents m_OptionButton As MsForms.OptionButton
 Attribute m_OptionButton.VB_VarHelpID = -1
-Private WithEvents m_TabStrip As MSForms.TabStrip
+Private WithEvents m_TabStrip As MsForms.TabStrip
 Attribute m_TabStrip.VB_VarHelpID = -1
-Private WithEvents m_TextBox As MSForms.textBox
+Private WithEvents m_TextBox As MsForms.textBox
 Attribute m_TextBox.VB_VarHelpID = -1
-Private WithEvents m_ToggleButton As MSForms.ToggleButton
+Private WithEvents m_ToggleButton As MsForms.ToggleButton
 Attribute m_ToggleButton.VB_VarHelpID = -1
-Private WithEvents m_UserForm As MSForms.UserForm
+Private WithEvents m_UserForm As MsForms.UserForm
 Attribute m_UserForm.VB_VarHelpID = -1
 
 'Late-binded control/form
@@ -97,9 +97,9 @@ Private m_control As Object
 Private m_isCallback As Boolean
 
 #If VBA7 Then
-Public Function CreateFromControl(ByVal formControl As MSForms.control, ByVal hWndForm As LongPtr) As MouseOverControl
+Public Function CreateFromControl(ByVal formControl As MsForms.control, ByVal hWndForm As LongPtr) As MouseOverControl
 #Else
-Public Function CreateFromControl(ByVal formControl As MSForms.control, ByVal hWndForm As Long) As MouseOverControl
+Public Function CreateFromControl(ByVal formControl As MsForms.control, ByVal hWndForm As Long) As MouseOverControl
 #End If
     Dim moControl As MouseOverControl
     Set moControl = New MouseOverControl
@@ -108,9 +108,9 @@ Public Function CreateFromControl(ByVal formControl As MSForms.control, ByVal hW
 End Function
 
 #If VBA7 Then
-Public Function CreateFromForm(ByVal uForm As MSForms.UserForm, ByVal hWndForm As LongPtr) As MouseOverControl
+Public Function CreateFromForm(ByVal uForm As MsForms.UserForm, ByVal hWndForm As LongPtr) As MouseOverControl
 #Else
-Public Function CreateFromForm(ByVal uForm As MSForms.UserForm, ByVal hWndForm As Long) As MouseOverControl
+Public Function CreateFromForm(ByVal uForm As MsForms.UserForm, ByVal hWndForm As Long) As MouseOverControl
 #End If
     Dim moControl As MouseOverControl
     Set moControl = New MouseOverControl
@@ -119,9 +119,9 @@ Public Function CreateFromForm(ByVal uForm As MSForms.UserForm, ByVal hWndForm A
 End Function
 
 #If VBA7 Then
-Public Sub InitFromControl(ByVal formControl As MSForms.control, ByVal hWndForm As LongPtr)
+Public Sub InitFromControl(ByVal formControl As MsForms.control, ByVal hWndForm As LongPtr)
 #Else
-Public Sub InitFromControl(ByVal formControl As MSForms.control, ByVal hWndForm As Long)
+Public Sub InitFromControl(ByVal formControl As MsForms.control, ByVal hWndForm As Long)
 #End If
     Set m_control = formControl
     m_hWndForm = hWndForm
@@ -154,9 +154,9 @@ Public Sub InitFromControl(ByVal formControl As MSForms.control, ByVal hWndForm 
 End Sub
 
 #If VBA7 Then
-Public Sub InitFromForm(ByVal uForm As MSForms.UserForm, ByVal hWndForm As LongPtr)
+Public Sub InitFromForm(ByVal uForm As MsForms.UserForm, ByVal hWndForm As LongPtr)
 #Else
-Public Sub InitFromForm(ByVal uForm As MSForms.UserForm, ByVal hWndForm As Long)
+Public Sub InitFromForm(ByVal uForm As MsForms.UserForm, ByVal hWndForm As Long)
 #End If
     Set m_control = uForm
     m_hWndForm = hWndForm
@@ -209,15 +209,15 @@ End Sub
 
 'Scroll Event for Containers. This cancels out any scroll that is triggered by a
 '   control getting the focus - especially TextBoxes on .SetFocus
-Private Sub m_UserForm_Scroll(ByVal ActionX As MSForms.fmScrollAction, ByVal ActionY As MSForms.fmScrollAction, ByVal RequestDx As Single, ByVal RequestDy As Single, ByVal ActualDx As MSForms.ReturnSingle, ByVal ActualDy As MSForms.ReturnSingle)
+Private Sub m_UserForm_Scroll(ByVal ActionX As MsForms.fmScrollAction, ByVal ActionY As MsForms.fmScrollAction, ByVal RequestDx As Single, ByVal RequestDy As Single, ByVal ActualDx As MsForms.ReturnSingle, ByVal ActualDy As MsForms.ReturnSingle)
     If ActionY = fmScrollActionFocusRequest Or ActionY = fmScrollActionControlRequest Then ActualDy = 0
     If ActionX = fmScrollActionFocusRequest Or ActionX = fmScrollActionControlRequest Then ActualDx = 0
 End Sub
-Private Sub m_Frame_Scroll(ByVal ActionX As MSForms.fmScrollAction, ByVal ActionY As MSForms.fmScrollAction, ByVal RequestDx As Single, ByVal RequestDy As Single, ByVal ActualDx As MSForms.ReturnSingle, ByVal ActualDy As MSForms.ReturnSingle)
+Private Sub m_Frame_Scroll(ByVal ActionX As MsForms.fmScrollAction, ByVal ActionY As MsForms.fmScrollAction, ByVal RequestDx As Single, ByVal RequestDy As Single, ByVal ActualDx As MsForms.ReturnSingle, ByVal ActualDy As MsForms.ReturnSingle)
     If ActionY = fmScrollActionFocusRequest Or ActionY = fmScrollActionControlRequest Then ActualDy = 0
     If ActionX = fmScrollActionFocusRequest Or ActionX = fmScrollActionControlRequest Then ActualDx = 0
 End Sub
-Private Sub m_MultiPage_Scroll(ByVal index As Long, ByVal ActionX As MSForms.fmScrollAction, ByVal ActionY As MSForms.fmScrollAction, ByVal RequestDx As Single, ByVal RequestDy As Single, ByVal ActualDx As MSForms.ReturnSingle, ByVal ActualDy As MSForms.ReturnSingle)
+Private Sub m_MultiPage_Scroll(ByVal index As Long, ByVal ActionX As MsForms.fmScrollAction, ByVal ActionY As MsForms.fmScrollAction, ByVal RequestDx As Single, ByVal RequestDy As Single, ByVal ActualDx As MsForms.ReturnSingle, ByVal ActualDy As MsForms.ReturnSingle)
     If ActionY = fmScrollActionFocusRequest Or ActionY = fmScrollActionControlRequest Then ActualDy = 0
     If ActionX = fmScrollActionFocusRequest Or ActionX = fmScrollActionControlRequest Then ActualDx = 0
 End Sub

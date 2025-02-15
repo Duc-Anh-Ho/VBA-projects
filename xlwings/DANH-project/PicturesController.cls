@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 ' Check README.md for more information
 Option Explicit
-'Declare Variables
+' Declare Variables
 Private info As InfoConstants
 Private system As SystemUpdate
 Private fileSystem As Object
@@ -25,7 +25,7 @@ Private Const MARKER_TRANSPARENT_RATE As Byte = 80
 Private Const MARKER_LINE_WEIGHT As Byte = 5
 Private Const MARKER_TEXT As String = "ARRANGING AREA"
 Private Const MARKER_TEXT_FONT As String = "Helvetica"
-'Initialize Variables
+' Initialize Variables
 Private Function hasVariables() As Boolean
 On Error GoTo ErrorHandle
     Set info = New InfoConstants
@@ -41,21 +41,25 @@ ErrorHandle:
     Call system.tackleErrors
 ExecuteProcedure:
 End Function
-'Constructor
+
+'CONSTRUCTOR
 Private Sub Class_Initialize()
-'
+    '
 End Sub
-'Destructor
+'DESTRUCTOR
 Private Sub Class_Terminate()
-'
+    '
 End Sub
 
-'ASSESSORS
+' ASSESSORS
+
 '1,2,3
 Public Property Get hasSelectObjectMode() As Boolean
     Let hasSelectObjectMode = CommandBars("Drawing").controls("Select Objects").State
 End Property
-'MUTATORS
+
+' MUTATORS
+
 '1,2,3
 Public Property Let letOffset(ByRef newOffset As Byte)
     If newOffset > 100 Then newOffset = 100
@@ -429,3 +433,5 @@ ErrorHandle:
 ExecuteProcedure:
     Call system.speedOff
 End Sub
+
+

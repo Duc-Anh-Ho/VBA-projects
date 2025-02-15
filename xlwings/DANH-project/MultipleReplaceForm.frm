@@ -2,9 +2,9 @@ VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} MultipleReplaceForm 
    Caption         =   "Multiple Replace"
    ClientHeight    =   2961
-   ClientLeft      =   120
-   ClientTop       =   465
-   ClientWidth     =   7335
+   ClientLeft      =   119
+   ClientTop       =   462
+   ClientWidth     =   7336
    OleObjectBlob   =   "MultipleReplaceForm.frx":0000
    StartUpPosition =   1  'CenterOwner
 End
@@ -101,7 +101,7 @@ Private Sub WithInComboBox_Change()
     End If
 End Sub
 
-Private Sub FindAreaInput_Exit(ByVal Cancel As MSForms.ReturnBoolean)
+Private Sub FindAreaInput_Exit(ByVal Cancel As MsForms.ReturnBoolean)
     If Trim(FindAreaInput.text & vbNullString) = vbNullString Then Exit Sub
     On Error Resume Next
     Set findArea = Application.Evaluate(FindAreaInput.text)
@@ -117,7 +117,7 @@ Private Sub FindAreaInput_Exit(ByVal Cancel As MSForms.ReturnBoolean)
     End If
 End Sub
 
-Private Sub ReplaceAreaInput_Exit(ByVal Cancel As MSForms.ReturnBoolean)
+Private Sub ReplaceAreaInput_Exit(ByVal Cancel As MsForms.ReturnBoolean)
     If Trim(ReplaceAreaInput.text & vbNullString) = vbNullString Then Exit Sub
     On Error Resume Next
     Set replaceArea = Application.Evaluate(ReplaceAreaInput.text)
@@ -135,7 +135,7 @@ Private Sub ReplaceAreaInput_Exit(ByVal Cancel As MSForms.ReturnBoolean)
 End Sub
 
 
-Private Sub SelectedAreaInput_Exit(ByVal Cancel As MSForms.ReturnBoolean)
+Private Sub SelectedAreaInput_Exit(ByVal Cancel As MsForms.ReturnBoolean)
     If Trim(SelectedAreaInput.text & vbNullString) = vbNullString Then Exit Sub
     On Error Resume Next
     Set selectedArea = Application.Evaluate(SelectedAreaInput.text)
@@ -258,11 +258,13 @@ Private Sub InitTabIndexes(ParamArray controls() As Variant)
     Dim i As Byte: Let i = 0
     Dim ctrl As Variant  ' MSForms.control
     For Each ctrl In controls
-        If TypeOf ctrl Is MSForms.control Then
+        If TypeOf ctrl Is MsForms.control Then
             ctrl.TabIndex = i
             i = i + 1
         End If
     Next ctrl
 End Sub
+
+
 
 

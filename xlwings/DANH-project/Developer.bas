@@ -1,7 +1,7 @@
 Attribute VB_Name = "Developer"
 Option Explicit
 ' FOR DEVELOPER ONLY
-
+Public form As KeyboardShortcutForm
 Private Const GIT_LOCAL_PATH As String = "S:\VBA-projects\"
 Private Const INSTALL_FILE_NAME As String = "Danh-Tools-Installation.xlsb"
 Private Const INSTALL_FILE_FULLNAME As String = GIT_LOCAL_PATH & INSTALL_FILE_NAME
@@ -40,8 +40,11 @@ End Sub
 
 ' TEST
 Public Sub aaTestCode()
-    KeyboardShortcutForm.Show
- '    If ActiveWorkbook.path = "" Then MsgBox "Not saved"
+    ' Set form = New KeyboardShortcutForm
+    ' Call form.Show(vbModal)  ' vbModeless or vbModal
+    ' Set form = Nothing
+    Call KeyboardShortcutForm.Show(vbModal)
+'    If ActiveWorkbook.path = "" Then MsgBox "Not saved"
 ''''''''''''''''''''
 '    Dim system As SystemUpdate
 '    Dim PWShell As PowerShellController

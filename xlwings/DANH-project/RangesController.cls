@@ -20,11 +20,11 @@ Private isBold As Boolean
 Private blurRate As Byte
 Private addSize As Byte
 Private WithEvents appEvent As Application
-Attribute appEvent.VB_VarHelpID = -1
+' Attribute appEvent.VB_VarHelpID = -1
 Private WithEvents wbEvent As Workbook
-Attribute wbEvent.VB_VarHelpID = -1
+' Attribute wbEvent.VB_VarHelpID = -1
 Private WithEvents wsEvent As Worksheet
-Attribute wsEvent.VB_VarHelpID = -1
+' Attribute wsEvent.VB_VarHelpID = -1
 'Private Const INPUT_BOX_RANGE_TYPE As Byte = 8
 Private Const START_CHAR As Byte = 1
 Private Const SHEET_TYPE As String = "Worksheet"
@@ -79,8 +79,8 @@ Private Property Get isRange(selectedRange As Variant, Optional hasMessage As Bo
                     "You you have to select range!", _
                 Buttons:=vbOKOnly + vbExclamation, _
                 Title:=info.getAuthor
-         End If
-         Let isRange = False
+        End If
+        Let isRange = False
     End If
 End Property
 '1-0 Inver Color
@@ -88,7 +88,7 @@ Private Property Get getInvertColor(ByRef RGBColor As Long) As Long
     Dim redColor As Integer
     Dim greenColor As Integer
     Dim blueColor As Integer
-     'Algorithm color
+    'Algorithm color
     Let redColor = 255 - RGBColor Mod 256
     Let greenColor = 255 - RGBColor \ 256 Mod 256
     Let blueColor = 255 - RGBColor \ 65536 Mod 256
@@ -103,13 +103,9 @@ Private Property Get getNewLine() As String
     End If
 End Property
 '3-0 Get Highlight Color
-Public Property Get getHighlightColor() As Long
-    Let getHighlightColor = highlightColor
-End Property
+Public Property Get getHighlightColor() As Long: Let getHighlightColor = highlightColor: End Property
 '3-2 Get Bold Status
-Public Property Get checkBold() As Boolean
-    Let checkBold = isBold
-End Property
+Public Property Get checkBold() As Boolean: Let checkBold = isBold: End Property
 '3-4 Get Blur Rate
 Public Property Get getBlurRate() As Integer
     If blurRate >= 100 Then blurRate = 100
@@ -120,24 +116,20 @@ Public Property Get getAddSize() As Integer
     If addSize >= 10 Then addSize = 10
     Let getAddSize = addSize
 End Property
-'MUTATORS
+
+' MUTATORS
+
 '3-1 Set up HIghlight Color
-Public Property Let letHighlightColor(ByRef newHighlightColor As Long)
-    Let highlightColor = newHighlightColor
-End Property
+Public Property Let letHighlightColor(ByRef newHighlightColor As Long): Let highlightColor = newHighlightColor: End Property
 '3-3 Set Up Bold Status
-Public Property Let letBold(ByRef newBoldStt As Boolean)
-    Let isBold = newBoldStt
-End Property
+Public Property Let letBold(ByRef newBoldStt As Boolean): Let isBold = newBoldStt: End Property
 '3-5 Set Up Blur Rate
-Public Property Let letBlurRate(ByRef newBlurRate As Byte)
-    Let blurRate = newBlurRate
-End Property
+Public Property Let letBlurRate(ByRef newBlurRate As Byte): Let blurRate = newBlurRate: End Property
 '3-7 Set up Add Size
-Public Property Let letAddSize(ByRef newAddSize As Byte)
-    Let addSize = newAddSize
-End Property
+Public Property Let letAddSize(ByRef newAddSize As Byte): Let addSize = newAddSize: End Property
+
 'METHODS
+
 '2-1 Trigger Bold First Line
 Private Sub triggerBoldFirstLine(ByRef cell As Range)
     Let cell.Characters( _
@@ -244,7 +236,7 @@ On Error GoTo ErrorHandle
     Call system.pasteSheetFormat( _
         toSheetName:=onSheet, _
         fromSheet:="formatStored")
-     If targetRange Is Nothing Then GoTo ExecuteProcedure
+    If targetRange Is Nothing Then GoTo ExecuteProcedure
     Call system.ws.Range(targetRange.Address).Select
 ErrorHandle:
     Call system.tackleErrors
@@ -335,7 +327,7 @@ On Error GoTo ErrorHandle
             End With
             Set findArea = .Range("A1:A" & size)
             Set replaceArea = .Range("B1:B" & size)
-         End With
+        End With
     End If
     
     For i = 1 To findArea.Count
@@ -375,10 +367,10 @@ Private Sub appEvent_SheetDeactivate(ByVal sheetObject As Object)
 End Sub
 
 Private Sub appEvent_SheetActivate(ByVal sheetObject As Object)
-   If typeName(sheetObject) = SHEET_TYPE Then
+    If typeName(sheetObject) = SHEET_TYPE Then
         Call storeHighlightFormat(sheetObject)
         Call highlight(selection)
-   End If
+    End If
 End Sub
 
 Private Sub appEvent_SheetSelectionChange(ByVal sheetObject As Object, ByVal Target As Range)

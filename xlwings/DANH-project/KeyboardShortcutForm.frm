@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} KeyboardShortcutForm 
    Caption         =   "Settings"
-   ClientHeight    =   5610
-   ClientLeft      =   105
-   ClientTop       =   390
-   ClientWidth     =   8115
+   ClientHeight    =   7665
+   ClientLeft      =   -21
+   ClientTop       =   -224
+   ClientWidth     =   10864
    OleObjectBlob   =   "KeyboardShortcutForm.frx":0000
    StartUpPosition =   2  'CenterScreen
 End
@@ -21,13 +21,13 @@ Private userResponse As VbMsgBoxResult
 Private info As InfoConstants
 Private shortcutTb As ListObject
 Private eventColl As Collection
-Private hoverLabel As MSForms.label
-Private editingLabel As MSForms.label
-Private editingTextBox As MSForms.textBox
+Private hoverLabel As MsForms.label
+Private editingLabel As MsForms.label
+Private editingTextBox As MsForms.textBox
 Private editingIndex As String 'Find index by replace so use String is better
 Private editingShortcut As String
-Private editedArr() As String
-Private pickingLabel As MSForms.label
+Private editedArr() As String ' TODO: Create custom array CRUD
+Private pickingLabel As MsForms.label
 Private pickingIndex As String 'Find index by replace so use String is better
 Private shortcutC As ShortcutController
 Private Enum COLOR
@@ -46,6 +46,8 @@ Private Enum COLOR
     menu_text = vbMenuText
     menu_bar = vbMenuBar
 End Enum
+Private Const DEFAULT = "<Default>"
+Private Const MODIFIED = "<Modified>"
 Private Const FILTER_PLACEHOLDER As String = "<Type to filter text>"
 Private Const TITLE_TAG As String = "title"
 Private Const LINE_TAG As String = "line_"
@@ -53,7 +55,7 @@ Private Const KEYBINDING_LABEL As String = "KeyBindingLabel_"
 Private Const COMMAND_LABEL As String = "CommandLabel_"
 Private Const KEYBINDING_TEXTBOX As String = "KeyBindingTextBox_"
 Private Const WHEN_LABEL As String = "WhenLabel_"
-Private Const SOURCE_LABEL As String = "SourceLabel_"
+Private Const STATUS_LABEL As String = "StatusLabel_"
 Private Const LINE_1 As String = "Line1_"
 Private Const LINE_2 As String = "Line2_"
 Private Const LINE_3 As String = "Line3_"
@@ -65,34 +67,50 @@ Private Const PROG_ID_LABEL As String = "Forms.Label.1"
 Private Const PROG_ID_TEXTBOX As String = "Forms.Textbox.1"
 Private Const ASTERISK As String = "*"
 ' Loop iterators
-Private ctrl As MSForms.control
+Private ctrl As MsForms.control
 Private row As ListRow
 
-'EVENTS
+' NOTE: Used to use Mutators/Accessors as Public for fix bug when cls form as instance but not working
 
-Private Sub KeyboardFrameContainer_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
-    Call initLabel
-End Sub
+' MUTATORS
 
-Private Sub KeyboardFrame_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
-    Select Case KeyCode
-        ' ENTER key only
-        ' TODO: vbKeyReturn to shortcutC.getEnterKey()
-        Case vbKeyReturn: If Shift <> 1 Then Call showEditing
-    End Select
-End Sub
+Private Sub letUserResponse(ByRef value As VbMsgBoxResult): Let userResponse = value: End Sub
+Private Sub setInfo(ByRef value As InfoConstants): Set info = value: End Sub
+Private Sub setShortcutTb(ByRef value As ListObject): Set shortcutTb = value: End Sub
+Private Sub setEventColl(ByRef value As Collection): Set eventColl = value: End Sub
+Private Sub setHoverLabel(ByRef value As MsForms.label): Set hoverLabel = value: End Sub
+Private Sub setEditingLabel(ByRef value As MsForms.label): Set editingLabel = value: End Sub
+Private Sub setEditingTextBox(ByRef value As MsForms.textBox): Set editingTextBox = value: End Sub
+Private Sub letEditingIndex(ByRef value As String): Let editingIndex = value: End Sub
+Private Sub letEditingShortcut(ByRef value As String): Let editingShortcut = value: End Sub
+Private Sub setPickingLabel(ByRef value As MsForms.label): Set pickingLabel = value: End Sub
+Private Sub letPickingIndex(ByRef value As String): Let pickingIndex = value: End Sub
+Private Sub setShortcutC(ByRef value As ShortcutController): Set shortcutC = value: End Sub
+Private Sub setCtrl(ByRef value As ShortcutController): Set ctrl = value: End Sub
+Private Sub setRow(ByRef value As ShortcutController): Set row = value: End Sub
 
-Private Sub UserForm_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
-    Call initLabel
-End Sub
+' ACCESSORS
 
-Private Sub UserForm_Deactivate()
-    Call initLabel
-End Sub
+Private Function getUserResponse() As VbMsgBoxResult: Let getUserResponse = userResponse: End Function
+Private Function getInfo() As InfoConstants: Let getInfo = info: End Function
+Private Function getShortcutTb() As ListObject: Set getShortcutTb = shortcutTb: End Function
+Private Function getEventColl() As Collection: Set getEventColl = eventColl: End Function
+Private Function getHoverLabel() As MsForms.label: Set getHoverLabel = hoverLabel: End Function
+Private Function getEditingLabel() As MsForms.label: Set getEditingLabel = editingLabel: End Function
+Private Function getEditingTextBox() As MsForms.textBox: Set getEditingTextBox = editingTextBox: End Function
+Private Function getEditingIndex() As String: Let getEditingIndex = editingIndex: End Function
+Private Function getEditingShortcut() As String: Let getEditingShortcut = editingShortcut: End Function
+Private Function getPickingLabel() As MsForms.label: Set getPickingLabel = pickingLabel: End Function
+Private Function getPickingIndex() As String: Let getPickingIndex = pickingIndex: End Function
+Private Function getShortcutC() As ShortcutController: Set getShortcutC = shortcutC: End Function
+Private Function getCtrl() As ShortcutController: Set getCtrl = ctrl: End Function
+Private Function getRow() As ShortcutController: Set getShortcutC = row: End Function
+
+' CONSTRUCTOR
 
 Private Sub UserForm_Initialize()
-    Set shortcutC = New ShortcutController
-    Set info = New InfoConstants
+    Call setShortcutC(New ShortcutController)
+    Call setInfo(New InfoConstants)
     Call invisiblePattern
     Call initComboBox
     Call initRow
@@ -118,12 +136,36 @@ Private Sub UserForm_Initialize()
     Call MouseScroll.EnableMouseScroll(Me) ' Apply the mousewheel scrolling
 End Sub
 
-Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
+' DESTRUCTOR
+
+Private Sub UserForm_Terminate()
     Call MouseScroll.DisableMouseScroll(Me) ' Remove the mousewheel scrolling
     Call cleanUp
 End Sub
 
-Private Sub UserForm_Terminate()
+' EVENTS
+
+Private Sub KeyboardFrameContainer_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+    Call initLabel
+End Sub
+
+Private Sub KeyboardFrame_KeyDown(ByVal KeyCode As MsForms.ReturnInteger, ByVal Shift As Integer)
+    Select Case KeyCode
+        ' ENTER key only
+        ' TODO: vbKeyReturn to GetShortcutC().getEnterKey()
+        Case vbKeyReturn: If Shift <> 1 Then Call showEditing
+    End Select
+End Sub
+
+Private Sub UserForm_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+    Call initLabel
+End Sub
+
+Private Sub UserForm_Deactivate()
+    Call initLabel
+End Sub
+
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     Call MouseScroll.DisableMouseScroll(Me) ' Remove the mousewheel scrolling
     Call cleanUp
 End Sub
@@ -144,7 +186,7 @@ Private Sub FilterPlaceTextBox_Enter()
     End If
 End Sub
 
-Private Sub FilterPlaceTextBox_Exit(ByVal Cancel As MSForms.ReturnBoolean)
+Private Sub FilterPlaceTextBox_Exit(ByVal Cancel As MsForms.ReturnBoolean)
     'Place Holder Handel
     If FilterPlaceTextBox.value = vbNullString Then
         FilterPlaceTextBox.value = FILTER_PLACEHOLDER
@@ -152,16 +194,12 @@ Private Sub FilterPlaceTextBox_Exit(ByVal Cancel As MSForms.ReturnBoolean)
     End If
 End Sub
 
-' ACCESSORS
-
-' MUTATORS
-
-' FUNCTIONS
+' METHODS
 
 Private Sub initComboBox()
     With ProfilesComboBox
         .Style = fmStyleDropDownList
-        .AddItem "Default"
+        .AddItem DEFAULT
         .ListIndex = "0" '0 Or False
     End With
 End Sub
@@ -172,23 +210,23 @@ Private Sub initRow()
     Dim lineIndex As String
     Dim defaultMark As String
     Dim shortcut As String
-    Set shortcutTb = shortcutC.getShortcutTable()
-    ReDim editedArr(shortcutTb.ListRows.Count - 1)
-    For Each row In shortcutTb.ListRows
-        Let keybind = row.Range(1, shortcutC.getCustomKeybindColumn())
-        Let keybindDefault = row.Range(1, shortcutC.getDefaultKeybindColumn())
-        Let lineIndex = row.Range(1, shortcutC.getNoColumn())
-        Let shortcut = shortcutC.convertCodeToName(keybind)
-        Let defaultMark = IIf(keybind = keybindDefault, " *", vbNullString)
+    Call setShortcutTb(getShortcutC().getShortcutTable())
+    ReDim editedArr(getShortcutTb().ListRows.Count - 1)
+    For Each row In getShortcutTb().ListRows
+        Let keybind = row.Range(1, getShortcutC().getCustomKeybindColumn())
+        Let keybindDefault = row.Range(1, getShortcutC().getDefaultKeybindColumn())
+        Let lineIndex = row.Range(1, getShortcutC().getNoColumn())
+        Let shortcut = getShortcutC().convertCodeToName(keybind)
+        Let defaultMark = IIf(keybind = keybindDefault, DEFAULT, vbNullString)
         Call createRow( _
             index:=row.index _
-            , command:=row.Range(1, shortcutC.getCommandColumn()) _
+            , command:=row.Range(1, getShortcutC().getCommandColumn()) _
             , shortcut:=shortcut _
-            , when:=row.Range(1, shortcutC.getWhenColumn()) _
-            , source:=row.Range(1, shortcutC.getSourceCoulmn()) & defaultMark _
+            , when:=row.Range(1, getShortcutC().getWhenColumn()) _
+            , status:=row.Range(1, getShortcutC().getStatusColumn()) & defaultMark _
         )
     Next row
-    Call createScrollBar(shortcutTb.DataBodyRange.Rows.Count) ' Max Row
+    Call createScrollBar(getShortcutTb().DataBodyRange.Rows.Count) ' Max Row
 End Sub
 
 Private Sub createScrollBar(ByRef totalLines As Long)
@@ -205,7 +243,7 @@ Private Sub createRow( _
     , ByRef command As String _
     , ByRef shortcut As String _
     , ByRef when As String _
-    , ByRef source As String _
+    , ByRef status As String _
 )
     Call createRowLabel( _
         name:=COMMAND_LABEL & index _
@@ -247,13 +285,13 @@ Private Sub createRow( _
         , left:=WhenLabel_0.left _
     )
     Call createRowLabel( _
-        name:=SOURCE_LABEL & index _
+        name:=STATUS_LABEL & index _
         , index:=index _
-        , caption:=source _
-        , width:=SourceLabel_0.width _
-        , height:=SourceLabel_0.height _
-        , top:=SourceLabel_0.top _
-        , left:=SourceLabel_0.left _
+        , caption:=Status _
+        , width:=StatusLabel_0.width _
+        , height:=StatusLabel_0.height _
+        , top:=StatusLabel_0.top _
+        , left:=StatusLabel_0.left _
     )
     Call createRowLabel( _
         name:=LINE_1 & index _
@@ -305,7 +343,7 @@ Private Sub createRowLabel( _
     , Optional ByRef foreColor As String = COLOR.window_text _
     , Optional ByRef hasBorder As Byte = fmBorderStyleNone _
 )
-    Dim lineLabel As MSForms.label
+    Dim lineLabel As MsForms.label
     Set lineLabel = Me.KeyboardFrame.add( _
         bstrProgId:=PROG_ID_LABEL _
         , name:=name _
@@ -342,7 +380,7 @@ Private Sub createRowTextBox( _
     , Optional ByRef bold As Boolean = False _
 )
     ' Dim lineTextbox As MSForms.textBox
-    Dim lineTextbox As MSForms.control
+    Dim lineTextbox As MsForms.control
     Set lineTextbox = Me.KeyboardFrame.add( _
         bstrProgId:=PROG_ID_TEXTBOX _
         , name:=name _
@@ -380,9 +418,9 @@ Private Sub initLabel()
     For Each ctrl In Me.KeyboardFrameContainer.controls
         With ctrl
         Let lineIndex = Replace(.Tag, LINE_TAG, vbNullString)
-        Let isLabel = (TypeOf ctrl Is MSForms.label)
-        Let isHoverLabel = (ctrl is hoverLabel)
-        Let isPickingLabel = (ctrl Is pickingLabel) Or (lineIndex = pickingIndex)
+        Let isLabel = (TypeOf ctrl Is MsForms.label)
+        Let isHoverLabel = (ctrl Is getHoverLabel())
+        Let isPickingLabel = (ctrl Is getPickingLabel()) Or (lineIndex = getPickingIndex())
         ' Skip reset pickingLabel, hoverLabel
         If isLabel _
             And Not isHoverLabel _
@@ -418,49 +456,49 @@ Private Sub initLabel()
     Next ctrl
 End Sub
 
-Private Sub addLabelEvent(ByRef ctrl As MSForms.control)
+Private Sub addLabelEvent(ByRef ctrl As MsForms.control)
     With ctrl
-    If .Tag = TITLE_TAG Then eventColl.add createLabelEvent(ctrl)
-    If .Tag Like (LINE_TAG & ASTERISK) Then eventColl.add createLabelEvent(ctrl)
+    If .Tag = TITLE_TAG Then getEventColl().add createLabelEvent(ctrl)
+    If .Tag Like (LINE_TAG & ASTERISK) Then getEventColl().add createLabelEvent(ctrl)
     End With
 End Sub
 
-Private Sub addTextBoxEvent(ByRef ctrl As MSForms.control)
+Private Sub addTextBoxEvent(ByRef ctrl As MsForms.control)
     With ctrl
     If .Tag Like (LINE_TAG & ASTERISK) Then
-        eventColl.add createTextBoxEvent(ctrl)
+        getEventColl().add createTextBoxEvent(ctrl)
     End If
     End With
 End Sub
 
 Private Sub storeCustomEvent()
     'Must store control with event inside a collection by adding functions return custom class in that collection.
-    Set eventColl = New Collection
+    Call setEventColl(New Collection)
     ' Loop thourgh all controls for find suitable
     For Each ctrl In Me.KeyboardFrameContainer.controls
-        If TypeOf ctrl Is MSForms.label Then Call addLabelEvent(ctrl)
-        If TypeOf ctrl Is MSForms.textBox Then Call addTextBoxEvent(ctrl)
+        If TypeOf ctrl Is MsForms.label Then Call addLabelEvent(ctrl)
+        If TypeOf ctrl Is MsForms.textBox Then Call addTextBoxEvent(ctrl)
     Next ctrl
 End Sub
 
 ' CUSTOM EVENTS
 
-Private Function createLabelEvent(ByRef ctrl As MSForms.control) As CustomLabelEvent
+Private Function createLabelEvent(ByRef ctrl As MsForms.control) As CustomLabelEvent
     Dim labelE As CustomLabelEvent: Set labelE = New CustomLabelEvent
     Set labelE.setLabel = ctrl
     Set createLabelEvent = labelE
     Set labelE = Nothing
 End Function
 
-Private Function createTextBoxEvent(ByRef ctrl As MSForms.control) As CustomTextBoxEvent
+Private Function createTextBoxEvent(ByRef ctrl As MsForms.control) As CustomTextBoxEvent
     Dim textBoxE As CustomTextBoxEvent: Set textBoxE = New CustomTextBoxEvent
     Set textBoxE.setTextBox = ctrl
     Set createTextBoxEvent = textBoxE
     Set textBoxE = Nothing
 End Function
 
-Public Sub labelMoveOn(ByRef label As MSForms.label)
-    Dim keybindingLabel As MSForms.label
+Public Sub labelMoveOn(ByRef label As MsForms.label)
+    Dim keybindingLabel As MsForms.label
     Dim lineIndex As String
     Dim isHoverLabel As Boolean
     Dim isPickingLabel As Boolean
@@ -476,8 +514,8 @@ Public Sub labelMoveOn(ByRef label As MSForms.label)
         For Each ctrl In Me.KeyboardFrameContainer.controls
             With ctrl
             Let lineIndex = Replace(.Tag, LINE_TAG, vbNullString)
-            Let isHoverLabel = (TypeOf ctrl Is MSForms.label) And (.Tag = label.Tag)
-            Let isPickingLabel = (ctrl Is pickingLabel) Or (lineIndex = pickingIndex)
+            Let isHoverLabel = (TypeOf ctrl Is MsForms.label) And (.Tag = label.Tag)
+            Let isPickingLabel = (ctrl Is getPickingLabel()) Or (lineIndex = getPickingIndex())
             ' Better performance
             Let isHover = (.backColor = COLOR.line_hover)
             If _
@@ -486,14 +524,14 @@ Public Sub labelMoveOn(ByRef label As MSForms.label)
                 And Not isHover _
             Then
                 Let .backColor = COLOR.line_hover
-                Set hoverLabel = ctrl
+                Call setHoverLabel(ctrl)
             End If
             End With
         Next ctrl
         ' Highlight label
         Set keybindingLabel = Me.KeyboardFrame.controls(KEYBINDING_LABEL & Replace(label.Tag, LINE_TAG, vbNullString))
         With keybindingLabel
-        Let isPickingLabel = (label Is pickingLabel)
+        Let isPickingLabel = (label Is getPickingLabel())
         ' Better performance
         Let isHover = (.foreColor = COLOR.highlight)
         If _
@@ -509,7 +547,7 @@ Public Sub labelMoveOn(ByRef label As MSForms.label)
     Set keybindingLabel = Nothing
 End Sub
 
-Public Sub labelClick(ByRef label As MSForms.label)
+Public Sub labelClick(ByRef label As MsForms.label)
     With label
     ' Titles Click
     If .Tag = TITLE_TAG Then
@@ -519,14 +557,14 @@ Public Sub labelClick(ByRef label As MSForms.label)
         Call resetPicking
         Call hideEditing
         ' Assign picked Label
-        Let pickingIndex = Replace(label.Tag, LINE_TAG, vbNullString)
-        Set pickingLabel = Me.KeyboardFrame.controls(KEYBINDING_LABEL & pickingIndex)
+        Call letPickingIndex(Replace(label.Tag, LINE_TAG, vbNullString))
+        Call setPickingLabel(Me.KeyboardFrame.controls(KEYBINDING_LABEL & getPickingIndex()))
         Call highlightPicking
     End If
     End With
 End Sub
 
-Public Sub labelDbClick(ByRef label As MSForms.label)
+Public Sub labelDbClick(ByRef label As MsForms.label)
     If label.Tag Like (LINE_TAG & ASTERISK) Then
         Call hideEditing
         Call showEditing
@@ -534,62 +572,73 @@ Public Sub labelDbClick(ByRef label As MSForms.label)
 End Sub
 
 Public Sub textBoxKeyDown( _
-    ByRef textBox As MSForms.textBox _
-    , ByRef KeyCode As MSForms.ReturnInteger _
+    ByRef textBox As MsForms.textBox _
+    , ByRef KeyCode As MsForms.ReturnInteger _
     , ByRef Shift As Integer _
 )
-    Let editingShortcut = shortcutC.convertKeyToName(KeyCode, Shift)
-    If editingShortcut = shortcutC.getEnterKey() Then
+    letEditingShortcut (getShortcutC().convertKeyToName(KeyCode, Shift))
+    If editingShortcut = getShortcutC().getEnterKey() Then
         Call hideEditing
-    ElseIf editingShortcut = shortcutC.getEscKey() Then
+    ElseIf getEditingShortcut() = getShortcutC().getEscKey() Then
         ' Load before edit shortcut
-        Let textBox.text = LTrim(editingLabel.caption)
+        Let textBox.text = LTrim(getEditingLabel().caption)
         Call hideEditing
-    ElseIf editingShortcut = shortcutC.getBackspaceKey() Then
+    ElseIf getEditingShortcut() = getShortcutC().getBackspaceKey() Then
         Let textBox.text = vbNullString
     Else
-        Let textBox.text = editingShortcut
+        Let textBox.text = getEditingShortcut()
     End If
     'Prevent default keyDown
     Let KeyCode = 0
 End Sub
 
-Public Sub textBoxChange(ByRef textBox As MSForms.textBox)
-'    If editingLabel Is Nothing Then Exit Sub
-'    Let editingLabel.caption = Space(1) & textBox.text
+Public Sub textBoxChange(ByRef textBox As MsForms.textBox)
+'    If GetEditingLabel() Is Nothing Then Exit Sub
+'    Let GetEditingLabel().caption = Space(1) & textBox.text
 End Sub
 
 Private Sub showEditing()
-    Let editingIndex = Replace(pickingLabel.Tag, LINE_TAG, vbNullString)
+    Call letEditingIndex(Replace(getPickingLabel().Tag, LINE_TAG, vbNullString))
     'Assign editing shortcut object
-    Set editingLabel = Me.KeyboardFrame.controls(KEYBINDING_LABEL & editingIndex)
-    Set editingTextBox = Me.KeyboardFrame.controls(KEYBINDING_TEXTBOX & editingIndex)
-    Let editingTextBox.text = LTrim(editingLabel.caption)
+    Call setEditingLabel(Me.KeyboardFrame.controls(KEYBINDING_LABEL & getEditingIndex()))
+    Call setEditingTextBox(Me.KeyboardFrame.controls(KEYBINDING_TEXTBOX & getEditingIndex()))
+    'If not keybinding set textbox to Blank
+    Let getEditingTextBox.text = IIf( _
+        LTrim(getEditingLabel().caption) = getShortcutC().getNoSet() _
+        , vbNullString _
+        , LTrim(getEditingLabel().caption) _
+    )
     'Show display
-    Let editingTextBox.visible = True
-    Let editingLabel.visible = False
-    Call editingTextBox.SetFocus
+    Let getEditingTextBox().visible = True
+    Let getEditingLabel().visible = False
+    Call getEditingTextBox().SetFocus
 End Sub
 
 Private Sub hideEditing()
+    Dim lineIndex As String
     'Check for the 1st time
-    If editingLabel Is Nothing Then Exit Sub
-    If editingTextBox Is Nothing Then Exit Sub
-    'Save textbox to label
-    Let editingLabel.caption = Space(1) & editingTextBox.text
-    'Compare with origin shortcut
-    Call checkEditedShortcut( _
-        key:=Replace(editingTextBox.Tag, LINE_TAG, vbNullString) _
-        , value:=editingTextBox.text _
+    If getEditingLabel() Is Nothing Then Exit Sub
+    If getEditingTextBox() Is Nothing Then Exit Sub
+    'If textBox blank set label to No Set
+    Let getEditingLabel.caption = IIF( _
+        getEditingTextBox().text = vbNullString _
+        , getShortcutC().getNoSet() _
+        , Space(1) & getEditingTextBox().text _
+    )
+    Let lineIndex = Replace(getEditingTextBox().Tag, LINE_TAG, vbNullString)
+    'Update edited shortcut
+    Call updateEdited( _
+        key:= lineIndex _
+        , value:=getEditingTextBox().text _
     )
     'Highlight edited
     Call highlightEdited
     'Hide display
-    Let editingTextBox.visible = False
-    Let editingLabel.visible = True
+    Let getEditingTextBox().visible = False
+    Let getEditingLabel().visible = True
     'Clean editing
-    Set editingTextBox = Nothing
-    Set editingLabel = Nothing
+    Call setEditingTextBox(Nothing)
+    Call setEditingLabel(Nothing)
 End Sub
 
 Private Sub highlightPicking()
@@ -600,8 +649,8 @@ Private Sub highlightPicking()
     For Each ctrl In Me.KeyboardFrame.controls
         With ctrl
         Let lineIndex = Replace(.Tag, LINE_TAG, vbNullString)
-        Let isLabel = (TypeOf ctrl Is MSForms.label)
-        Let isPickingLabel = (pickingIndex = lineIndex)
+        Let isLabel = (TypeOf ctrl Is MsForms.label)
+        Let isPickingLabel = (getPickingIndex() = lineIndex)
         If _
             isLabel _
             And isPickingLabel _
@@ -625,8 +674,8 @@ Private Sub resetPicking()
     For Each ctrl In Me.KeyboardFrame.controls
         With ctrl
         Let lineIndex = Replace(.Tag, LINE_TAG, vbNullString)
-        Let isLabel = (TypeOf ctrl Is MSForms.label)
-        Let isPickingLabel = (pickingIndex = lineIndex)
+        Let isLabel = (TypeOf ctrl Is MsForms.label)
+        Let isPickingLabel = (getPickingIndex() = lineIndex)
         If _
             isLabel _
             And isPickingLabel _
@@ -649,13 +698,13 @@ Private Sub highlightEdited()
     Dim isLabel As Boolean
     Dim isEditedLabel As Boolean
     Dim isEdited As Boolean
-    For Each ctrl In Me.KeyBoardFrame.controls
+    For Each ctrl In Me.KeyboardFrame.controls
         With ctrl
         Let lineIndex = Replace(.Tag, LINE_TAG, vbNullString)
         Let isLabel = (TypeOf ctrl Is MsForms.label)
         'Loop through edited array
         For i = LBound(editedArr) To UBound(editedArr)
-            Let isEditedLabel = (lineIndex = i + 1) And Not (editedArr(i) = vbNullString)
+            Let isEditedLabel = (lineIndex = i + 1) And Not (editedArr(i) = DEFAULT)
             Let isEdited = (.backColor <> COLOR.line_edited_picking)
             'Highlight line
             If _
@@ -671,17 +720,20 @@ Private Sub highlightEdited()
     Next ctrl
 End Sub
 
-Private Sub checkEditedShortcut(ByRef key As String, ByRef value As String)
+Private Sub updateEdited(ByRef key As String, ByRef value As String)
     Dim keybind As String
     Dim lineIndex As String
     Dim shortcut As String
-    For Each row In shortcutTb.ListRows
-        Let keybind = row.Range(1, shortcutC.getCustomKeybindColumn())
-        Let shortcut = shortcutC.convertCodeToName(keybind)
-        Let lineIndex = row.Range(1, shortcutC.getNoColumn())
+    For Each row In getShortcutTb().ListRows
+        Let keybind = row.Range(1, getShortcutC().getCustomKeybindColumn())
+        Let shortcut = getShortcutC().convertCodeToName(keybind)
+        Let lineIndex = row.Range(1, getShortcutC().getNoColumn())
         If lineIndex = key Then
-            Let editedArr(lineIndex - 1) = vbNullString
-            If value <> shortcut Then
+            'DEFAULT
+            IF value = shortcut Then
+                Let editedArr(lineIndex - 1) = DEFAULT
+            'EDITED
+            Else
                 Let editedArr(lineIndex - 1) = value
             End If
         Exit For ' row loop
@@ -703,7 +755,7 @@ Private Sub invisiblePattern()
     Let Me.KeyBindingLabel_0.visible = False
     Let Me.KeybindingTextBox_0.visible = False
     Let Me.WhenLabel_0.visible = False
-    Let Me.SourceLabel_0.visible = False
+    Let Me.StatusLabel_0.visible = False
 End Sub
 
 Public Sub closeForm()
@@ -713,15 +765,15 @@ End Sub
 
 Private Sub cleanUp()
     ' Clear Objects
-    Set info = Nothing
-    Set eventColl = Nothing
-    Set editingLabel = Nothing
-    Set editingTextBox = Nothing
-    Set pickingLabel = Nothing
-    Set shortcutTb = Nothing
-    Set ctrl = Nothing
-    Set row = Nothing
-    Set shortcutC = Nothing
+    Call setInfo(Nothing)
+    Call setEventColl(Nothing)
+    Call setEditingLabel(Nothing)
+    Call setEditingTextBox(Nothing)
+    Call setPickingLabel(Nothing)
+    Call setShortcutTb(Nothing)
+    Call setCtrl(Nothing)
+    Call setRow(Nothing)
+    Call setShortcutC(Nothing)
     ' Clear Arrays
     Erase editedArr
 End Sub

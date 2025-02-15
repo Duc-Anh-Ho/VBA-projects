@@ -206,7 +206,7 @@ Private m_needsActivation As Boolean
 Private m_needsHooking As Boolean
 
 'The last ComboBox that was used
-Private m_lastCombo As MSForms.ComboBox
+Private m_lastCombo As MsForms.ComboBox
 Private m_isLastComboOn As Boolean
 
 'The Scrollable Control Types/Categories
@@ -247,7 +247,7 @@ Private m_lParam As MOUSEHOOKSTRUCTEX
 '*******************************************************************************
 'Enables mouse wheel scroll for the specified UserForm
 '*******************************************************************************
-Public Function EnableMouseScroll(ByVal uForm As MSForms.UserForm _
+Public Function EnableMouseScroll(ByVal uForm As MsForms.UserForm _
                                 , Optional ByVal passScrollToParentAtMargins As Boolean = True _
                                 , Optional ByVal useShiftForPerpendicularScroll As Boolean = True _
                                 , Optional ByVal useCtrlToZoom As Boolean = True) As Boolean
@@ -265,7 +265,7 @@ End Function
 'Disables mouse wheel scroll for a specific UserForm. Can be called, optionally,
 '   from a form's teminate event but is not needed
 '*******************************************************************************
-Public Sub DisableMouseScroll(ByVal uForm As MSForms.UserForm)
+Public Sub DisableMouseScroll(ByVal uForm As MsForms.UserForm)
     RemoveForm GetFormHandle(uForm)
     ResetLast
 End Sub
@@ -360,7 +360,7 @@ End Function
 'Adds the passScrollAtMargins option to m_passScrollColl collection
 'Adds a sub-collection of MouseMove controls to m_controls collection
 '*******************************************************************************
-Private Sub AddForm(ByVal uForm As MSForms.UserForm _
+Private Sub AddForm(ByVal uForm As MsForms.UserForm _
                   , ByVal passScrollAtMargins As Boolean _
                   , ByVal useShiftForPerpendicularScroll As Boolean _
                   , ByVal useCtrlToZoom As Boolean)
@@ -387,7 +387,7 @@ Private Sub AddForm(ByVal uForm As MSForms.UserForm _
     Set subControls = New Collection
     m_controls.add subControls, keyValue
     '
-    Dim frmCtrl As MSForms.control
+    Dim frmCtrl As MsForms.control
     '
     For Each frmCtrl In uForm.controls
         subControls.add MouseOverControl.CreateFromControl(frmCtrl, hWndForm)
@@ -836,7 +836,7 @@ End Sub
 '*******************************************************************************
 'Vertically scroll a TextBox control
 '*******************************************************************************
-Private Sub TBoxScrollY(ByVal tbox As MSForms.textBox _
+Private Sub TBoxScrollY(ByVal tbox As MsForms.textBox _
                       , ByRef scrollAmount As SCROLL_AMOUNT)
     If Not tbox.MultiLine Then
         ScrollY tbox.Parent, scrollAmount
@@ -942,7 +942,7 @@ Private Sub TBoxScrollY(ByVal tbox As MSForms.textBox _
         If Abs(currY - startY) < 2 Then ScrollY tbox.Parent, scrollAmount
     End If
 End Sub
-Private Function GetParent(ByVal tbox As MSForms.textBox) As Object
+Private Function GetParent(ByVal tbox As MsForms.textBox) As Object
     Dim p As Object: Set p = tbox.Parent
     Dim o As Object
     '
@@ -1026,7 +1026,7 @@ End Sub
 '*******************************************************************************
 'Horizontally scroll a ListBox control
 '*******************************************************************************
-Private Sub ListScrollX(ByVal lbox As MSForms.control _
+Private Sub ListScrollX(ByVal lbox As MsForms.control _
                       , ByRef scrollAmount As SCROLL_AMOUNT)
     Const WM_KEYDOWN As Long = &H100
     Const VK_LEFT = &H25
@@ -1124,7 +1124,7 @@ Private Function GetControlType(ByVal objControl As Object) As CONTROL_TYPE
         Case "TextBox"
             GetControlType = ctText
         Case Else
-            If TypeOf objControl Is MSForms.UserForm Then
+            If TypeOf objControl Is MsForms.UserForm Then
                 GetControlType = ctForm
             Else
                 GetControlType = ctOther
@@ -1136,7 +1136,7 @@ End Function
 'Returns the Window Handle for a UserForm
 'https://docs.microsoft.com/en-us/windows/desktop/api/shlwapi/nf-shlwapi-iunknown_getwindow
 '*******************************************************************************
-Private Function GetFormHandle(ByVal objForm As MSForms.UserForm) As LongPtr
+Private Function GetFormHandle(ByVal objForm As MsForms.UserForm) As LongPtr
     #If Windows Then
         IUnknown_GetWindow objForm, VarPtr(GetFormHandle)
     #End If

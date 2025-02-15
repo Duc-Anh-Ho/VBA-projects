@@ -35,13 +35,13 @@ Private userResponse As VbMsgBoxResult
 Private info As InfoConstants
 Private systemTimer As Single
 Public WithEvents app As Application
-Attribute app.VB_VarHelpID = -1
+' Attribute app.VB_VarHelpID = -1
 Public WithEvents wb As Workbook
-Attribute wb.VB_VarHelpID = -1
+' Attribute wb.VB_VarHelpID = -1
 Public WithEvents ws As Worksheet
-Attribute ws.VB_VarHelpID = -1
+' Attribute ws.VB_VarHelpID = -1
 Public wd As Window
-Attribute wd.VB_VarHelpID = -1
+' Attribute wd.VB_VarHelpID = -1
 'Public wss As Worksheets 'TODO: Refactor as global accessor get wss for sheets controller
 'Public wsObs As Sheets 'wsObs could be Charts || DialogSheets || Worksheets (ws regular || ws marcro)
 Public sheetOb As Object 'SheetOb could be Chart || DialogSheet || Worksheet (ws regular || ws marcro)
@@ -97,7 +97,7 @@ Public Property Get hasWorkPlace( _
 On Error GoTo ErrorHandle
     Dim mess As String
     Dim resultStr As String
-'    '*Case close app but used storage procedure || application.ontime run || mutilple thread
+'    '*Case close app but used storage procedure || application.ontime run || multiple thread
 '   ' TODO
 '    If not hasAppllication()  Then
 '          Let mess = "Can not find any application!"
@@ -296,7 +296,7 @@ On Error GoTo ErrorHandle
                 Let mess = "Don't active any sheet yet, please select one!"
                 GoTo ExecuteProcedure
             ElseIf typeName(Application.ActiveSheet) <> DIALOG_TYPE Then
-               Let mess = _
+                Let mess = _
                     "You've selected a " & _
                     typeName(Application.ActiveSheet) & _
                     ", need to select a " & _
@@ -620,7 +620,7 @@ On Error GoTo ErrorHandle
     Let diaFolder.Title = "Select a folder"
     Let isSelected = diaFolder.Show
     If isSelected Then
-         Let getFolder = diaFolder.SelectedItems(1)
+        Let getFolder = diaFolder.SelectedItems(1)
     Else
         Let getFolder = vbNullString
     End If
@@ -791,9 +791,9 @@ Public Property Get getClipboard() As Variant
     Set clipboardObj = Nothing
 End Property
 
-'MUTATORS
+' MUTATORS
 
-'STATUS BAR
+' STATUS BAR
 Public Property Let setStatusBar(ByVal content As Variant)
     If Not hasWorkPlace(True, EXCEL_TYPE) Then Exit Property
     Let app.DisplayStatusBar = False
@@ -965,5 +965,7 @@ End Sub
 Public Sub clearImmediateWindow()
     Debug.Print String(65535, vbCr)
 End Sub
+
+
 
 

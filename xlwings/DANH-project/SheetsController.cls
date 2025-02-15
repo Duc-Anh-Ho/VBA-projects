@@ -38,11 +38,11 @@ Private wss As Sheets
 Private selectedWss As Sheets
 Private ws As Object
 Private WithEvents wsEvent As Worksheet
-Attribute wsEvent.VB_VarHelpID = -1
+' Attribute wsEvent.VB_VarHelpID = -1
 Private WithEvents appEvent As Application
-Attribute appEvent.VB_VarHelpID = -1
+' Attribute appEvent.VB_VarHelpID = -1
 Private WithEvents wbEvent As Workbook
-Attribute wbEvent.VB_VarHelpID = -1
+' Attribute wbEvent.VB_VarHelpID = -1
 
 'Initialize Variables
 Private Function hasVariables() As Boolean
@@ -67,14 +67,14 @@ ErrorHandle:
 ExecuteProcedure:
 End Function
 
-'Constructor
+' CONSTRUCTOR
 Private Sub Class_Initialize()
-'
+    '
 End Sub
-'Destructor
+' DESTRUCTOR
 Private Sub Class_Terminate()
-'    Set info = Nothing
-'    Set system = Nothing
+    ' Set info = Nothing
+    ' Set system = Nothing
     Set appEvent = Nothing
     Set wbEvent = Nothing
     Set wsEvent = Nothing
@@ -133,8 +133,10 @@ Private Property Get getRenameRange(Optional ByVal onSheet As Worksheet) As Rang
             Range(TITLE_RENAME_CELL).COLUMN))
 End Property
 
-'MUTATORS
-'METHODS
+' MUTATORS
+
+' METHODS
+
 'G1.1-Add Sheets
 Private Sub addSheetsAsRange()
     Dim cellText As String

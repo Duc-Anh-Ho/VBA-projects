@@ -66,16 +66,19 @@ ErrorHandle:
     Call system.tackleErrors
 ExecuteProcedure:
 End Function
-'Constructor
+
+' CONSTRUCTOR
 Private Sub Class_Initialize()
-'
+    '
 End Sub
-'Destructor
+' DESTRUCTOR
 Private Sub Class_Terminate()
     Set info = Nothing
     Set system = Nothing
 End Sub
+
 'ASSESSORS
+
 Private Property Get checkConnect(Optional ByRef link As String = DEFAULT_LINK) As Boolean
     Dim returnedCode As Byte
     Dim command As String
@@ -91,8 +94,11 @@ Private Property Get checkConnect(Optional ByRef link As String = DEFAULT_LINK) 
         Let checkConnect = False
     End If
 End Property
+
 'MUTATORS
+
 'METHODS
+
 Private Sub saveWifiAs( _
     Optional ByRef fileType As Byte = exportType.TXT, _
     Optional ByRef useThisFolder As Boolean = False)

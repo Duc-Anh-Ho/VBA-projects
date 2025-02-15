@@ -19,7 +19,7 @@ Private Sub Workbook_Open()
     Set newAddin = New AutoAddin
     Set shortcutC = New ShortcutController
     'Auto install DANH AddIn (Move to onLoad Ribbon)
-    Call newAddin.install
+    ' Call newAddin.install
     Set newAddin = Nothing
     'Auto install custom shortcuts
     Call shortcutC.install
