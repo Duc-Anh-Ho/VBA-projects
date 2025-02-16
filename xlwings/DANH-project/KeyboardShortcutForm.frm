@@ -212,6 +212,7 @@ Private Sub initRow()
     Dim shortcut As String
     Call setShortcutTb(getShortcutC().getShortcutTable())
     ReDim editedArr(getShortcutTb().ListRows.Count - 1)
+    Call resetEdited
     For Each row In getShortcutTb().ListRows
         Let keybind = row.Range(1, getShortcutC().getCustomKeybindColumn())
         Let keybindDefault = row.Range(1, getShortcutC().getDefaultKeybindColumn())
@@ -287,7 +288,7 @@ Private Sub createRow( _
     Call createRowLabel( _
         name:=STATUS_LABEL & index _
         , index:=index _
-        , caption:=Status _
+        , caption:=status _
         , width:=StatusLabel_0.width _
         , height:=StatusLabel_0.height _
         , top:=StatusLabel_0.top _
@@ -410,7 +411,6 @@ Private Sub initLabel()
     Dim lineIndex As String
     Dim isLabel As Boolean
     Dim isHoverLabel As Boolean
-    Dim isPickingLabel As Boolean
     Dim isTitles As Boolean
     Dim isLines As Boolean
     Dim isKeybind As Boolean
@@ -420,11 +420,11 @@ Private Sub initLabel()
         Let lineIndex = Replace(.Tag, LINE_TAG, vbNullString)
         Let isLabel = (TypeOf ctrl Is MsForms.label)
         Let isHoverLabel = (ctrl Is getHoverLabel())
-        Let isPickingLabel = (ctrl Is getPickingLabel()) Or (lineIndex = getPickingIndex())
         ' Skip reset pickingLabel, hoverLabel
         If isLabel _
             And Not isHoverLabel _
-            And Not isPickingLabel _
+            And Not isPickingLabel(ctrl, lineIndex) _
+            And Not isEditedLabel(lineIndex) _
         Then
             Let isTitles = (.Tag = TITLE_TAG)
             Let isLines = (.Tag Like (LINE_TAG & ASTERISK))
@@ -501,7 +501,6 @@ Public Sub labelMoveOn(ByRef label As MsForms.label)
     Dim keybindingLabel As MsForms.label
     Dim lineIndex As String
     Dim isHoverLabel As Boolean
-    Dim isPickingLabel As Boolean
     Dim isHover As Boolean
     ' Reset Label
     Call initLabel
@@ -515,12 +514,11 @@ Public Sub labelMoveOn(ByRef label As MsForms.label)
             With ctrl
             Let lineIndex = Replace(.Tag, LINE_TAG, vbNullString)
             Let isHoverLabel = (TypeOf ctrl Is MsForms.label) And (.Tag = label.Tag)
-            Let isPickingLabel = (ctrl Is getPickingLabel()) Or (lineIndex = getPickingIndex())
             ' Better performance
             Let isHover = (.backColor = COLOR.line_hover)
             If _
                 isHoverLabel _
-                And Not isPickingLabel _
+                And Not isPickingLabel(ctrl, lineIndex) _
                 And Not isHover _
             Then
                 Let .backColor = COLOR.line_hover
@@ -531,11 +529,10 @@ Public Sub labelMoveOn(ByRef label As MsForms.label)
         ' Highlight label
         Set keybindingLabel = Me.KeyboardFrame.controls(KEYBINDING_LABEL & Replace(label.Tag, LINE_TAG, vbNullString))
         With keybindingLabel
-        Let isPickingLabel = (label Is getPickingLabel())
         ' Better performance
         Let isHover = (.foreColor = COLOR.highlight)
         If _
-            Not isPickingLabel _
+            Not isPickingLabel(label) _
             And Not isHover _
         Then
             Let .foreColor = COLOR.highlight
@@ -620,7 +617,7 @@ Private Sub hideEditing()
     If getEditingLabel() Is Nothing Then Exit Sub
     If getEditingTextBox() Is Nothing Then Exit Sub
     'If textBox blank set label to No Set
-    Let getEditingLabel.caption = IIF( _
+    Let getEditingLabel.caption = IIf( _
         getEditingTextBox().text = vbNullString _
         , getShortcutC().getNoSet() _
         , Space(1) & getEditingTextBox().text _
@@ -628,7 +625,7 @@ Private Sub hideEditing()
     Let lineIndex = Replace(getEditingTextBox().Tag, LINE_TAG, vbNullString)
     'Update edited shortcut
     Call updateEdited( _
-        key:= lineIndex _
+        key:=lineIndex _
         , value:=getEditingTextBox().text _
     )
     'Highlight edited
@@ -644,16 +641,14 @@ End Sub
 Private Sub highlightPicking()
     Dim lineIndex As String
     Dim isLabel As Boolean
-    Dim isPickingLabel As Boolean
     'Highlight line
     For Each ctrl In Me.KeyboardFrame.controls
         With ctrl
         Let lineIndex = Replace(.Tag, LINE_TAG, vbNullString)
         Let isLabel = (TypeOf ctrl Is MsForms.label)
-        Let isPickingLabel = (getPickingIndex() = lineIndex)
         If _
             isLabel _
-            And isPickingLabel _
+            And isPickingLabel(ctrl, lineIndex) _
             And .backColor <> COLOR.line_selected _
         Then
             'Highlight line
@@ -692,30 +687,32 @@ Private Sub resetPicking()
     Next ctrl
 End Sub
 
+Private Function isPickingLabel( _
+    ByRef label As MsForms.control _
+    , Optional ByRef lineIndex As String = vbNullString _
+) As Boolean
+    Let isPickingLabel = (label Is getPickingLabel()) Or (lineIndex = getPickingIndex())
+End Function
+
 Private Sub highlightEdited()
     Dim i As Integer
     Dim lineIndex As String
     Dim isLabel As Boolean
-    Dim isEditedLabel As Boolean
     Dim isEdited As Boolean
     For Each ctrl In Me.KeyboardFrame.controls
         With ctrl
         Let lineIndex = Replace(.Tag, LINE_TAG, vbNullString)
         Let isLabel = (TypeOf ctrl Is MsForms.label)
-        'Loop through edited array
-        For i = LBound(editedArr) To UBound(editedArr)
-            Let isEditedLabel = (lineIndex = i + 1) And Not (editedArr(i) = DEFAULT)
-            Let isEdited = (.backColor <> COLOR.line_edited_picking)
-            'Highlight line
-            If _
-                isLabel _
-                And isEditedLabel _
-                And isEdited _
-            Then
-                Let .backColor = COLOR.line_edited_picking
-                Let .FontItalic = True
-            End If
-        Next i
+        Let isEdited = (.backColor <> COLOR.line_edited)
+        'Highlight line
+        If _
+            isLabel _
+            And isEditedLabel(lineIndex) _
+            And isEdited _
+        Then
+            Let .backColor = COLOR.line_edited
+            Let .FontItalic = True
+        End If
         End With
     Next ctrl
 End Sub
@@ -730,7 +727,7 @@ Private Sub updateEdited(ByRef key As String, ByRef value As String)
         Let lineIndex = row.Range(1, getShortcutC().getNoColumn())
         If lineIndex = key Then
             'DEFAULT
-            IF value = shortcut Then
+            If value = shortcut Then
                 Let editedArr(lineIndex - 1) = DEFAULT
             'EDITED
             Else
@@ -740,6 +737,26 @@ Private Sub updateEdited(ByRef key As String, ByRef value As String)
         End If
     Next row
 End Sub
+
+Private Sub resetEdited()
+    Dim i As Integer
+    For i = LBound(editedArr) To UBound(editedArr)
+        editedArr(i) = DEFAULT
+    Next i
+End Sub
+
+Private Function isEditedLabel(ByRef lineIndex As String) As Boolean
+    Dim i As Integer
+    For i = LBound(editedArr) To UBound(editedArr)
+        If _
+            (lineIndex = CStr(i + 1)) _
+            And (editedArr(i) <> DEFAULT) _
+        Then
+            Let isEditedLabel = True
+            Exit For 'Stop if found
+        End If
+    Next i
+End Function
 
 'Todo: create system update collection.exist
 
