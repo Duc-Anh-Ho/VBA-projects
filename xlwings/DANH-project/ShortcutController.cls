@@ -153,7 +153,7 @@ Private Sub remove(ByRef key As String)
 End Sub
 
 Public Sub install()
-    'NOTE: Shortcuts is a module for calling as full global scope
+    ' NOTE: Shortcuts is a module for calling as full global scope
     Dim procedure As String
     Dim key As String
     For Each row In shortcutTb.ListRows
@@ -168,7 +168,7 @@ Public Sub unInstall()
     Dim key As String
     For Each row In shortcutTb.ListRows
         Let key = row.Range(1, getCustomKeybindColumn()).value
-        Call restore(key)
+        If key <> vbNullString Then Call restore(key)
     Next row
 End Sub
 
