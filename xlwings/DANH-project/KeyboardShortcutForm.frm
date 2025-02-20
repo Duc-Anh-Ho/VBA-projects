@@ -110,40 +110,43 @@ Private Function getShortcutC() As ShortcutController: Set getShortcutC = shortc
 Private Function getCtrl() As ShortcutController: Set getCtrl = ctrl: End Function
 Private Function getRow() As ShortcutController: Set getShortcutC = row: End Function
 
+' NOTE: Can get line index of both label and textbox
 Private Function getLineIndex(ByRef ctrl As MsForms.control) As String
     Let getLineIndex = Replace(ctrl.Tag, LINE_TAG, vbNullString)
 End Function
 
 ' CHECKS
 
-Private Function isTitle(ByRef ctrl As MsForms.control) As Boolean
-    Let isTitle = (ctrl.Tag = TITLE_TAG)
-End Function
-
-Private Function isSameLine(ByRef ctrl As MsForms.control) As Boolean
-    Let isSameLine = (ctrl.Tag Like (LINE_TAG & ASTERISK))
-End Function
-
-Private Function isKeybindingLabel(ByRef ctrl As MsForms.control)
-
-End Function
-
 Private Function isLabel(ByRef ctrl As MsForms.control) As Boolean
     Let isLabel = (TypeOf ctrl Is MsForms.label)
 End Function
 
-Private Function isHoverLabel( _
-    ByRef label As MsForms.control _
-    , Optional ByRef lineIndex As String = vbNullString _
-) As Boolean
-    Let isHoverLabel = (label Is getHoverLabel()) Or (lineIndex = getHoverIndex())
+Private Function isTitle(ByRef label As MsForms.label) As Boolean
+    Let isTitle = (label.Tag = TITLE_TAG)
 End Function
 
-Private Function isPickingLabel( _
-    ByRef label As MsForms.control _
-    , Optional ByRef lineIndex As String = vbNullString _
-) As Boolean
-    Let isPickingLabel = (label Is getPickingLabel()) Or (lineIndex = getPickingIndex())
+Private Function isSameLine(ByRef label As MsForms.label) As Boolean
+    Let isSameLine = (label.Tag Like (LINE_TAG & ASTERISK))
+End Function
+
+Private Function isKeyBinding(ByRef label As MsForms.label) As Boolean
+    Let isKeyBinding = (label.name Like (KEYBINDING_LABEL & ASTERISK))
+End Function
+
+Private Function isHoverLabel(ByRef label As MsForms.label) As Boolean
+    Let isHoverLabel = (label Is getHoverLabel())
+End Function
+
+Private Function isHoverLine(ByRef lineIndex As String) As Boolean
+    Let isHoverLine = (lineIndex = getHoverIndex())
+End Function
+
+Private Function isPickingLabel(ByRef label As MsForms.label) As Boolean
+    Let isPickingLabel = (label Is getPickingLabel())
+End Function
+
+Private Function isPickingLine(ByRef lineIndex As String) As Boolean
+    Let isPickingLine = (lineIndex = getPickingIndex())
 End Function
 
 Private Function isEditedLabel(ByRef lineIndex As String) As Boolean
@@ -463,56 +466,65 @@ End Sub
 
 Private Sub initLabel()
     Dim lineIndex As String
-    Dim isLines As Boolean
-    Dim isKeybind As Boolean
     ' Loop through all controls for find suitable
     For Each ctrl In Me.KeyboardFrameContainer.controls
+        ' Continue
+        If Not isLabel(ctrl) Then GoTo NextCtrl
         With ctrl
         Let lineIndex = getLineIndex(ctrl)
-        ' Skip reset pickingLabel, hoverLabel
-        If isLabel(ctrl) _
-            And Not isHoverLabel(ctrl, lineIndex) _
-            And Not isPickingLabel(ctrl, lineIndex) _
-            And Not isEditedLabel(lineIndex) _
-        Then
-            ' TODO: Create Sub functions for below
-            Let isKeybind = (.name Like (KEYBINDING_LABEL & ASTERISK))
+        ' Skip reset pickingLabel and hoverLabel
+        If Not ( _
+            isHoverLine(lineIndex) _
+            And isPickingLine(lineIndex) _
+            And isEditedLabel(lineIndex) _
+        ) Then
+            'Reset Hover
             'Titles reset
-            If _
-                isTitle(ctrl) _
-                And .backColor <> COLOR.menu_bar _
-            Then
-                Let .backColor = COLOR.menu_bar
+            If isTitle(ctrl) Then
+                Call resetTitle(ctrl)
             'Lines reset
-            ElseIf _
-                isSameLine(ctrl) _
-                And .backColor <> COLOR.window_background _
-            Then
-                Let .backColor = COLOR.window_background
+            ElseIf isSameLine(ctrl) Then
+                Call resetLine(ctrl)
             End If
-            'Keybind label reset
-            If _
-                isKeybind _
-                And .foreColor <> COLOR.menu_text _
-            Then
-                Let .foreColor = COLOR.menu_text
-                Let .FontItalic = False
-                Let .FontBold = False
-            End If
+            'Keybinding label reset
+            If isKeyBinding(ctrl) Then Call resetKeyBinding(ctrl)
         End If
         End With
+NextCtrl:
     Next ctrl
 End Sub
 
+Private Sub resetTitle(ByRef label As MsForms.label)
+    With label
+    If .backColor <> COLOR.menu_bar Then .backColor = COLOR.menu_bar
+    End With
+End Sub
+
+Private Sub resetLine(ByRef label As MsForms.label)
+    With label
+    If .backColor <> COLOR.window_background Then .backColor = COLOR.window_background
+    End With
+End Sub
+
+Private Sub resetKeyBinding(ByRef label As MsForms.label)
+    With label
+    If .foreColor <> COLOR.menu_text Then
+        .foreColor = COLOR.menu_text
+        .FontItalic = False
+        .FontBold = False
+    End If
+    End With
+End Sub
+
 Private Sub addLabelEvent(ByRef ctrl As MsForms.control)
+    If Not isLabel(ctrl) Then Exit Sub
     If isTitle(ctrl) Then getEventColl().add createLabelEvent(ctrl)
     If isSameLine(ctrl) Then getEventColl().add createLabelEvent(ctrl)
 End Sub
 
 Private Sub addTextBoxEvent(ByRef ctrl As MsForms.control)
-    If isSameLine(ctrl) Then
-        getEventColl().add createTextBoxEvent(ctrl)
-    End If
+    If Not isLabel(ctrl) Then Exit Sub
+    If isSameLine(ctrl) Then getEventColl().add createTextBoxEvent(ctrl)
 End Sub
 
 Private Sub storeCustomEvent()
@@ -546,16 +558,15 @@ Public Sub labelMoveOn(ByRef label As MsForms.label)
     Dim lineIndex As String
     Dim isHoverLabel As Boolean
     Dim isHover As Boolean
-    ' Check still in same line do nothing (Performance issues)
-    If Not getHoverLabel() Is Nothing Then If label.Tag = getHoverLabel().Tag Then Exit Sub
-
-    ' Set Hover Label
     Let lineIndex = getLineIndex(label)
+    
+    ' Check still in same line do nothing (Performance issues)
+    If lineIndex = getHoverIndex() Then Exit Sub
     Call setHoverLabel(label)
     Call letHoverIndex(lineIndex)
-
-    ' Reset Label
+    ' Reset Last Hover Label
     Call initLabel
+
     ' Titles Hover
     If isTitle(label) Then
         Let label.backColor = COLOR.title_hover
@@ -563,6 +574,7 @@ Public Sub labelMoveOn(ByRef label As MsForms.label)
     ElseIf isSameLine(label) Then
         ' Highlight lines
         For Each ctrl In Me.KeyboardFrameContainer.controls
+            If Not isLabel(ctrl) Then GoTo NextCtrl
             With ctrl
             Let isHoverLabel = (.Tag = label.Tag)
             ' Better performance
@@ -570,14 +582,13 @@ Public Sub labelMoveOn(ByRef label As MsForms.label)
             If _
                 isHoverLabel _
                 And isLabel(ctrl) _
-                And Not isPickingLabel(ctrl, lineIndex) _
+                And Not isPickingLine(lineIndex) _
                 And Not isHover _
             Then
                 Let .backColor = COLOR.line_hover
-                Call setHoverLabel(ctrl)
-                Call letHoverIndex(lineIndex)
             End If
             End With
+NextCtrl:
         Next ctrl
         ' Highlight label
         Set keybindingLabel = Me.KeyboardFrame.controls(KEYBINDING_LABEL & getLineIndex(label))
@@ -694,16 +705,15 @@ Private Sub hideEditing()
 End Sub
 
 Private Sub highlightPicking()
-    Dim lineIndex As String
     ' Highlight line
     For Each ctrl In Me.KeyboardFrame.controls
+        ' Continue
+        If Not isLabel(ctrl) Then GoTo NextCtrl
         With ctrl
-        Let lineIndex = getLineIndex(ctrl)
-        If _
-            isLabel(ctrl) _
-            And isPickingLabel(ctrl, lineIndex) _
+        If ( _
+            isPickingLine(getLineIndex(ctrl)) _
             And .backColor <> COLOR.line_selected _
-        Then
+        ) Then
             ' Highlight line
             Let .backColor = COLOR.line_selected
             ' Highlight label
@@ -712,21 +722,19 @@ Private Sub highlightPicking()
             Let .FontBold = True
         End If
         End With
+NextCtrl:
     Next ctrl
 End Sub
 
 Private Sub resetPicking()
-    Dim lineIndex As String
-    Dim isPickingLabel As Boolean
     For Each ctrl In Me.KeyboardFrame.controls
+        ' Continue
+        If Not isLabel(ctrl) Then GoTo NextCtrl
         With ctrl
-        Let lineIndex = getLineIndex(ctrl)
-        Let isPickingLabel = (getPickingIndex() = lineIndex)
-        If _
-            isLabel(ctrl) _
-            And isPickingLabel _
+        If ( _
+            isPickingLine(getLineIndex(ctrl)) _
             And .backColor <> COLOR.window_background _
-        Then
+        ) Then
             ' Highlight line
             Let .backColor = COLOR.window_background
             ' Highlight label
@@ -735,27 +743,27 @@ Private Sub resetPicking()
             Let .FontBold = False
         End If
         End With
+NextCtrl:
     Next ctrl
 End Sub
 
 Private Sub highlightEdited()
     Dim i As Integer
-    Dim lineIndex As String
-    Dim isEdited As Boolean
     For Each ctrl In Me.KeyboardFrame.controls
+        ' Continue
+        If Not isLabel(ctrl) Then GoTo NextCtrl
         With ctrl
-        Let lineIndex = getLineIndex(ctrl)
-        Let isEdited = (.backColor <> COLOR.line_edited)
         ' Highlight line
-        If _
+        If ( _
             isLabel(ctrl) _
-            And isEditedLabel(lineIndex) _
-            And isEdited _
-        Then
+            And isEditedLabel(getLineIndex(ctrl)) _
+            And (.backColor <> COLOR.line_edited) _
+        ) Then
             Let .backColor = COLOR.line_edited
             Let .FontItalic = True
         End If
         End With
+NextCtrl:
     Next ctrl
 End Sub
 
