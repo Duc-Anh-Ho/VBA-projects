@@ -477,27 +477,18 @@ Private Sub initLabel()
         ' Continue
         If Not isLabel(ctrl) Then GoTo NextCtrl
         Let lineIndex = getLineIndex(ctrl)
-        ' Skip reset pickingLabel and hoverLabel
-        ' TO BE CONTINUE
-        ' If isHoverLine(lineIndex) Then Goto NextCtrl
-        ' If isPickingLine(lineIndex) Then Goto NextCtrl
-        ' If isEditedLabel(lineIndex) Then Goto NextCtrl
-    If Not ( _
-        isHoverLine(lineIndex) _
-        And isPickingLine(lineIndex) _
-        And isEditedLabel(lineIndex) _
-    ) Then
-        'Reset Hover
-        'Titles reset
+        ' Skip reset
+        If isPickingLine(lineIndex) Then Goto NextCtrl
+        If isEditedLabel(lineIndex) Then Goto NextCtrl
+        'Titles Hover reset 
         If isTitle(ctrl) Then
             Call resetTitle(ctrl)
-        'Lines reset
+        'Lines Hover reset
         ElseIf isLine(ctrl) Then
             Call resetLine(ctrl)
         End If
-        'Keybinding label reset
+        'Keybinding label Hover reset
         If isKeyBinding(ctrl) Then Call resetKeyBinding(ctrl)
-    End If
 NextCtrl:
     Next ctrl
 End Sub
@@ -639,7 +630,7 @@ Public Sub textBoxKeyDown( _
     , ByRef KeyCode As MsForms.ReturnInteger _
     , ByRef Shift As Integer _
 )
-    letEditingShortcut (getShortcutC().convertKeyToName(KeyCode, Shift))
+    Call letEditingShortcut(getShortcutC().convertKeyToName(KeyCode, Shift))
     If editingShortcut = getShortcutC().getEnterKey() Then
         Call hideEditing
     ElseIf getEditingShortcut() = getShortcutC().getEscKey() Then
