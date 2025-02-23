@@ -121,7 +121,7 @@ End Sub
 
 ' ACCESSORS
 
-Public Property Get getNoSet() As String: Let getNoSet = NO_SET: End Property 
+Public Property Get getNoSet() As String: Let getNoSet = NO_SET: End Property
 Public Property Get getNoColumn() As Byte: Let getNoColumn = COLUMN.no: End Property
 Public Property Get getProcedureColumn() As Byte: Let getProcedureColumn = COLUMN.procedure: End Property
 Public Property Get getDefaultKeybindColumn() As Byte: Let getDefaultKeybindColumn = COLUMN.default_keybind: End Property
