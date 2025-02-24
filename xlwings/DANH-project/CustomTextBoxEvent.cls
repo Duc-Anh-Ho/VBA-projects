@@ -20,7 +20,6 @@ Public Property Set setTextBox(ByRef textBox As MsForms.textBox): Set textBoxE =
 
 Public Property Get getTextBox() As MsForms.textBox: Set getTextBox = textBoxE: End Property
 
-
 ' CONSTRUCTOR
 Private Sub Class_Initialize()
     '

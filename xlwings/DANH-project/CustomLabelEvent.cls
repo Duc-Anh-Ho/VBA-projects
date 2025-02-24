@@ -15,7 +15,6 @@ Private WithEvents labelE As MsForms.label
 ' MUTATORS
 
 Public Property Set setLabel(ByVal label As MsForms.label): Set labelE = label: End Property
-
 Public Property Get getLabel() As MsForms.label: Set getLabel = labelE: End Property
 
 ' EVENTS
