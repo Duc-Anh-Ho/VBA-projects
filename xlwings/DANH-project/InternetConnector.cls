@@ -39,7 +39,7 @@ Private Const WIFI_TABLE_SCRIPTS As String = _
         "$wifiTable = [PSCustomObject]@{ " & _
             "WIFI_NAMES = $wifiName;" & _
             "WIFI_PASSWORDS = $wifiPW };" & _
-         "Write-Output $wifiTable}"
+        "Write-Output $wifiTable}"
 Private Const EXPORT_TXT_SCRIPTS As String = _
     "| Format-Table -AutoSize | Out-File -FilePath  '"
 Private Const TXT_FILE_NAME As String = "\wifi.txt'; "
@@ -130,13 +130,13 @@ Private Sub saveWifiAs( _
                 folderScript & _
                 JSON_FILE_NAME
         Case Else
-             Exit Sub
+            Exit Sub
     End Select
     Let command = _
             PWShell.createPWShellCommand & _
             WIFI_TABLE_SCRIPTS & _
             extensionScript
-   Let returnTxt = PWShell.executeScript(command) 'TO-DO: refactory text return
+    Let returnTxt = PWShell.executeScript(command) 'TO-DO: refactory text return
 End Sub
 'MAIN
 'Check internet connect

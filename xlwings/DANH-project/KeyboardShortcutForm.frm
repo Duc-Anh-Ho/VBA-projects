@@ -35,18 +35,24 @@ Private shortcutC As ShortcutController
 Private Enum COLOR
     title_hover = 16378841 'RGB(229, 243, 255)
     line_hover = 16774117 'RGB(217, 235, 249)
-    line_selected = 16772040 'RGB(200, 235, 255)
+    line_hover_edited = 51450 'RGB(250, 200, 0)
+    line_picking = 16772040 'RGB(200, 235, 255)
+    line_picking_edited = 41210 'RGB(250, 160, 0)
     line_border = 14935011 'RGB(227, 227, 227)
     line_edited = 61690 'RGB(250, 240, 0)
-    line_edited_hover = 51450 'RGB(250, 200, 0)
-    line_edited_selected = 41210 'RGB(250, 160, 0)
     ' Default Variables
-    highlight = vbHighlight
+    HIGHLIGHT = vbHighlight
     window_text = vbWindowText
     button_shadow = vbButtonShadow
     window_background = vbWindowBackground
     menu_text = vbMenuText
     menu_bar = vbMenuBar
+End Enum
+Private Enum HIGHLIGHT_MODE
+    normal = 0
+    hover = 1
+    picking = 2
+    edited = 3
 End Enum
 Private Const DEFAULT = "<Default>"
 Private Const MODIFIED = "<Modified>"
@@ -71,8 +77,8 @@ Private Const ASTERISK As String = "*"
 Private Const ZERO As String = "0"
 Private Const BACKGROUND As String = "BackColor"
 Private Const FORE As String = "ForeColor"
-Private Const ITALIC As String = "FontItalic"
-Private Const BOLD As String = "FontBold"
+Private Const italic As String = "FontItalic"
+Private Const bold As String = "FontBold"
 ' Loop iterators
 Private ctrl As MsForms.control
 Private row As ListRow
@@ -142,7 +148,11 @@ Private Function isSameLine( _
     ByRef labelFirst As MsForms.label, _
     ByRef labelSecond As MsForms.label _
 ) As Boolean
-    Let isSameLine = (labelFirst.Tag = labelSecond.tag)
+    If (labelFirst Is Nothing) Or (labelSecond Is Nothing) Then
+        Let isSameLine = False
+    Else
+        Let isSameLine = (labelFirst.Tag = labelSecond.Tag)
+    End If
 End Function
 
 Private Function isKeyBinding(ByRef label As MsForms.label) As Boolean
@@ -200,25 +210,25 @@ Private Sub cleanMarkTitle(ByRef label As MsForms.label)
     Call canUpdateFormat(label, BACKGROUND, COLOR.menu_bar)
 End Sub
 
-Private Sub markSelectedLine(ByRef label As MsForms.label)
-    Call canUpdateFormat(label, BACKGROUND, COLOR.line_selected)
-    Call canUpdateFormat(label, FORE, COLOR.highlight)
-    Call canUpdateFormat(label, ITALIC, True)
-    Call canUpdateFormat(label, BOLD, True)
+Private Sub markPickingLine(ByRef label As MsForms.label)
+    Call canUpdateFormat(label, BACKGROUND, COLOR.line_picking)
+    Call canUpdateFormat(label, FORE, COLOR.HIGHLIGHT)
+    Call canUpdateFormat(label, italic, True)
+    Call canUpdateFormat(label, bold, True)
 End Sub
 
 Private Sub markEditedLine(ByRef label As MsForms.label)
     Call canUpdateFormat(label, BACKGROUND, COLOR.line_edited)
     Call canUpdateFormat(label, FORE, COLOR.menu_text)
-    Call canUpdateFormat(label, ITALIC, True)
-    Call canUpdateFormat(label, BOLD, False)
+    Call canUpdateFormat(label, italic, True)
+    Call canUpdateFormat(label, bold, False)
 End Sub
 
-Private Sub markEditedSelectedLine(ByRef label As MsForms.label)
-    Call canUpdateFormat(label, BACKGROUND, COLOR.line_edited_selected)
-    Call canUpdateFormat(label, FORE, COLOR.highlight)
-    Call canUpdateFormat(label, ITALIC, True)
-    Call canUpdateFormat(label, BOLD, True)
+Private Sub markPickingEditedLine(ByRef label As MsForms.label)
+    Call canUpdateFormat(label, BACKGROUND, COLOR.line_picking_edited)
+    Call canUpdateFormat(label, FORE, COLOR.HIGHLIGHT)
+    Call canUpdateFormat(label, italic, True)
+    Call canUpdateFormat(label, bold, True)
 End Sub
 
 Private Sub markHoverLine(ByRef label As MsForms.label)
@@ -226,28 +236,27 @@ Private Sub markHoverLine(ByRef label As MsForms.label)
 End Sub
 
 Private Sub markHoverEditedLine(ByRef label As MsForms.label)
-    Call canUpdateFormat(label, BACKGROUND, COLOR.line_edited_hover)
+    Call canUpdateFormat(label, BACKGROUND, COLOR.line_hover_edited)
 End Sub
 
-Private Sub markKeybinding(ByRef label as MsForms.label)
-    Call canUpdateFormat(label, FORE, COLOR.highlight)
-    Call canUpdateFormat(label, ITALIC, True)
-    Call canUpdateFormat(label, BOLD, True)
+Private Sub markKeybinding(ByRef label As MsForms.label)
+    Call canUpdateFormat(label, FORE, COLOR.HIGHLIGHT)
+    Call canUpdateFormat(label, italic, True)
+    Call canUpdateFormat(label, bold, True)
 End Sub
 
 Private Sub cleanMarkKeyBinding(ByRef label As MsForms.label)
     Call canUpdateFormat(label, FORE, COLOR.menu_text)
-    Call canUpdateFormat(label, ITALIC, False)
-    Call canUpdateFormat(label, BOLD, False)
+    Call canUpdateFormat(label, italic, False)
+    Call canUpdateFormat(label, bold, False)
 End Sub
 
 Private Sub cleanMarkLine(ByRef label As MsForms.label)
     Call canUpdateFormat(label, BACKGROUND, COLOR.window_background)
     Call canUpdateFormat(label, FORE, COLOR.menu_text)
-    Call canUpdateFormat(label, ITALIC, False)
-    Call canUpdateFormat(label, BOLD, False)
+    Call canUpdateFormat(label, italic, False)
+    Call canUpdateFormat(label, bold, False)
 End Sub
-
 
 ' CONSTRUCTOR
 
@@ -588,15 +597,19 @@ Public Sub labelMoveOn(ByRef label As MsForms.label)
     '  Dim keybindingLabel As MsForms.label
     Dim lineIndex As String
     ' Check still in same label do nothing (Performance issues)
-    If getHoverLabel() is label Then Exit Sub
+    If getHoverLabel() Is label Then Exit Sub
     Call resetHover
     Call setHoverLabel(label)
     Call highlightHover
 End Sub
-xxx TODO: MERGE ALL HIGHLIGHT into one
+
 Public Sub labelClick(ByRef label As MsForms.label)
+    ' Click 2 times
+    If isSameLine(getPickingLabel(), label) Then
+        Call showEditing
+        Exit Sub
     ' Titles Click
-    If isTitle(label) Then
+    ElseIf isTitle(label) Then
         MsgBox ("TODO: Sort By" & label.caption)
     ' Lines Click
     ElseIf isLine(label) Then
@@ -640,6 +653,55 @@ Public Sub textBoxChange(ByRef textBox As MsForms.textBox)
     ' Let GetEditingLabel().caption = Space(1) & textBox.text
 End Sub
 
+Private Sub highlightLabel(ByRef labelType As Byte)
+    ' TODO Highlight Keybinding Sub move to here
+nd Sub
+
+Private Sub highlightLine(ByRef MODE As Byte)
+    Dim label As MsForms.label
+    Dim lineIndex As String
+    ' Loop to find and highlight each label in line
+    For Each ctrl In Me.KeyboardFrameContainer.controls
+        If Not isLabel(ctrl) Then GoTo NextCtrl
+        Select Case MODE
+            Case HIGHLIGHT_MODE.hover
+                Set label = getHoverLabel()
+                Let lineIndex = getHoverIndex()
+            Case HIGHLIGHT_MODE.picking
+                Set label = getPickingLabel()
+                Let lineIndex = getPickingIndex()
+            Case HIGHLIGHT_MODE.edited
+                ' Set label = 
+                ' Let lineIndex = 
+            Case HIGHLIGHT_MODE.normal
+                GoTo NextCtrl
+            Case Else
+                GoTo NextCtrl
+        End Select
+        ' Skip Same Line (Performance)
+        If Not isSameLine(label, ctrl) Then GoTo NextCtrl
+        If isEditedLine(lineIndex) Then
+            ' Picking + Edited
+            If isPickingLine(lineIndex) Then
+                Call markPickingEditedLine(ctrl)
+            ' Hover + Edited
+            ElseIf isHoverLine(lineIndex) Then
+                Call markHoverEditedLine(ctrl)
+            ' Edited Only
+            Else
+                Call markEditedLine(ctrl)
+            End If
+        ' Picking Only
+        ElseIf isPickingLine(lineIndex) Then
+            Call markPickingLine(ctrl)
+        ' Hover Only
+        ElseIf isHoverLine(lineIndex) Then
+            Call markHoverLine(ctrl)
+        End If
+NextCtrl:
+    Next ctrl
+End Sub
+
 Private Sub highlightHover()
     Dim lineIndex As String
     ' Titles Hover
@@ -655,22 +717,24 @@ Private Sub highlightHover()
         If isPickingLine(lineIndex) Then Exit Sub
         ' Update hover line
         Call letHoverIndex(lineIndex)
-        Call highlightHoverLine
+        ' Call highlightHoverLine ' TODO Delete this line
+        Call highlightLine(HIGHLIGHT_MODE.hover)
         ' Highlight keybinding text label
         Call highlightHoverKeybinding
     End If
 End Sub
 
+' TODO Delete this unuse
 Private Sub highlightHoverLine()
     ' Loop to find and highlight each label in line
     For Each ctrl In Me.KeyboardFrameContainer.controls
         ' Skipping
         If Not isLabel(ctrl) Then GoTo NextCtrl
-        If Not isSameLine(getHoverLabel(), ctrl) Then Goto NextCtrl
+        If Not isSameLine(getHoverLabel(), ctrl) Then GoTo NextCtrl
         If isPickingLine(getHoverIndex()) Then GoTo NextCtrl
         If isEditedLine(getHoverIndex()) Then
             ' Highlight hover + edited line
-            Call markHoverEditedLine(Ctrl)
+            Call markHoverEditedLine(ctrl)
         Else
             ' Highlight normal hover line
             Call markHoverLine(ctrl)
@@ -693,14 +757,14 @@ Private Sub resetHover()
         ' Continue
         If Not isLabel(ctrl) Then GoTo NextCtrl
         Let lineIndex = getLineIndex(ctrl)
-        If isPickingLine(lineIndex) Then Goto NextCtrl
+        If isPickingLine(lineIndex) Then GoTo NextCtrl
         ' Check title hover
         If isTitle(ctrl) Then
             Call cleanMarkTitle(ctrl)
-            Goto NextCtrl
+            GoTo NextCtrl
         End If
         ' Check lines hover
-        If Not isLine(ctrl) Then Goto NextCtrl
+        If Not isLine(ctrl) Then GoTo NextCtrl
         ' Keybinding label Hover reset
         If isKeyBinding(ctrl) Then Call cleanMarkKeyBinding(ctrl)
         If isEditedLine(lineIndex) Then
@@ -770,11 +834,11 @@ Private Sub highlightPicking()
         If Not isPickingLine(lineIndex) Then GoTo NextCtrl
         ' Highlight picking + edited
         If isEditedLine(lineIndex) Then
-            Call markEditedSelectedLine(ctrl)
+            Call markPickingEditedLine(ctrl)
             GoTo NextCtrl
         End If
         ' Highlight normal picking
-        Call markSelectedLine(ctrl)
+        Call markPickingLine(ctrl)
 NextCtrl:
     Next ctrl
 End Sub
@@ -785,7 +849,7 @@ Private Sub resetPicking()
         ' Continue
         If Not isLabel(ctrl) Then GoTo NextCtrl
         Let lineIndex = getLineIndex(ctrl)
-        If isPickingLine(lineIndex) Then Goto NextCtrl
+        If isPickingLine(lineIndex) Then GoTo NextCtrl
         ' Clear Highlight
         If isEditedLine(lineIndex) Then
             Call markEditedLine(ctrl)
@@ -809,7 +873,7 @@ Private Sub highlightEdited()
         If Not isEditedLine(lineIndex) Then GoTo NextCtrl
         ' Highlight line
         If isPickingLine(lineIndex) Then
-            Call markEditedSelectedLine(ctrl)
+            Call markPickingEditedLine(ctrl)
         Else
             Call markEditedLine(ctrl)
         End If
