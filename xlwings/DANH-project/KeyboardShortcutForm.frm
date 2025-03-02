@@ -48,12 +48,6 @@ Private Enum COLOR
     menu_text = vbMenuText
     menu_bar = vbMenuBar
 End Enum
-Private Enum HIGHLIGHT_MODE
-    normal = 0
-    hover = 1
-    picking = 2
-    edited = 3
-End Enum
 Private Const DEFAULT = "<Default>"
 Private Const MODIFIED = "<Modified>"
 Private Const FILTER_PLACEHOLDER As String = "<Type to filter text>"
@@ -653,55 +647,6 @@ Public Sub textBoxChange(ByRef textBox As MsForms.textBox)
     ' Let GetEditingLabel().caption = Space(1) & textBox.text
 End Sub
 
-Private Sub highlightLabel(ByRef labelType As Byte)
-    ' TODO Highlight Keybinding Sub move to here
-nd Sub
-
-Private Sub highlightLine(ByRef MODE As Byte)
-    Dim label As MsForms.label
-    Dim lineIndex As String
-    ' Loop to find and highlight each label in line
-    For Each ctrl In Me.KeyboardFrameContainer.controls
-        If Not isLabel(ctrl) Then GoTo NextCtrl
-        Select Case MODE
-            Case HIGHLIGHT_MODE.hover
-                Set label = getHoverLabel()
-                Let lineIndex = getHoverIndex()
-            Case HIGHLIGHT_MODE.picking
-                Set label = getPickingLabel()
-                Let lineIndex = getPickingIndex()
-            Case HIGHLIGHT_MODE.edited
-                ' Set label = 
-                ' Let lineIndex = 
-            Case HIGHLIGHT_MODE.normal
-                GoTo NextCtrl
-            Case Else
-                GoTo NextCtrl
-        End Select
-        ' Skip Same Line (Performance)
-        If Not isSameLine(label, ctrl) Then GoTo NextCtrl
-        If isEditedLine(lineIndex) Then
-            ' Picking + Edited
-            If isPickingLine(lineIndex) Then
-                Call markPickingEditedLine(ctrl)
-            ' Hover + Edited
-            ElseIf isHoverLine(lineIndex) Then
-                Call markHoverEditedLine(ctrl)
-            ' Edited Only
-            Else
-                Call markEditedLine(ctrl)
-            End If
-        ' Picking Only
-        ElseIf isPickingLine(lineIndex) Then
-            Call markPickingLine(ctrl)
-        ' Hover Only
-        ElseIf isHoverLine(lineIndex) Then
-            Call markHoverLine(ctrl)
-        End If
-NextCtrl:
-    Next ctrl
-End Sub
-
 Private Sub highlightHover()
     Dim lineIndex As String
     ' Titles Hover
@@ -717,14 +662,12 @@ Private Sub highlightHover()
         If isPickingLine(lineIndex) Then Exit Sub
         ' Update hover line
         Call letHoverIndex(lineIndex)
-        ' Call highlightHoverLine ' TODO Delete this line
-        Call highlightLine(HIGHLIGHT_MODE.hover)
+        Call highlightHoverLine
         ' Highlight keybinding text label
         Call highlightHoverKeybinding
     End If
 End Sub
 
-' TODO Delete this unuse
 Private Sub highlightHoverLine()
     ' Loop to find and highlight each label in line
     For Each ctrl In Me.KeyboardFrameContainer.controls
@@ -813,8 +756,7 @@ Private Sub hideEditing()
         key:=lineIndex _
         , value:=getEditingTextBox().text _
     )
-    ' Highlight edited
-    Call highlightEdited
+    ' Highlight
     Call highlightPicking
     ' Hide display
     Let getEditingTextBox().visible = False
@@ -831,14 +773,23 @@ Private Sub highlightPicking()
         ' Continue
         If Not isLabel(ctrl) Then GoTo NextCtrl
         Let lineIndex = getLineIndex(ctrl)
-        If Not isPickingLine(lineIndex) Then GoTo NextCtrl
-        ' Highlight picking + edited
-        If isEditedLine(lineIndex) Then
-            Call markPickingEditedLine(ctrl)
-            GoTo NextCtrl
+        If isPickingLine(lineIndex) Then
+            ' Highlight picking + edited
+            If isEditedLine(lineIndex) Then
+                Call markPickingEditedLine(ctrl)
+            Else
+                ' Highlight normal picking
+                Call markPickingLine(ctrl)
+            End If
         End If
-        ' Highlight normal picking
-        Call markPickingLine(ctrl)
+        ' If Not isPickingLine(lineIndex) Then GoTo NextCtrl
+        ' ' Highlight picking + edited
+        ' If isEditedLine(lineIndex) Then
+        '     Call markPickingEditedLine(ctrl)
+        '     GoTo NextCtrl
+        ' End If
+        ' ' Highlight normal picking
+        ' Call markPickingLine(ctrl)
 NextCtrl:
     Next ctrl
 End Sub
@@ -863,23 +814,23 @@ NextCtrl:
     Next ctrl
 End Sub
 
-Private Sub highlightEdited()
-    Dim lineIndex As String
-    Dim i As Integer
-    For Each ctrl In Me.KeyboardFrame.controls
-        ' Continue
-        If Not isLabel(ctrl) Then GoTo NextCtrl
-        Let lineIndex = getLineIndex(ctrl)
-        If Not isEditedLine(lineIndex) Then GoTo NextCtrl
-        ' Highlight line
-        If isPickingLine(lineIndex) Then
-            Call markPickingEditedLine(ctrl)
-        Else
-            Call markEditedLine(ctrl)
-        End If
-NextCtrl:
-    Next ctrl
-End Sub
+' Private Sub highlightEdited()
+'     Dim lineIndex As String
+'     Dim i As Integer
+'     For Each ctrl In Me.KeyboardFrame.controls
+'         ' Continue
+'         If Not isLabel(ctrl) Then GoTo NextCtrl
+'         Let lineIndex = getLineIndex(ctrl)
+'         If Not isEditedLine(lineIndex) Then GoTo NextCtrl
+'         ' Highlight line
+'         If isPickingLine(lineIndex) Then
+'             Call markPickingEditedLine(ctrl)
+'         Else
+'             Call markEditedLine(ctrl)
+'         End If
+' NextCtrl:
+'     Next ctrl
+' End Sub
 
 Private Sub updateEdited(ByRef key As String, ByRef value As String)
     Dim keybinding As String
