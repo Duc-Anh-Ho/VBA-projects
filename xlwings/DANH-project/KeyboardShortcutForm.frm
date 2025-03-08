@@ -51,7 +51,7 @@ End Enum
 Private Const DEFAULT = "<Default>"
 Private Const MODIFIED = "<Modified>"
 Private Const FILTER_PLACEHOLDER As String = "<Type to filter text>"
-Private Const TITLE_TAG As String = "title"
+Private Const TITLE_TAG As String = "title_"
 Private Const LINE_TAG As String = "line_"
 Private Const KEYBINDING_LABEL As String = "KeyBindingLabel_"
 Private Const COMMAND_LABEL As String = "CommandLabel_"
@@ -127,7 +127,7 @@ Private Function isTextBox(ByRef ctrl As MsForms.control) As Boolean
 End Function
 
 Private Function isTitle(ByRef label As MsForms.label) As Boolean
-    Let isTitle = (label.Tag = TITLE_TAG)
+    Let isTitle = (label.Tag Like (TITLE_TAG & ASTERISK))
 End Function
 
 Private Function isLine(ByRef ctrl As MsForms.control) As Boolean
@@ -591,9 +591,11 @@ Public Sub labelMoveOn(ByRef label As MsForms.label)
     '  Dim keybindingLabel As MsForms.label
     Dim lineIndex As String
     ' Check still in same label do nothing (Performance issues)
-    If getHoverLabel() Is label Then Exit Sub
+    If isSameLine(label, getHoverLabel()) Then Exit Sub
+    ' Skip if picking line is hover Line
+    If isPickingLine(getLineIndex(label)) Then Exit Sub
     Call resetHover
-    Call setHoverLabel(label)
+    Call updateHover(label)
     Call highlightHover
 End Sub
 
@@ -609,12 +611,11 @@ Public Sub labelClick(ByRef label As MsForms.label)
     ElseIf isLine(label) Then
         Call resetPicking
         Call hideEditing
-        ' Assign picked Label
-        Call letPickingIndex(getLineIndex(label))
-        Call setPickingLabel(Me.KeyboardFrame.controls(KEYBINDING_LABEL & getPickingIndex()))
-        Call highlightPicking
+        Call updatePicking(label)
+        Call formatLabel
     End If
 End Sub
+
 Public Sub labelDbClick(ByRef label As MsForms.label)
     If Not isLine(label) Then Exit Sub
     Call hideEditing
@@ -627,14 +628,18 @@ Public Sub textBoxKeyDown( _
     , ByRef Shift As Integer _
 )
     Call letEditingShortcut(getShortcutC().convertKeyToName(KeyCode, Shift))
+    ' Enter press save editing
     If (getEditingShortcut() = getShortcutC().getEnterKey()) Then
         Call hideEditing
+    ' Esc press cancel editing
     ElseIf (getEditingShortcut() = getShortcutC().getEscKey()) Then
         ' Load before edit shortcut
         Let textBox.text = LTrim(getEditingLabel().caption)
         Call hideEditing
+    ' Backspace press clear content
     ElseIf getEditingShortcut() = getShortcutC().getBackspaceKey() Then
         Let textBox.text = vbNullString
+    ' Assign shortcut keybinding
     Else
         Let textBox.text = getEditingShortcut()
     End If
@@ -648,42 +653,16 @@ Public Sub textBoxChange(ByRef textBox As MsForms.textBox)
 End Sub
 
 Private Sub highlightHover()
-    Dim lineIndex As String
     ' Titles Hover
     If isTitle(getHoverLabel()) Then
         Call markHoverTitle(getHoverLabel())
-        Exit Sub
     ' Lines Hover
     ElseIf isLine(getHoverLabel()) Then
-        Let lineIndex = getLineIndex(getHoverLabel())
-        ' Check still in same line do nothing (Performance issues)
-        If lineIndex = getHoverIndex() Then Exit Sub
-        ' Skipping
-        If isPickingLine(lineIndex) Then Exit Sub
-        ' Update hover line
-        Call letHoverIndex(lineIndex)
-        Call highlightHoverLine
+        ' Highlight Line
+        Call formatLabel
         ' Highlight keybinding text label
         Call highlightHoverKeybinding
     End If
-End Sub
-
-Private Sub highlightHoverLine()
-    ' Loop to find and highlight each label in line
-    For Each ctrl In Me.KeyboardFrameContainer.controls
-        ' Skipping
-        If Not isLabel(ctrl) Then GoTo NextCtrl
-        If Not isSameLine(getHoverLabel(), ctrl) Then GoTo NextCtrl
-        If isPickingLine(getHoverIndex()) Then GoTo NextCtrl
-        If isEditedLine(getHoverIndex()) Then
-            ' Highlight hover + edited line
-            Call markHoverEditedLine(ctrl)
-        Else
-            ' Highlight normal hover line
-            Call markHoverLine(ctrl)
-        End If
-NextCtrl:
-    Next ctrl
 End Sub
 
 Private Sub highlightHoverKeybinding()
@@ -693,7 +672,86 @@ Private Sub highlightHoverKeybinding()
     Set keybindingLabel = Nothing
 End Sub
 
+Private Sub showEditing()
+    Call letEditingIndex(getLineIndex(getPickingLabel()))
+    ' Assign editing shortcut object
+    Call setEditingLabel(Me.KeyboardFrame.controls(KEYBINDING_LABEL & getEditingIndex()))
+    Call setEditingTextBox(Me.KeyboardFrame.controls(KEYBINDING_TEXTBOX & getEditingIndex()))
+    ' If No Set keybinding set textbox to Blank
+    Let getEditingTextBox().text = IIf( _
+        LTrim(getEditingLabel().caption) = getShortcutC().getNoSet() _
+        , vbNullString _
+        , LTrim(getEditingLabel().caption) _
+    )
+    ' Show display
+    Call displayTextBox(True)
+    Call getEditingTextBox().SetFocus
+End Sub
+
+Private Sub hideEditing()
+    Dim lineIndex As String
+    ' Check for the 1st time
+    If getEditingLabel() Is Nothing Then Exit Sub
+    If getEditingTextBox() Is Nothing Then Exit Sub
+    ' If textBox blank set label to No Set
+    Let getEditingLabel().caption = IIf( _
+        getEditingTextBox().text = vbNullString _
+        , getShortcutC().getNoSet() _
+        , Space(1) & getEditingTextBox().text _
+    )
+    Let lineIndex = getLineIndex(getEditingTextBox())
+    ' Update edited shortcut
+    Call updateEdited( _
+        key:=lineIndex _
+        , value:=LTrim(getEditingLabel().caption) _
+    )
+    ' Highlight Line
+    Call formatLabel
+    ' Hide display
+    Call displayTextBox(False)
+    Call resetEditing
+End Sub
+
+Private Sub formatLabel()
+    Dim lineIndex As String
+    ' Loop all line labels
+    For Each ctrl In Me.KeyboardFrame.controls
+        ' Continue
+        If Not isLabel(ctrl) Then GoTo NextCtrl
+        Let lineIndex = getLineIndex(ctrl)
+        Select Case True
+            ' Highlight picking + edited
+            Case isPickingLine(lineIndex) And isEditedLine(lineIndex)
+                Call markPickingEditedLine(ctrl)
+            ' Highlight hover + edited
+            Case isHoverLine(lineIndex) And isEditedLine(lineIndex)
+                Call markHoverEditedLine(ctrl)
+            ' Highlight picking
+            Case isPickingLine(lineIndex)
+                Call markPickingLine(ctrl)
+            ' Highlight edited
+            Case isEditedLine(lineIndex)
+                Call markEditedLine(ctrl)
+            ' Highlight hover
+            Case isHoverLine(lineIndex)
+                Call markHoverLine(ctrl)
+            ' Default: Clean mark line
+            Case Else
+                Call cleanMarkLine(ctrl)
+        End Select
+NextCtrl:
+    Next ctrl
+End Sub
+
+Private Sub updateHover(ByRef label As MsForms.label)
+    Call letHoverIndex(getLineIndex(label))
+    Call setHoverLabel(label)
+End Sub
+
 Private Sub resetHover()
+    ' Clear hover stored
+    Call letHoverIndex(vbNullString)
+    Call setHoverLabel(Nothing)
     Dim lineIndex As String
     ' Loop through all controls for find suitable
     For Each ctrl In Me.KeyboardFrameContainer.controls
@@ -716,85 +774,17 @@ Private Sub resetHover()
             Call cleanMarkLine(ctrl)
         End If
 NextCtrl:
-    ' Clear hover stored
-    Call setHoverLabel(Nothing)
-    Call letHoverIndex(vbNullString)
     Next ctrl
 End Sub
 
-Private Sub showEditing()
-    Call letEditingIndex(getLineIndex(getPickingLabel()))
-    ' Assign editing shortcut object
-    Call setEditingLabel(Me.KeyboardFrame.controls(KEYBINDING_LABEL & getEditingIndex()))
-    Call setEditingTextBox(Me.KeyboardFrame.controls(KEYBINDING_TEXTBOX & getEditingIndex()))
-    ' If not keybinding set textbox to Blank
-    Let getEditingTextBox.text = IIf( _
-        LTrim(getEditingLabel().caption) = getShortcutC().getNoSet() _
-        , vbNullString _
-        , LTrim(getEditingLabel().caption) _
-    )
-    ' Show display
-    Let getEditingTextBox().visible = True
-    Let getEditingLabel().visible = False
-    Call getEditingTextBox().SetFocus
-End Sub
-
-Private Sub hideEditing()
-    Dim lineIndex As String
-    ' Check for the 1st time
-    If getEditingLabel() Is Nothing Then Exit Sub
-    If getEditingTextBox() Is Nothing Then Exit Sub
-    ' If textBox blank set label to No Set
-    Let getEditingLabel.caption = IIf( _
-        getEditingTextBox().text = vbNullString _
-        , getShortcutC().getNoSet() _
-        , Space(1) & getEditingTextBox().text _
-    )
-    Let lineIndex = getLineIndex(getEditingTextBox())
-    ' Update edited shortcut
-    Call updateEdited( _
-        key:=lineIndex _
-        , value:=getEditingTextBox().text _
-    )
-    ' Highlight
-    Call highlightPicking
-    ' Hide display
-    Let getEditingTextBox().visible = False
-    Let getEditingLabel().visible = True
-    ' Clear editing stored
-    Call setEditingTextBox(Nothing)
-    Call setEditingLabel(Nothing)
-End Sub
-
-Private Sub highlightPicking()
-    Dim lineIndex As String
-    ' Highlight line
-    For Each ctrl In Me.KeyboardFrame.controls
-        ' Continue
-        If Not isLabel(ctrl) Then GoTo NextCtrl
-        Let lineIndex = getLineIndex(ctrl)
-        If isPickingLine(lineIndex) Then
-            ' Highlight picking + edited
-            If isEditedLine(lineIndex) Then
-                Call markPickingEditedLine(ctrl)
-            Else
-                ' Highlight normal picking
-                Call markPickingLine(ctrl)
-            End If
-        End If
-        ' If Not isPickingLine(lineIndex) Then GoTo NextCtrl
-        ' ' Highlight picking + edited
-        ' If isEditedLine(lineIndex) Then
-        '     Call markPickingEditedLine(ctrl)
-        '     GoTo NextCtrl
-        ' End If
-        ' ' Highlight normal picking
-        ' Call markPickingLine(ctrl)
-NextCtrl:
-    Next ctrl
+Private sub updatePicking(ByRef label As MsForms.label)
+    Call letPickingIndex(getLineIndex(label))
+    Call setPickingLabel(Me.KeyboardFrame.controls(KEYBINDING_LABEL & getPickingIndex()))
 End Sub
 
 Private Sub resetPicking()
+    Call letPickingIndex(vbNullString)
+    Call setPickingLabel(Nothing)
     Dim lineIndex As String
     For Each ctrl In Me.KeyboardFrame.controls
         ' Continue
@@ -807,46 +797,35 @@ Private Sub resetPicking()
         Else
             Call cleanMarkLine(ctrl)
         End If
-        ' Clear picking stored
-        Call setPickingLabel(Nothing)
-        Call letPickingIndex(vbNullString)
 NextCtrl:
     Next ctrl
 End Sub
 
-' Private Sub highlightEdited()
-'     Dim lineIndex As String
-'     Dim i As Integer
-'     For Each ctrl In Me.KeyboardFrame.controls
-'         ' Continue
-'         If Not isLabel(ctrl) Then GoTo NextCtrl
-'         Let lineIndex = getLineIndex(ctrl)
-'         If Not isEditedLine(lineIndex) Then GoTo NextCtrl
-'         ' Highlight line
-'         If isPickingLine(lineIndex) Then
-'             Call markPickingEditedLine(ctrl)
-'         Else
-'             Call markEditedLine(ctrl)
-'         End If
-' NextCtrl:
-'     Next ctrl
-' End Sub
+Private Sub displayTextBox(ByRef isDisplay As Boolean)
+    Let getEditingTextBox().visible = isDisplay
+    Let getEditingLabel().visible = Not isDisplay
+End Sub
+
+Private Sub resetEditing()
+    Call setEditingTextBox(Nothing)
+    Call setEditingLabel(Nothing)
+End Sub
 
 Private Sub updateEdited(ByRef key As String, ByRef value As String)
     Dim keybinding As String
-    Dim lineIndex As String
+    Dim collNo As String
     Dim shortcut As String
     For Each row In getShortcutTb().ListRows
         Let keybinding = row.Range(1, getShortcutC().getCustomKeybindColumn())
         Let shortcut = getShortcutC().convertCodeToName(keybinding)
-        Let lineIndex = row.Range(1, getShortcutC().getNoColumn())
-        If lineIndex = key Then
+        Let collNo = row.Range(1, getShortcutC().getNoColumn())
+        If collNo = key Then
             ' DEFAULT
-            If value = shortcut Then
-                Let editedArr(lineIndex - 1) = DEFAULT
+            If shortcut = value Then
+                Let editedArr(collNo - 1) = DEFAULT
             ' EDITED
             Else
-                Let editedArr(lineIndex - 1) = value
+                Let editedArr(collNo - 1) = value
             End If
         Exit For ' row loop
         End If
