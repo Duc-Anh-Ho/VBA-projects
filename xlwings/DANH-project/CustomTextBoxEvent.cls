@@ -20,13 +20,12 @@ Public Property Set setTextBox(ByRef textBox As MsForms.textBox): Set textBoxE =
 
 Public Property Get getTextBox() As MsForms.textBox: Set getTextBox = textBoxE: End Property
 
-' CONSTRUCTOR
+' Constructor
 Private Sub Class_Initialize()
     '
 End Sub
 
-' DESTRUCTOR
-
+' Destructor
 Private Sub Class_Terminate()
     Set textBoxE = Nothing
 End Sub

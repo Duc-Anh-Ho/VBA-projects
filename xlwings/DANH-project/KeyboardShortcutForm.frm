@@ -41,7 +41,7 @@ Private Enum COLOR
     line_border = 14935011 'RGB(227, 227, 227)
     line_edited = 61690 'RGB(250, 240, 0)
     ' Default Variables
-    HIGHLIGHT = vbHighlight
+    highlight = vbHighlight
     window_text = vbWindowText
     button_shadow = vbButtonShadow
     window_background = vbWindowBackground
@@ -182,6 +182,10 @@ Private Function isEditedLine(ByRef lineIndex As String) As Boolean
     Next i
 End Function
 
+Private Function isEditing() As Boolean
+    Let isEditing = Not (getEditingLabel() Is Nothing Or getEditingTextBox() Is Nothing)
+End Function
+
 ' NOTE: This function can improve performance very much
 Private Function canUpdateFormat( _
     ByRef label As MsForms.label _
@@ -206,7 +210,7 @@ End Sub
 
 Private Sub markPickingLine(ByRef label As MsForms.label)
     Call canUpdateFormat(label, BACKGROUND, COLOR.line_picking)
-    Call canUpdateFormat(label, FORE, COLOR.HIGHLIGHT)
+    Call canUpdateFormat(label, FORE, COLOR.highlight)
     Call canUpdateFormat(label, italic, True)
     Call canUpdateFormat(label, bold, True)
 End Sub
@@ -220,7 +224,7 @@ End Sub
 
 Private Sub markPickingEditedLine(ByRef label As MsForms.label)
     Call canUpdateFormat(label, BACKGROUND, COLOR.line_picking_edited)
-    Call canUpdateFormat(label, FORE, COLOR.HIGHLIGHT)
+    Call canUpdateFormat(label, FORE, COLOR.highlight)
     Call canUpdateFormat(label, italic, True)
     Call canUpdateFormat(label, bold, True)
 End Sub
@@ -234,7 +238,7 @@ Private Sub markHoverEditedLine(ByRef label As MsForms.label)
 End Sub
 
 Private Sub markKeybinding(ByRef label As MsForms.label)
-    Call canUpdateFormat(label, FORE, COLOR.HIGHLIGHT)
+    Call canUpdateFormat(label, FORE, COLOR.highlight)
     Call canUpdateFormat(label, italic, True)
     Call canUpdateFormat(label, bold, True)
 End Sub
@@ -290,23 +294,26 @@ End Sub
 
 ' EVENTS
 
-Private Sub KeyboardFrameContainer_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
-    Call resetHover
-End Sub
-
 Private Sub KeyboardFrame_KeyDown(ByVal KeyCode As MsForms.ReturnInteger, ByVal Shift As Integer)
     Select Case KeyCode
-        ' ENTER key only
         Case vbKeyReturn: If Shift <> 1 Then Call showEditing
+        Case vbKeyEscape: If Shift <> 1 Then Call hideEditing
     End Select
+End Sub
+
+Private Sub KeyboardFrameContainer_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+    Call resetHover
+    Call formatLabel
 End Sub
 
 Private Sub UserForm_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
     Call resetHover
+    Call formatLabel
 End Sub
 
 Private Sub UserForm_Deactivate()
     Call resetHover
+    Call formatLabel
 End Sub
 
 Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
@@ -594,9 +601,8 @@ Public Sub labelMoveOn(ByRef label As MsForms.label)
     If isSameLine(label, getHoverLabel()) Then Exit Sub
     ' Skip if picking line is hover Line
     If isPickingLine(getLineIndex(label)) Then Exit Sub
-    Call resetHover
     Call updateHover(label)
-    Call highlightHover
+    Call formatLabel
 End Sub
 
 Public Sub labelClick(ByRef label As MsForms.label)
@@ -618,7 +624,6 @@ End Sub
 
 Public Sub labelDbClick(ByRef label As MsForms.label)
     If Not isLine(label) Then Exit Sub
-    Call hideEditing
     Call showEditing
 End Sub
 
@@ -652,27 +657,9 @@ Public Sub textBoxChange(ByRef textBox As MsForms.textBox)
     ' Let GetEditingLabel().caption = Space(1) & textBox.text
 End Sub
 
-Private Sub highlightHover()
-    ' Titles Hover
-    If isTitle(getHoverLabel()) Then
-        Call markHoverTitle(getHoverLabel())
-    ' Lines Hover
-    ElseIf isLine(getHoverLabel()) Then
-        ' Highlight Line
-        Call formatLabel
-        ' Highlight keybinding text label
-        Call highlightHoverKeybinding
-    End If
-End Sub
-
-Private Sub highlightHoverKeybinding()
-    Dim keybindingLabel As MsForms.label
-    Set keybindingLabel = Me.KeyboardFrame.controls(KEYBINDING_LABEL & getHoverIndex())
-    Call markKeybinding(keybindingLabel)
-    Set keybindingLabel = Nothing
-End Sub
-
 Private Sub showEditing()
+    ' Check if are editing
+    ' If isEditing Then Call hideEditing
     Call letEditingIndex(getLineIndex(getPickingLabel()))
     ' Assign editing shortcut object
     Call setEditingLabel(Me.KeyboardFrame.controls(KEYBINDING_LABEL & getEditingIndex()))
@@ -691,8 +678,7 @@ End Sub
 Private Sub hideEditing()
     Dim lineIndex As String
     ' Check for the 1st time
-    If getEditingLabel() Is Nothing Then Exit Sub
-    If getEditingTextBox() Is Nothing Then Exit Sub
+    If Not isEditing Then Exit Sub
     ' If textBox blank set label to No Set
     Let getEditingLabel().caption = IIf( _
         getEditingTextBox().text = vbNullString _
@@ -715,11 +701,28 @@ End Sub
 Private Sub formatLabel()
     Dim lineIndex As String
     ' Loop all line labels
-    For Each ctrl In Me.KeyboardFrame.controls
+    For Each ctrl In Me.KeyboardFrameContainer.controls
         ' Continue
         If Not isLabel(ctrl) Then GoTo NextCtrl
         Let lineIndex = getLineIndex(ctrl)
+        If isKeyBinding(ctrl) Then
+            ' Highlight Keybinding font
+            If (isHoverLine(lineIndex) Or isPickingLine(lineIndex)) Then
+                Call markKeybinding(ctrl)
+            ' Clean Keybinding format
+            Else
+                Call cleanMarkKeyBinding(ctrl)
+            End If
+        End If
+        ' NOTE: VBA Select Case auto break if matching
+        ' Label format
         Select Case True
+            ' Highlight Title
+            Case isTitle(ctrl) And isHoverLabel(ctrl)
+                Call markHoverTitle(ctrl)
+            ' Clean Title
+            Case isTitle(ctrl)
+                Call cleanMarkTitle(ctrl)
             ' Highlight picking + edited
             Case isPickingLine(lineIndex) And isEditedLine(lineIndex)
                 Call markPickingEditedLine(ctrl)
@@ -752,32 +755,9 @@ Private Sub resetHover()
     ' Clear hover stored
     Call letHoverIndex(vbNullString)
     Call setHoverLabel(Nothing)
-    Dim lineIndex As String
-    ' Loop through all controls for find suitable
-    For Each ctrl In Me.KeyboardFrameContainer.controls
-        ' Continue
-        If Not isLabel(ctrl) Then GoTo NextCtrl
-        Let lineIndex = getLineIndex(ctrl)
-        If isPickingLine(lineIndex) Then GoTo NextCtrl
-        ' Check title hover
-        If isTitle(ctrl) Then
-            Call cleanMarkTitle(ctrl)
-            GoTo NextCtrl
-        End If
-        ' Check lines hover
-        If Not isLine(ctrl) Then GoTo NextCtrl
-        ' Keybinding label Hover reset
-        If isKeyBinding(ctrl) Then Call cleanMarkKeyBinding(ctrl)
-        If isEditedLine(lineIndex) Then
-            Call markEditedLine(ctrl)
-        Else
-            Call cleanMarkLine(ctrl)
-        End If
-NextCtrl:
-    Next ctrl
 End Sub
 
-Private sub updatePicking(ByRef label As MsForms.label)
+Private Sub updatePicking(ByRef label As MsForms.label)
     Call letPickingIndex(getLineIndex(label))
     Call setPickingLabel(Me.KeyboardFrame.controls(KEYBINDING_LABEL & getPickingIndex()))
 End Sub
