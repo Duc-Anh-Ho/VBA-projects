@@ -294,18 +294,6 @@ End Sub
 
 ' EVENTS
 
-Private Sub KeyboardFrame_KeyDown(ByVal KeyCode As MsForms.ReturnInteger, ByVal Shift As Integer)
-    Select Case KeyCode
-        Case vbKeyReturn: If Shift <> 1 Then Call showEditing
-        Case vbKeyEscape: If Shift <> 1 Then Call hideEditing
-    End Select
-End Sub
-
-Private Sub KeyboardFrameContainer_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
-    Call resetHover
-    Call formatLabel
-End Sub
-
 Private Sub UserForm_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
     Call resetHover
     Call formatLabel
@@ -319,6 +307,24 @@ End Sub
 Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     Call MouseScroll.DisableMouseScroll(Me) ' Remove the mousewheel scrolling
     Call clearUp
+End Sub
+
+Private Sub UserForm_Click()
+    XXX
+    ' TODO hideEditing(with issave = false)
+    Call hideEditing
+End Sub
+
+Private Sub KeyboardFrame_KeyDown(ByVal KeyCode As MsForms.ReturnInteger, ByVal Shift As Integer)
+    Select Case KeyCode
+        Case vbKeyReturn: If Shift <> 1 Then Call showEditing
+        Case vbKeyEscape: If Shift <> 1 Then Call hideEditing
+    End Select
+End Sub
+
+Private Sub KeyboardFrameContainer_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
+    Call resetHover
+    Call formatLabel
 End Sub
 
 Private Sub ApplyAndCloseButton_Click()
@@ -658,8 +664,8 @@ Public Sub textBoxChange(ByRef textBox As MsForms.textBox)
 End Sub
 
 Private Sub showEditing()
-    ' Check if are editing
-    ' If isEditing Then Call hideEditing
+    ' Check if are editing hide it
+    If isEditing Then Call hideEditing
     Call letEditingIndex(getLineIndex(getPickingLabel()))
     ' Assign editing shortcut object
     Call setEditingLabel(Me.KeyboardFrame.controls(KEYBINDING_LABEL & getEditingIndex()))

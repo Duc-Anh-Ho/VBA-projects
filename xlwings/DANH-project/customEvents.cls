@@ -15,11 +15,11 @@ Private system As SystemUpdate
 Private fileSystem As Object
 Private userResponse As VbMsgBoxResult
 Private WithEvents appEvent As Application
-Attribute appEvent.VB_VarHelpID = -1
+'Attribute appEvent.VB_VarHelpID = -1
 Private WithEvents wbEvent As Workbook
-Attribute wbEvent.VB_VarHelpID = -1
+'Attribute wbEvent.VB_VarHelpID = -1
 Private WithEvents wsEvent As Worksheet
-Attribute wsEvent.VB_VarHelpID = -1
+'Attribute wsEvent.VB_VarHelpID = -1
 Private isOnlySh As Boolean
 Private previousWb As Workbook
 
@@ -105,22 +105,20 @@ Private Sub appEvent_WorkbookDeactivate(ByVal wb As Workbook)
     Else
         Let isOnlySh = False
     End If
-   Set previousWb = wb
+    Set previousWb = wb
 End Sub
 
 Private Sub popup(ByVal buttonName As String, ByRef wb As Workbook)
     Let userResponse = MsgBox( _
-         Prompt:= _
-             "Please turn off " & _
-             Chr(34) & buttonName & Chr(34) & _
-             " on DANH Tools Tab before changing Workbook!", _
-         Buttons:=vbOKOnly + vbExclamation, _
-         Title:=info.getAddinShortName)
+        Prompt:= _
+            "Please turn off " & _
+            Chr(34) & buttonName & Chr(34) & _
+            " on DANH Tools Tab before changing Workbook!", _
+        Buttons:=vbOKOnly + vbExclamation, _
+        Title:=info.getAddinShortName)
     ' Disable Event prevent Stack Overflow
     Application.EnableEvents = False
     wb.Activate
     Application.EnableEvents = True
 End Sub
-
-
 

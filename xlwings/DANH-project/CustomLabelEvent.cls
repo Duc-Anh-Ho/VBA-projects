@@ -20,15 +20,14 @@ Public Property Get getLabel() As MsForms.label: Set getLabel = labelE: End Prop
 ' EVENTS
 
 Private Sub LabelE_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
-    Call KeyboardShortcutForm.labelMoveOn(labelE)
+    Call KeyboardShortcutForm.labelMoveOn(getLabel)
 End Sub
 
 Private Sub LabelE_Click()
-    Call KeyboardShortcutForm.labelClick(labelE)
+    Call KeyboardShortcutForm.labelClick(getLabel)
 End Sub
 
 
 Private Sub labelE_DblClick(ByVal Cancel As MsForms.ReturnBoolean)
-    Call KeyboardShortcutForm.labelDbClick(labelE)
+    Call KeyboardShortcutForm.labelDbClick(getLabel)
 End Sub
-
