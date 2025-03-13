@@ -1,12 +1,12 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} KeyboardShortcutForm 
    Caption         =   "Settings"
-   ClientHeight    =   7665
-   ClientLeft      =   -21
-   ClientTop       =   -224
-   ClientWidth     =   10864
+   ClientHeight    =   7686
+   ClientLeft      =   5488
+   ClientTop       =   4011
+   ClientWidth     =   10934
    OleObjectBlob   =   "KeyboardShortcutForm.frx":0000
-   StartUpPosition =   2  'CenterScreen
+   StartUpPosition =   1  'CenterOwner
 End
 Attribute VB_Name = "KeyboardShortcutForm"
 Attribute VB_GlobalNameSpace = False
@@ -48,11 +48,24 @@ Private Enum COLOR
     menu_text = vbMenuText
     menu_bar = vbMenuBar
 End Enum
+Private Enum FORM_POSITION
+    manual = 0
+    center_owner = 1
+    center_screen = 2
+    windows_default = 3
+    height = 410
+    width = 550
+    top = height / 2
+    left = width / 2
+End Enum
 Private Const DEFAULT = "<Default>"
 Private Const MODIFIED = "<Modified>"
 Private Const FILTER_PLACEHOLDER As String = "<Type to filter text>"
 Private Const TITLE_TAG As String = "title_"
 Private Const LINE_TAG As String = "line_"
+Private Const OVERLAY_TAG As String = "overlay_"
+Private Const OVERLAY_FORM As String = "outer"
+Private Const OVERLAY_PAGE As String = "inner"
 Private Const KEYBINDING_LABEL As String = "KeyBindingLabel_"
 Private Const COMMAND_LABEL As String = "CommandLabel_"
 Private Const KEYBINDING_TEXTBOX As String = "KeyBindingTextBox_"
@@ -186,6 +199,10 @@ Private Function isEditing() As Boolean
     Let isEditing = Not (getEditingLabel() Is Nothing Or getEditingTextBox() Is Nothing)
 End Function
 
+Private Function isOverlay(ByRef label As MsForms.label) As Boolean
+    Let isOverlay = (label.Tag Like (OVERLAY_TAG & ASTERISK))
+End Function
+
 ' NOTE: This function can improve performance very much
 Private Function canUpdateFormat( _
     ByRef label As MsForms.label _
@@ -261,9 +278,34 @@ End Sub
 Private Sub UserForm_Initialize()
     Call setShortcutC(New ShortcutController)
     Call setInfo(New InfoConstants)
+    Call initUserForm
     Call invisiblePattern
     Call initComboBox
     Call initRow
+
+    'TODO create initOverlay() > createOverlayLabel
+    Dim overlayLabel As MsForms.label
+    ' Set overlayLabel = Me.KeyboardFrame.add( _
+
+    Set overlayLabel = Me.Controls.add( _
+        bstrProgId:=PROG_ID_LABEL _
+        , name:=OVERLAY_FORM _
+        , visible:=True)
+    With overlayLabel
+    .caption = vbNullString
+    .Tag = OVERLAY_TAG & OVERLAY_FORM
+    .height = Me.InsideHeight
+    .width = Me.InsideWidth
+    .top = 0
+    .left = 0
+    .backColor = vbHighlight ' < delete this line to make the form visible 
+    .BackStyle = 1 'fmBackStyleTransparent ' invisible
+    .BorderStyle = fmBorderStyleNone ' No border
+    .ZOrder 0 ' Bring to front
+    .visible = True 'init will hide
+    End With
+    Set overlayLabel = Nothing
+
     Call storeCustomEvent
 '    Call InitTabIndexes( _
 '        , FindWhatLabel _
@@ -310,15 +352,14 @@ Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
 End Sub
 
 Private Sub UserForm_Click()
-    XXX
-    ' TODO hideEditing(with issave = false)
-    Call hideEditing
+    ' Cancel editing if click outside
+    Call hideEditing(isChange:=False)
 End Sub
 
 Private Sub KeyboardFrame_KeyDown(ByVal KeyCode As MsForms.ReturnInteger, ByVal Shift As Integer)
     Select Case KeyCode
         Case vbKeyReturn: If Shift <> 1 Then Call showEditing
-        Case vbKeyEscape: If Shift <> 1 Then Call hideEditing
+        Case vbKeyEscape: If Shift <> 1 Then Call hideEditing(isChange:=True)
     End Select
 End Sub
 
@@ -351,9 +392,17 @@ Private Sub FilterPlaceTextBox_Exit(ByVal Cancel As MsForms.ReturnBoolean)
     End If
 End Sub
 
-' METHODS
-
 ' Init
+Private Sub initUserForm()
+    With Me
+        .StartUpPosition = FORM_POSITION.manual
+        .height = FORM_POSITION.height
+        .width = FORM_POSITION.width
+        .top = FORM_POSITION.top
+        .left = FORM_POSITION.left
+    End With
+End Sub
+
 Private Sub initComboBox()
     With ProfilesComboBox
         .Style = fmStyleDropDownList
@@ -563,24 +612,22 @@ Private Sub createRowTextBox( _
     Set lineTextbox = Nothing
 End Sub
 
-Private Sub addLabelEvent(ByRef ctrl As MsForms.control)
-    If Not isLabel(ctrl) Then Exit Sub
-    If isTitle(ctrl) Then getEventColl().add createLabelEvent(ctrl)
-    If isLine(ctrl) Then getEventColl().add createLabelEvent(ctrl)
-End Sub
-
-Private Sub addTextBoxEvent(ByRef ctrl As MsForms.control)
-    If Not isTextBox(ctrl) Then Exit Sub
-    If isLine(ctrl) Then getEventColl().add createTextBoxEvent(ctrl)
+Private Sub addEvent(ByRef ctrl As MSForms.Control)
+    If isLabel(ctrl) Then
+        If isTitle(ctrl) Then getEventColl().Add createLabelEvent(ctrl)
+        If isLine(ctrl) Then getEventColl().Add createLabelEvent(ctrl)
+        If isOverlay(ctrl) Then getEventColl().Add createLabelEvent(ctrl)
+    ElseIf isTextBox(ctrl) Then
+        If isLine(ctrl) Then getEventColl().Add createTextBoxEvent(ctrl)
+    End If
 End Sub
 
 Private Sub storeCustomEvent()
     'Must store control with event inside a collection by adding functions return custom class in that collection.
     Call setEventColl(New Collection)
     ' Loop though all controls for find suitable
-    For Each ctrl In Me.KeyboardFrameContainer.controls
-        If TypeOf ctrl Is MsForms.label Then Call addLabelEvent(ctrl)
-        If TypeOf ctrl Is MsForms.textBox Then Call addTextBoxEvent(ctrl)
+    For Each ctrl In Me.controls
+        Call addEvent(ctrl)
     Next ctrl
 End Sub
 
@@ -622,9 +669,11 @@ Public Sub labelClick(ByRef label As MsForms.label)
     ' Lines Click
     ElseIf isLine(label) Then
         Call resetPicking
-        Call hideEditing
+        Call hideEditing(isChange:=True)
         Call updatePicking(label)
         Call formatLabel
+    ElseIf isOverlay(label) Then
+        Call hideEditing(isChange:=False)
     End If
 End Sub
 
@@ -641,12 +690,10 @@ Public Sub textBoxKeyDown( _
     Call letEditingShortcut(getShortcutC().convertKeyToName(KeyCode, Shift))
     ' Enter press save editing
     If (getEditingShortcut() = getShortcutC().getEnterKey()) Then
-        Call hideEditing
+        Call hideEditing(isChange:=True)
     ' Esc press cancel editing
     ElseIf (getEditingShortcut() = getShortcutC().getEscKey()) Then
-        ' Load before edit shortcut
-        Let textBox.text = LTrim(getEditingLabel().caption)
-        Call hideEditing
+        Call hideEditing(isChange:=False)
     ' Backspace press clear content
     ElseIf getEditingShortcut() = getShortcutC().getBackspaceKey() Then
         Let textBox.text = vbNullString
@@ -665,7 +712,7 @@ End Sub
 
 Private Sub showEditing()
     ' Check if are editing hide it
-    If isEditing Then Call hideEditing
+    If isEditing Then Call hideEditing(isChange:=True)
     Call letEditingIndex(getLineIndex(getPickingLabel()))
     ' Assign editing shortcut object
     Call setEditingLabel(Me.KeyboardFrame.controls(KEYBINDING_LABEL & getEditingIndex()))
@@ -677,14 +724,16 @@ Private Sub showEditing()
         , LTrim(getEditingLabel().caption) _
     )
     ' Show display
-    Call displayTextBox(True)
+    Call displayTextBox(isDisplay:=True)
     Call getEditingTextBox().SetFocus
 End Sub
 
-Private Sub hideEditing()
+Private Sub hideEditing(Optional ByRef isChange As Boolean = True)
     Dim lineIndex As String
     ' Check for the 1st time
     If Not isEditing Then Exit Sub
+    ' Restore before edit shortcut (No Change)
+    If Not isChange Then Let getEditingTextBox().text = LTrim(getEditingLabel().caption)
     ' If textBox blank set label to No Set
     Let getEditingLabel().caption = IIf( _
         getEditingTextBox().text = vbNullString _
@@ -700,7 +749,7 @@ Private Sub hideEditing()
     ' Highlight Line
     Call formatLabel
     ' Hide display
-    Call displayTextBox(False)
+    Call displayTextBox(isDisplay:=False)
     Call resetEditing
 End Sub
 
@@ -787,7 +836,7 @@ NextCtrl:
     Next ctrl
 End Sub
 
-Private Sub displayTextBox(ByRef isDisplay As Boolean)
+Private Sub displayTextBox(Optional ByRef isDisplay As Boolean = True)
     Let getEditingTextBox().visible = isDisplay
     Let getEditingLabel().visible = Not isDisplay
 End Sub

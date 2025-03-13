@@ -264,7 +264,3 @@ Private Sub InitTabIndexes(ParamArray controls() As Variant)
         End If
     Next ctrl
 End Sub
-
-
-
-
