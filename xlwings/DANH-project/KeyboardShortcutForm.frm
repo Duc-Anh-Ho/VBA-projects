@@ -14,7 +14,6 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 ' Check README.md for more information
-
 Option Explicit
 ' Declare Variables
 ' NOTE: 'Find indexes by replace so use String as variable is better
@@ -60,6 +59,10 @@ Private Enum FORM_POSITION
 End Enum
 Private Const DEFAULT = "<Default>"
 Private Const MODIFIED = "<Modified>"
+' TODO: MAKE instruction constants class
+Private Const INSTRUCTION_EDITING = "Press desired key combination and then press ENTER."
+Private Const INSTRUCTION_MODIFY = "Click Edit button or double click a line to modify."
+Private Const INSTRUCTION_PICKING_REQUIRED = "Please pick a line to edit."
 Private Const FILTER_PLACEHOLDER As String = "<Type to filter text>"
 Private Const TITLE_TAG As String = "title_"
 Private Const LINE_TAG As String = "line_"
@@ -84,8 +87,10 @@ Private Const ASTERISK As String = "*"
 Private Const ZERO As String = "0"
 Private Const BACKGROUND As String = "BackColor"
 Private Const FORE As String = "ForeColor"
-Private Const italic As String = "FontItalic"
-Private Const bold As String = "FontBold"
+Private Const ITALIC As String = "FontItalic"
+Private Const BOLD As String = "FontBold"
+Private Const EDIT_CAPTION As String = "Edit"
+Private Const RESET_CAPTION As String = "Reset"
 ' Loop iterators
 Private ctrl As MsForms.control
 Private row As ListRow
@@ -107,6 +112,10 @@ Private Sub letEditingShortcut(ByRef value As String): Let editingShortcut = val
 Private Sub setPickingLabel(ByRef value As MsForms.label): Set pickingLabel = value: End Sub
 Private Sub letPickingIndex(ByRef value As String): Let pickingIndex = value: End Sub
 Private Sub setShortcutC(ByRef value As ShortcutController): Set shortcutC = value: End Sub
+
+Private Sub setInstruction(ByRef text As String)
+    Let AsteriskInstructionLabel.Caption = ASTERISK & Space(1) & text
+End Sub
 
 ' ACCESSORS
 
@@ -195,6 +204,10 @@ Private Function isEditedLine(ByRef lineIndex As String) As Boolean
     Next i
 End Function
 
+Private Function isPicking() As Boolean
+    Let isPicking = Not (getPickingLabel() Is Nothing)
+End Function
+
 Private Function isEditing() As Boolean
     Let isEditing = Not (getEditingLabel() Is Nothing Or getEditingTextBox() Is Nothing)
 End Function
@@ -273,6 +286,10 @@ Private Sub cleanMarkLine(ByRef label As MsForms.label)
     Call canUpdateFormat(label, bold, False)
 End Sub
 
+Private Sub updateCaption(ByRef ctrl AS MsForms.Control,ByRef text As String)
+    Let ctrl.Caption = text
+End Sub
+
 ' CONSTRUCTOR
 
 Private Sub UserForm_Initialize()
@@ -281,31 +298,11 @@ Private Sub UserForm_Initialize()
     Call initUserForm
     Call invisiblePattern
     Call initComboBox
+    Call initButton
     Call initRow
-
-    'TODO create initOverlay() > createOverlayLabel
-    Dim overlayLabel As MsForms.label
-    ' Set overlayLabel = Me.KeyboardFrame.add( _
-
-    Set overlayLabel = Me.Controls.add( _
-        bstrProgId:=PROG_ID_LABEL _
-        , name:=OVERLAY_FORM _
-        , visible:=True)
-    With overlayLabel
-    .caption = vbNullString
-    .Tag = OVERLAY_TAG & OVERLAY_FORM
-    .height = Me.InsideHeight
-    .width = Me.InsideWidth
-    .top = 0
-    .left = 0
-    .backColor = vbHighlight ' < delete this line to make the form visible 
-    .BackStyle = 1 'fmBackStyleTransparent ' invisible
-    .BorderStyle = fmBorderStyleNone ' No border
-    .ZOrder 0 ' Bring to front
-    .visible = True 'init will hide
-    End With
-    Set overlayLabel = Nothing
-
+    Call setInstruction(INSTRUCTION_MODIFY)
+    ' (REJECT: Use exit event seem better solution but keep source 4 future reuse)
+    ' Call initOverlay
     Call storeCustomEvent
 '    Call InitTabIndexes( _
 '        , FindWhatLabel _
@@ -356,10 +353,26 @@ Private Sub UserForm_Click()
     Call hideEditing(isChange:=False)
 End Sub
 
+Private Sub MultiPage_Change()
+    Call hideEditing(isChange:=False)
+End Sub
+
+Private Sub MultiPage_Click(ByVal Index As Long)
+    Call hideEditing(isChange:=False)
+End Sub
+
+Private Sub MultiPage_Exit(ByVal Cancel As MSForms.ReturnBoolean)
+    Call hideEditing(isChange:=False)
+End Sub
+
+Private Sub KeyboardFrameContainer_Exit(ByVal Cancel As MSForms.ReturnBoolean)
+    Call hideEditing(isChange:=False)
+End Sub
+
 Private Sub KeyboardFrame_KeyDown(ByVal KeyCode As MsForms.ReturnInteger, ByVal Shift As Integer)
     Select Case KeyCode
         Case vbKeyReturn: If Shift <> 1 Then Call showEditing
-        Case vbKeyEscape: If Shift <> 1 Then Call hideEditing(isChange:=True)
+        Case vbKeyEscape: If Shift <> 1 Then Call hideEditing(isChange:=False)
     End Select
 End Sub
 
@@ -369,27 +382,41 @@ Private Sub KeyboardFrameContainer_MouseMove(ByVal Button As Integer, ByVal Shif
 End Sub
 
 Private Sub ApplyAndCloseButton_Click()
+    'TODO save
     Call KeyboardShortcutForm.closeForm
 End Sub
 
 Private Sub CancelButton_Click()
+    ' TODO Ask for confirmation
     Call KeyboardShortcutForm.closeForm
+End Sub
+
+Private Sub EditResetButton_Click()
+    If Not isPicking Then
+        Call setInstruction(INSTRUCTION_PICKING_REQUIRED)
+    ElseIf  Not isEditing Then
+        Call showEditing
+    End If
 End Sub
 
 Private Sub FilterPlaceTextBox_Enter()
     'Place Holder Handel
-    If FilterPlaceTextBox.value = FILTER_PLACEHOLDER Then
-        FilterPlaceTextBox.value = vbNullString
-        FilterPlaceTextBox.foreColor = COLOR.window_text
+    With FilterPlaceTextBox
+    If .value = FILTER_PLACEHOLDER Then
+        .value = vbNullString
+        .foreColor = COLOR.window_text
     End If
+    End With
 End Sub
 
 Private Sub FilterPlaceTextBox_Exit(ByVal Cancel As MsForms.ReturnBoolean)
     'Place Holder Handel
-    If FilterPlaceTextBox.value = vbNullString Then
-        FilterPlaceTextBox.value = FILTER_PLACEHOLDER
-        FilterPlaceTextBox.foreColor = COLOR.button_shadow
+    With FilterPlaceTextBox
+    If .value = vbNullString Then
+        .value = FILTER_PLACEHOLDER
+        .foreColor = COLOR.button_shadow
     End If
+    End With
 End Sub
 
 ' Init
@@ -409,6 +436,12 @@ Private Sub initComboBox()
         .AddItem DEFAULT
         .ListIndex = ZERO '0 Or False
     End With
+End Sub
+
+Private Sub initButton()
+    ' TODO make order button init
+    ' Init EditResetButton
+    Call updateCaption(ctrl:=Me.EditResetButton, text:=EDIT_CAPTION)
 End Sub
 
 Private Sub initRow()
@@ -435,6 +468,31 @@ Private Sub initRow()
         )
     Next row
     Call createScrollBar(getShortcutTb().DataBodyRange.Rows.Count) ' Max Row
+End Sub
+
+Private Sub initOverLay()
+    ' Outer overlay
+    Call createOverlayLabel( _
+        parentCtrl:=Me.Controls _
+        , width:=Me.InsideWidth _
+        , height:=Me.InsideHeight _
+        , top:=0 _
+        , left:=0 _
+        , name:=OVERLAY_FORM _
+        , backStyle:=1 _
+        , visible:=True _
+    )
+    ' Inner overlay
+    Call createOverlayLabel( _
+        parentCtrl:=Me.MultiPage.KeyboardShortcutsPage.Controls _
+        , width:=Me.MultiPage.KeyboardShortcutsPage.InsideWidth _
+        , height:=Me.MultiPage.KeyboardShortcutsPage.InsideHeight _
+        , top:=0 _
+        , left:=0 _
+        , name:=OVERLAY_PAGE _
+        , backStyle:=1 _
+        , visible:=True _
+    )
 End Sub
 
 Private Sub createScrollBar(ByRef totalLines As Long)
@@ -550,12 +608,13 @@ Private Sub createRowLabel( _
     , Optional ByRef backColor As String = COLOR.window_background _
     , Optional ByRef foreColor As String = COLOR.window_text _
     , Optional ByRef hasBorder As Byte = fmBorderStyleNone _
+    , Optional ByRef visible As Boolean = True _
 )
     Dim lineLabel As MsForms.label
     Set lineLabel = Me.KeyboardFrame.add( _
         bstrProgId:=PROG_ID_LABEL _
         , name:=name _
-        , visible:=True)
+        , visible:=visible)
     With lineLabel
     .caption = Space(1) & caption
     .Tag = LINE_TAG & index
@@ -568,6 +627,7 @@ Private Sub createRowLabel( _
     .BorderStyle = hasBorder
     .bordercolor = COLOR.line_border
     .Font.size = LINE_FONT_SIZE
+    .visible = visible
     End With
     Set lineLabel = Nothing
 End Sub
@@ -592,7 +652,7 @@ Private Sub createRowTextBox( _
     Set lineTextbox = Me.KeyboardFrame.add( _
         bstrProgId:=PROG_ID_TEXTBOX _
         , name:=name _
-        , visible:=True)
+        , visible:=visible)
     With lineTextbox
     Let .Tag = LINE_TAG & index
     Let .height = height
@@ -610,6 +670,41 @@ Private Sub createRowTextBox( _
     Let .visible = visible
     End With
     Set lineTextbox = Nothing
+End Sub
+
+Private Sub createOverlayLabel( _
+    ByRef parentCtrl As MsForms.controls _
+    , ByRef width As Single _
+    , ByRef height As Single _
+    , ByRef top As Single _
+    , ByRef left As Single _
+    , ByRef name As String _
+    , Optional ByRef caption As String = vbNullString _
+    , Optional ByRef backColor As String = COLOR.highlight _
+    , Optional ByRef backStyle As String = fmBackStyleTransparent _
+    , Optional ByRef hasBorder As Byte = fmBorderStyleNone _
+    , Optional ByRef zOrder As Byte = 0 _
+    , Optional ByRef visible As Boolean = False _
+)
+    Dim overlayLabel As MsForms.label
+    Set overlayLabel = parentCtrl.add( _
+        bstrProgId:=PROG_ID_LABEL _
+        , name:=name _
+        , visible:= visible) 'init will hide
+    With overlayLabel
+        .caption = caption
+        .Tag = OVERLAY_TAG & name
+        .width = width
+        .height = height
+        .top = top
+        .left = left
+        .backColor = backColor
+        .BackStyle = backStyle
+        .BorderStyle = hasBorder
+        .visible = visible
+        .ZOrder zOrder ' 0: Bring to front
+    End With
+    Set overlayLabel = Nothing
 End Sub
 
 Private Sub addEvent(ByRef ctrl As MSForms.Control)
@@ -665,11 +760,12 @@ Public Sub labelClick(ByRef label As MsForms.label)
         Exit Sub
     ' Titles Click
     ElseIf isTitle(label) Then
+        Call hideEditing(isChange:=False)
         MsgBox ("TODO: Sort By" & label.caption)
     ' Lines Click
     ElseIf isLine(label) Then
         Call resetPicking
-        Call hideEditing(isChange:=True)
+        Call hideEditing(isChange:=False)
         Call updatePicking(label)
         Call formatLabel
     ElseIf isOverlay(label) Then
@@ -712,7 +808,7 @@ End Sub
 
 Private Sub showEditing()
     ' Check if are editing hide it
-    If isEditing Then Call hideEditing(isChange:=True)
+    If isEditing Then Call hideEditing(isChange:=False)
     Call letEditingIndex(getLineIndex(getPickingLabel()))
     ' Assign editing shortcut object
     Call setEditingLabel(Me.KeyboardFrame.controls(KEYBINDING_LABEL & getEditingIndex()))
@@ -726,6 +822,9 @@ Private Sub showEditing()
     ' Show display
     Call displayTextBox(isDisplay:=True)
     Call getEditingTextBox().SetFocus
+    ' Change button Edit to Reset
+    Call updateCaption(ctrl:=Me.EditResetButton, text:=RESET_CAPTION)
+    Call setInstruction(INSTRUCTION_EDITING)
 End Sub
 
 Private Sub hideEditing(Optional ByRef isChange As Boolean = True)
@@ -751,6 +850,9 @@ Private Sub hideEditing(Optional ByRef isChange As Boolean = True)
     ' Hide display
     Call displayTextBox(isDisplay:=False)
     Call resetEditing
+    ' Change button Edit to Reset
+    Call updateCaption(ctrl:=Me.EditResetButton, text:=EDIT_CAPTION)
+    Call setInstruction(INSTRUCTION_MODIFY)
 End Sub
 
 Private Sub formatLabel()
