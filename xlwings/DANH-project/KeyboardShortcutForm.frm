@@ -57,10 +57,20 @@ Private Enum FORM_POSITION
     top = height / 2
     left = width / 2
 End Enum
+Private Enum DIRECTION
+    up = -1
+    down = 1
+End Enum
+Private ENUM MASK
+    none = 0
+    shiftKey =  1
+    ctrlKey = 2
+    altKey = 4
+End Enum
 Private Const DEFAULT = "<Default>"
 Private Const MODIFIED = "<Modified>"
 ' TODO: MAKE instruction constants class
-Private Const INSTRUCTION_EDITING = "Press desired key combination and then press ENTER."
+Private Const INSTRUCTION_EDITING = "Press desired key combination and then press ENTER." 
 Private Const INSTRUCTION_MODIFY = "Click Edit button or double click a line to modify."
 Private Const INSTRUCTION_PICKING_REQUIRED = "Please pick a line to edit."
 Private Const FILTER_PLACEHOLDER As String = "<Type to filter text>"
@@ -371,8 +381,10 @@ End Sub
 
 Private Sub KeyboardFrame_KeyDown(ByVal KeyCode As MsForms.ReturnInteger, ByVal Shift As Integer)
     Select Case KeyCode
-        Case vbKeyReturn: If Shift <> 1 Then Call showEditing
-        Case vbKeyEscape: If Shift <> 1 Then Call hideEditing(isChange:=False)
+        Case vbKeyReturn: If Shift = MASK.none Then Call showEditing
+        Case vbKeyEscape: If Shift = MASK.none Then Call hideEditing(isChange:=False)
+        Case vbKeyUp: IF Shift = MASK.none Then Call movePicking(DIRECTION.up)
+        Case vbKeyDown: IF Shift = MASK.none Then movePicking(DIRECTION.down)
     End Select
 End Sub
 
@@ -976,6 +988,15 @@ Private Sub resetEdited()
     Next i
 End Sub
 
+Private Sub movePicking(ByRef direction As Integer)
+    Dim nextLabel As MsForms.label
+    if Not isPicking Then Exit Sub
+    debug.print "index", getPickingIndex()
+    ' Next Index
+    ' Let nextIndex = lineIndex + direction
+    ' Let nextLabel = Me.KeyboardFrame.controls(KEYBINDING_LABEL & nextIndex)
+    ' Call updatePicking(nextLabel)
+End Sub
 ' CLEANING
 
 Private Sub invisiblePattern()

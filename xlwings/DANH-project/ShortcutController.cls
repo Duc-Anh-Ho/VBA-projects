@@ -25,9 +25,10 @@ Private Enum COLUMN
     status = when + 1
 End Enum
 Private ENUM MASK
-    SHIFT =  1
-    CTRL = 2
-    ALT = 4
+    NONE = 0
+    shiftKey =  1
+    ctrlKey = 2
+    altKey = 4
 End Enum
 
 Private Const NO_SET As String = "--No Set--"
@@ -209,13 +210,13 @@ Public Function convertKeyToName(ByRef KeyCode As MsForms.ReturnInteger, ByRef S
     Dim key As String
     'Listen modifier
     Select Case Shift
-        Case (MASK.SHIFT): Let modifier = SHIFT_KEY
-        Case (MASK.CTRL): Let modifier = CTRL_KEY
-        Case (MASK.ALT): Let modifier = ALT_KEY
-        Case (MASK.CTRL + MASK.SHIFT): Let modifier = CTRL_SHIFT_KEY
-        Case (MASK.CTRL + MASK.ALT): Let modifier = CTRL_ALT_KEY
-        Case (MASK.CTRL + MASK.SHIFT + MASK.ALT): Let modifier = CTRL_SHIFT_ALT_KEY
-        Case (MASK.SHIFT + MASK.ALT): Let modifier = SHIFT_ALT_KEY
+        Case (MASK.shiftKey): Let modifier = SHIFT_KEY
+        Case (MASK.ctrlKey): Let modifier = CTRL_KEY
+        Case (MASK.altKey): Let modifier = ALT_KEY
+        Case (MASK.ctrlKey + MASK.shiftKey): Let modifier = CTRL_SHIFT_KEY
+        Case (MASK.ctrlKey + MASK.altKey): Let modifier = CTRL_ALT_KEY
+        Case (MASK.ctrlKey + MASK.shiftKey + MASK.altKey): Let modifier = CTRL_SHIFT_ALT_KEY
+        Case (MASK.shiftKey + MASK.altKey): Let modifier = SHIFT_ALT_KEY
     End Select
     'Listen main key
     Select Case KeyCode
