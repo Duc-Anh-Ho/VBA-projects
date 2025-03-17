@@ -31,6 +31,7 @@ Private editedArr() As String ' TODO: Create custom array CRUD
 Private pickingLabel As MsForms.label
 Private pickingIndex As String
 Private shortcutC As ShortcutController
+Private maxRow As Long
 Private Enum COLOR
     title_hover = 16378841 'RGB(229, 243, 255)
     line_hover = 16774117 'RGB(217, 235, 249)
@@ -70,9 +71,9 @@ End Enum
 Private Const DEFAULT = "<Default>"
 Private Const MODIFIED = "<Modified>"
 ' TODO: MAKE instruction constants class
-Private Const INSTRUCTION_EDITING = "Press desired key combination and then press ENTER." 
-Private Const INSTRUCTION_MODIFY = "Click Edit button or double click a line to modify."
-Private Const INSTRUCTION_PICKING_REQUIRED = "Please pick a line to edit."
+Private Const INSTRUCTION_PICKING = "Please pick a line to edit."
+Private Const INSTRUCTION_EDITING = "Click Edit button or double click a line to modify."
+Private Const INSTRUCTION_MODIFY = "Press desired key combination and then press ENTER."
 Private Const FILTER_PLACEHOLDER As String = "<Type to filter text>"
 Private Const TITLE_TAG As String = "title_"
 Private Const LINE_TAG As String = "line_"
@@ -100,7 +101,6 @@ Private Const FORE As String = "ForeColor"
 Private Const ITALIC As String = "FontItalic"
 Private Const BOLD As String = "FontBold"
 Private Const EDIT_CAPTION As String = "Edit"
-Private Const RESET_CAPTION As String = "Reset"
 ' Loop iterators
 Private ctrl As MsForms.control
 Private row As ListRow
@@ -122,9 +122,14 @@ Private Sub letEditingShortcut(ByRef value As String): Let editingShortcut = val
 Private Sub setPickingLabel(ByRef value As MsForms.label): Set pickingLabel = value: End Sub
 Private Sub letPickingIndex(ByRef value As String): Let pickingIndex = value: End Sub
 Private Sub setShortcutC(ByRef value As ShortcutController): Set shortcutC = value: End Sub
+Private Sub letMaxRow(ByRef value As Long): Let maxRow = value: End Sub
 
 Private Sub setInstruction(ByRef text As String)
     Let AsteriskInstructionLabel.Caption = ASTERISK & Space(1) & text
+End Sub
+
+Private Sub setCaption(ByRef ctrl AS MsForms.Control,ByRef text As String)
+    Let ctrl.Caption = text
 End Sub
 
 ' ACCESSORS
@@ -142,6 +147,7 @@ Private Function getEditingShortcut() As String: Let getEditingShortcut = editin
 Private Function getPickingLabel() As MsForms.label: Set getPickingLabel = pickingLabel: End Function
 Private Function getPickingIndex() As String: Let getPickingIndex = pickingIndex: End Function
 Private Function getShortcutC() As ShortcutController: Set getShortcutC = shortcutC: End Function
+Private Function getMaxRow() As Long: Let getMaxRow = maxRow: End Function
 
 ' NOTE: Can get line index of both label and textbox
 Private Function getLineIndex(ByRef ctrl As MsForms.control) As String
@@ -296,10 +302,6 @@ Private Sub cleanMarkLine(ByRef label As MsForms.label)
     Call canUpdateFormat(label, bold, False)
 End Sub
 
-Private Sub updateCaption(ByRef ctrl AS MsForms.Control,ByRef text As String)
-    Let ctrl.Caption = text
-End Sub
-
 ' CONSTRUCTOR
 
 Private Sub UserForm_Initialize()
@@ -310,7 +312,7 @@ Private Sub UserForm_Initialize()
     Call initComboBox
     Call initButton
     Call initRow
-    Call setInstruction(INSTRUCTION_MODIFY)
+    Call updateInstruction
     ' (REJECT: Use exit event seem better solution but keep source 4 future reuse)
     ' Call initOverlay
     Call storeCustomEvent
@@ -403,12 +405,8 @@ Private Sub CancelButton_Click()
     Call KeyboardShortcutForm.closeForm
 End Sub
 
-Private Sub EditResetButton_Click()
-    If Not isPicking Then
-        Call setInstruction(INSTRUCTION_PICKING_REQUIRED)
-    ElseIf  Not isEditing Then
-        Call showEditing
-    End If
+Private Sub EditButton_Click()
+    If isPicking Then Call showEditing
 End Sub
 
 Private Sub FilterPlaceTextBox_Enter()
@@ -453,7 +451,8 @@ End Sub
 Private Sub initButton()
     ' TODO make order button init
     ' Init EditResetButton
-    Call updateCaption(ctrl:=Me.EditResetButton, text:=EDIT_CAPTION)
+    Call setCaption(ctrl:=Me.EditButton, text:=EDIT_CAPTION)
+    Let EditButton.enabled = True
 End Sub
 
 Private Sub initRow()
@@ -479,7 +478,8 @@ Private Sub initRow()
             , status:=row.Range(1, getShortcutC().getStatusColumn()) & defaultMark _
         )
     Next row
-    Call createScrollBar(getShortcutTb().DataBodyRange.Rows.Count) ' Max Row
+    Call letMaxRow(getShortcutTb().DataBodyRange.Rows.Count)
+    Call createScrollBar(getMaxRow())
 End Sub
 
 Private Sub initOverLay()
@@ -783,6 +783,8 @@ Public Sub labelClick(ByRef label As MsForms.label)
     ElseIf isOverlay(label) Then
         Call hideEditing(isChange:=False)
     End If
+    ' Update instruction
+    Call updateInstruction
 End Sub
 
 Public Sub labelDbClick(ByRef label As MsForms.label)
@@ -834,9 +836,9 @@ Private Sub showEditing()
     ' Show display
     Call displayTextBox(isDisplay:=True)
     Call getEditingTextBox().SetFocus
-    ' Change button Edit to Reset
-    Call updateCaption(ctrl:=Me.EditResetButton, text:=RESET_CAPTION)
-    Call setInstruction(INSTRUCTION_EDITING)
+    ' Disable Edit Button
+    Let EditButton.enabled = False
+    Call updateInstruction
 End Sub
 
 Private Sub hideEditing(Optional ByRef isChange As Boolean = True)
@@ -862,9 +864,9 @@ Private Sub hideEditing(Optional ByRef isChange As Boolean = True)
     ' Hide display
     Call displayTextBox(isDisplay:=False)
     Call resetEditing
-    ' Change button Edit to Reset
-    Call updateCaption(ctrl:=Me.EditResetButton, text:=EDIT_CAPTION)
-    Call setInstruction(INSTRUCTION_MODIFY)
+    ' Disable Edit Button
+    Let EditButton.enabled = True
+    Call updateInstruction
 End Sub
 
 Private Sub formatLabel()
@@ -928,6 +930,7 @@ End Sub
 
 Private Sub updatePicking(ByRef label As MsForms.label)
     Call letPickingIndex(getLineIndex(label))
+    ' NOTE: Actually, pickingLabel is not necessary but for future maybe use
     Call setPickingLabel(Me.KeyboardFrame.controls(KEYBINDING_LABEL & getPickingIndex()))
 End Sub
 
@@ -988,15 +991,30 @@ Private Sub resetEdited()
     Next i
 End Sub
 
+Private Sub updateInstruction()
+    If Not isPicking Then
+        Call setInstruction(INSTRUCTION_PICKING)
+    ElseIf Not isEditing Then
+        Call setInstruction(INSTRUCTION_EDITING)
+    ElseIf isEditing Then
+        Call setInstruction(INSTRUCTION_MODIFY)
+    End If
+End Sub
+
 Private Sub movePicking(ByRef direction As Integer)
+    Dim nextIndex As String
     Dim nextLabel As MsForms.label
     if Not isPicking Then Exit Sub
     debug.print "index", getPickingIndex()
-    ' Next Index
-    ' Let nextIndex = lineIndex + direction
+    ' Update Next picking by index
+    Let nextIndex = getPickingIndex() + direction
     ' Let nextLabel = Me.KeyboardFrame.controls(KEYBINDING_LABEL & nextIndex)
-    ' Call updatePicking(nextLabel)
+    ' Call updatePicking(label:= _
+    '     Me.KeyboardFrame.controls(KEYBINDING_LABEL & lineIndex + direction)
+    ' )
+    Set nextLabel = Nothing
 End Sub
+
 ' CLEANING
 
 Private Sub invisiblePattern()
