@@ -28,6 +28,7 @@ Private editingTextBox As MsForms.textBox
 Private editingIndex As String
 Private editingShortcut As String
 Private editedArr() As String ' TODO: Create custom array CRUD
+Private applyArr() As String
 Private pickingLabel As MsForms.label
 Private pickingIndex As String
 Private shortcutC As ShortcutController
@@ -40,6 +41,7 @@ Private Enum COLOR
     line_picking_edited = 41210 'RGB(250, 160, 0)
     line_border = 14935011 'RGB(227, 227, 227)
     line_edited = 61690 'RGB(250, 240, 0)
+    line_duplicated = 987135 'RGB(255,15,15)
     ' Default Variables
     highlight = vbHighlight
     window_text = vbWindowText
@@ -360,33 +362,34 @@ Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     Call clearUp
 End Sub
 
+' Cancel Picking And Editing if click outside
+
 Private Sub UserForm_Click()
-    ' Cancel editing if click outside
-    Call hideEditing(isChange:=False)
+    Call hidePickingAndEditing(isChange:=False)
 End Sub
 
 Private Sub MultiPage_Change()
-    Call hideEditing(isChange:=False)
+    Call hidePickingAndEditing(isChange:=False)
 End Sub
 
 Private Sub MultiPage_Click(ByVal Index As Long)
-    Call hideEditing(isChange:=False)
+    Call hidePickingAndEditing(isChange:=False)
 End Sub
 
 Private Sub MultiPage_Exit(ByVal Cancel As MSForms.ReturnBoolean)
-    Call hideEditing(isChange:=False)
+    Call hidePickingAndEditing(isChange:=False)
 End Sub
 
 Private Sub KeyboardFrameContainer_Exit(ByVal Cancel As MSForms.ReturnBoolean)
-    Call hideEditing(isChange:=False)
+    Call hidePickingAndEditing(isChange:=False)
 End Sub
 
 Private Sub KeyboardFrame_KeyDown(ByVal KeyCode As MsForms.ReturnInteger, ByVal Shift As Integer)
     Select Case KeyCode
         Case vbKeyReturn: If Shift = MASK.none Then Call showEditing
-        Case vbKeyEscape: If Shift = MASK.none Then Call hideEditing(isChange:=False)
+        Case vbKeyEscape: If Shift = MASK.none Then Call hidePickingAndEditing(isChange:=False)
         Case vbKeyUp: IF Shift = MASK.none Then Call movePicking(DIRECTION.up)
-        Case vbKeyDown: IF Shift = MASK.none Then movePicking(DIRECTION.down)
+        Case vbKeyDown: IF Shift = MASK.none Then Call movePicking(DIRECTION.down)
     End Select
 End Sub
 
@@ -776,12 +779,10 @@ Public Sub labelClick(ByRef label As MsForms.label)
         MsgBox ("TODO: Sort By" & label.caption)
     ' Lines Click
     ElseIf isLine(label) Then
-        Call resetPicking
-        Call hideEditing(isChange:=False)
-        Call updatePicking(label)
-        Call formatLabel
+        Call hidePickingAndEditing(true)
+        Call showPicking(label)
     ElseIf isOverlay(label) Then
-        Call hideEditing(isChange:=False)
+        Call hidePickingAndEditing(False)
     End If
     ' Update instruction
     Call updateInstruction
@@ -842,12 +843,12 @@ Private Sub showEditing()
 End Sub
 
 Private Sub hideEditing(Optional ByRef isChange As Boolean = True)
-    Dim lineIndex As String
     ' Check for the 1st time
     If Not isEditing Then Exit Sub
     ' Restore before edit shortcut (No Change)
     If Not isChange Then Let getEditingTextBox().text = LTrim(getEditingLabel().caption)
     ' If textBox blank set label to No Set
+    Dim lineIndex As String
     Let getEditingLabel().caption = IIf( _
         getEditingTextBox().text = vbNullString _
         , getShortcutC().getNoSet() _
@@ -869,12 +870,109 @@ Private Sub hideEditing(Optional ByRef isChange As Boolean = True)
     Call updateInstruction
 End Sub
 
+Private Sub resetEditing()
+    If Not isEditing Then Exit Sub
+    Call setEditingTextBox(Nothing)
+    Call setEditingLabel(Nothing)
+End Sub
+
+Private Sub updateHover(ByRef label As MsForms.label)
+    Call letHoverIndex(getLineIndex(label))
+    Call setHoverLabel(label)
+End Sub
+
+Private Sub resetHover()
+    Call letHoverIndex(vbNullString)
+    Call setHoverLabel(Nothing)
+End Sub
+
+Private Sub showPicking(ByRef label As MsForms.label)
+    Call updatePicking(label)
+    Call formatLabel
+End Sub
+
+Private Sub hidePicking()
+    If Not isPicking Then Exit Sub
+    Call resetPicking
+    Call formatLabel
+End Sub
+
+Private Sub updatePicking(ByRef label As MsForms.label)
+    Call letPickingIndex(getLineIndex(label))
+    ' NOTE: Actually, pickingLabel is not necessary but for future maybe use
+    Call setPickingLabel(Me.KeyboardFrame.controls(KEYBINDING_LABEL & getPickingIndex()))
+End Sub
+
+Private Sub resetPicking()
+    If Not isPicking Then Exit Sub
+    Call letPickingIndex(vbNullString)
+    Call setPickingLabel(Nothing)
+End Sub
+
+Private Sub movePicking(ByRef direction As Integer)
+    if Not isPicking Then Exit Sub
+    Dim nextIndex As String
+    Dim nextLabel As MsForms.label
+    ' Update Next picking by index
+    Let nextIndex = getPickingIndex() + direction
+    If nextIndex > getMaxRow() Then
+        Let nextIndex = getMaxRow()
+    ElseIf nextIndex < 1 Then ' Min Row
+        Let nextIndex = 1
+    End If
+    Set nextLabel = Me.KeyboardFrame.controls(KEYBINDING_LABEL & nextIndex)
+    Call showPicking(nextLabel)
+    Set nextLabel = Nothing
+End Sub
+
+Private Sub hidePickingAndEditing(Optional ByRef isChange As Boolean = True)
+    If isPicking Then Call hidePicking
+    If isEditing Then Call hideEditing(isChange)
+End Sub
+
+Private Sub updateEdited(ByRef key As String, ByRef value As String)
+    Dim keybinding As String
+    Dim collNo As String
+    Dim shortcut As String
+    For Each row In getShortcutTb().ListRows
+        Let keybinding = row.Range(1, getShortcutC().getCustomKeybindColumn())
+        Let shortcut = getShortcutC().convertCodeToName(keybinding)
+        Let collNo = row.Range(1, getShortcutC().getNoColumn())
+        If collNo = key Then
+            ' DEFAULT
+            If shortcut = value Then
+                Let editedArr(collNo - 1) = DEFAULT
+            ' EDITED
+            Else
+                Let editedArr(collNo - 1) = value
+            End If
+        Exit For ' row loop
+        End If
+    Next row
+End Sub
+
+Private Sub resetEdited()
+    Dim i As Integer
+    For i = LBound(editedArr) To UBound(editedArr)
+        editedArr(i) = DEFAULT
+    Next i
+End Sub
+
+Private Sub updateInstruction()
+    If Not isPicking Then
+        Call setInstruction(INSTRUCTION_PICKING)
+    ElseIf Not isEditing Then
+        Call setInstruction(INSTRUCTION_EDITING)
+    ElseIf isEditing Then
+        Call setInstruction(INSTRUCTION_MODIFY)
+    End If
+End Sub
+
 Private Sub formatLabel()
     Dim lineIndex As String
     ' Loop all line labels
     For Each ctrl In Me.KeyboardFrameContainer.controls
-        ' Continue
-        If Not isLabel(ctrl) Then GoTo NextCtrl
+        If Not isLabel(ctrl) Then GoTo NextCtrl ' Continue
         Let lineIndex = getLineIndex(ctrl)
         If isKeyBinding(ctrl) Then
             ' Highlight Keybinding font
@@ -917,102 +1015,9 @@ NextCtrl:
     Next ctrl
 End Sub
 
-Private Sub updateHover(ByRef label As MsForms.label)
-    Call letHoverIndex(getLineIndex(label))
-    Call setHoverLabel(label)
-End Sub
-
-Private Sub resetHover()
-    ' Clear hover stored
-    Call letHoverIndex(vbNullString)
-    Call setHoverLabel(Nothing)
-End Sub
-
-Private Sub updatePicking(ByRef label As MsForms.label)
-    Call letPickingIndex(getLineIndex(label))
-    ' NOTE: Actually, pickingLabel is not necessary but for future maybe use
-    Call setPickingLabel(Me.KeyboardFrame.controls(KEYBINDING_LABEL & getPickingIndex()))
-End Sub
-
-Private Sub resetPicking()
-    Call letPickingIndex(vbNullString)
-    Call setPickingLabel(Nothing)
-    Dim lineIndex As String
-    For Each ctrl In Me.KeyboardFrame.controls
-        ' Continue
-        If Not isLabel(ctrl) Then GoTo NextCtrl
-        Let lineIndex = getLineIndex(ctrl)
-        If isPickingLine(lineIndex) Then GoTo NextCtrl
-        ' Clear Highlight
-        If isEditedLine(lineIndex) Then
-            Call markEditedLine(ctrl)
-        Else
-            Call cleanMarkLine(ctrl)
-        End If
-NextCtrl:
-    Next ctrl
-End Sub
-
 Private Sub displayTextBox(Optional ByRef isDisplay As Boolean = True)
     Let getEditingTextBox().visible = isDisplay
     Let getEditingLabel().visible = Not isDisplay
-End Sub
-
-Private Sub resetEditing()
-    Call setEditingTextBox(Nothing)
-    Call setEditingLabel(Nothing)
-End Sub
-
-Private Sub updateEdited(ByRef key As String, ByRef value As String)
-    Dim keybinding As String
-    Dim collNo As String
-    Dim shortcut As String
-    For Each row In getShortcutTb().ListRows
-        Let keybinding = row.Range(1, getShortcutC().getCustomKeybindColumn())
-        Let shortcut = getShortcutC().convertCodeToName(keybinding)
-        Let collNo = row.Range(1, getShortcutC().getNoColumn())
-        If collNo = key Then
-            ' DEFAULT
-            If shortcut = value Then
-                Let editedArr(collNo - 1) = DEFAULT
-            ' EDITED
-            Else
-                Let editedArr(collNo - 1) = value
-            End If
-        Exit For ' row loop
-        End If
-    Next row
-End Sub
-
-Private Sub resetEdited()
-    Dim i As Integer
-    For i = LBound(editedArr) To UBound(editedArr)
-        editedArr(i) = DEFAULT
-    Next i
-End Sub
-
-Private Sub updateInstruction()
-    If Not isPicking Then
-        Call setInstruction(INSTRUCTION_PICKING)
-    ElseIf Not isEditing Then
-        Call setInstruction(INSTRUCTION_EDITING)
-    ElseIf isEditing Then
-        Call setInstruction(INSTRUCTION_MODIFY)
-    End If
-End Sub
-
-Private Sub movePicking(ByRef direction As Integer)
-    Dim nextIndex As String
-    Dim nextLabel As MsForms.label
-    if Not isPicking Then Exit Sub
-    debug.print "index", getPickingIndex()
-    ' Update Next picking by index
-    Let nextIndex = getPickingIndex() + direction
-    ' Let nextLabel = Me.KeyboardFrame.controls(KEYBINDING_LABEL & nextIndex)
-    ' Call updatePicking(label:= _
-    '     Me.KeyboardFrame.controls(KEYBINDING_LABEL & lineIndex + direction)
-    ' )
-    Set nextLabel = Nothing
 End Sub
 
 ' CLEANING
