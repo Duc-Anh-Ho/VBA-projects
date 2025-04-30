@@ -20,6 +20,7 @@ Option Explicit
 Private userResponse As VbMsgBoxResult
 Private info As InfoConstants
 Private shortcutTb As ListObject
+Private tbRows as ListRows
 Private eventColl As Collection
 Private hoverLabel As MsForms.label
 Private hoverIndex As String
@@ -38,7 +39,7 @@ Private Enum COLOR
     line_hover = 16774117 'RGB(217, 235, 249)
     line_hover_edited = 51450 'RGB(250, 200, 0)
     line_picking = 16772040 'RGB(200, 235, 255)
-    line_picking_edited = 41210 'RGB(250, 160, 0)
+    line_picking_edited = 51450 'RGB(250, 200, 0)
     line_border = 14935011 'RGB(227, 227, 227)
     line_edited = 61690 'RGB(250, 240, 0)
     line_duplicated = 987135 'RGB(255,15,15)
@@ -72,6 +73,7 @@ Private ENUM MASK
 End Enum
 Private Const DEFAULT = "<Default>"
 Private Const MODIFIED = "<Modified>"
+Private Const DUPLICATED = "<Duplicated>"
 ' TODO: MAKE instruction constants class
 Private Const INSTRUCTION_PICKING = "Please pick a line to edit."
 Private Const INSTRUCTION_EDITING = "Click Edit button or double click a line to modify."
@@ -114,6 +116,7 @@ Private row As ListRow
 Private Sub letUserResponse(ByRef value As VbMsgBoxResult): Let userResponse = value: End Sub
 Private Sub setInfo(ByRef value As InfoConstants): Set info = value: End Sub
 Private Sub setShortcutTb(ByRef value As ListObject): Set shortcutTb = value: End Sub
+Private Sub setTbRows(ByRef value As ListRows): Set tbRows = value: End Sub
 Private Sub setEventColl(ByRef value As Collection): Set eventColl = value: End Sub
 Private Sub setHoverLabel(ByRef value As MsForms.label): Set hoverLabel = value: End Sub
 Private Sub letHoverIndex(ByRef value As String): Let hoverIndex = value: End Sub
@@ -139,6 +142,7 @@ End Sub
 Private Function getUserResponse() As VbMsgBoxResult: Let getUserResponse = userResponse: End Function
 Private Function getInfo() As InfoConstants: Let getInfo = info: End Function
 Private Function getShortcutTb() As ListObject: Set getShortcutTb = shortcutTb: End Function
+Private Function getTbRows() As ListRows: Set getTbRows = tbRows: End Function
 Private Function getEventColl() As Collection: Set getEventColl = eventColl: End Function
 Private Function getHoverLabel() As MsForms.label: Set getHoverLabel = hoverLabel: End Function
 Private Function getHoverIndex() As String: Let getHoverIndex = hoverIndex: End Function
@@ -210,15 +214,40 @@ Private Function isPickingLine(ByRef lineIndex As String) As Boolean
 End Function
 
 Private Function isEditedLine(ByRef lineIndex As String) As Boolean
-    Dim i As Integer
+    Dim i As Long
     For i = LBound(editedArr) To UBound(editedArr)
         If _
             (lineIndex = CStr(i + 1)) _
             And (editedArr(i) <> DEFAULT) _
         Then
             Let isEditedLine = True
-            Exit For 'Stop if found
+            Exit Function 'Stop if found
         End If
+    Next i
+End Function
+
+Private Function isDuplicatedLine(ByRef lineIndex As String) As Boolean
+    Dim i As Long
+    For i = LBound(applyArr) To UBound(applyArr)
+        If _
+            i <> CLng(lineIndex - 1) _
+            And applyArr(i) = applyArr(lineIndex - 1) _
+        Then
+            Let isDuplicatedLine = True
+            Exit Function 'Stop if found
+        End If
+    Next i
+End Function
+
+Private Function hasDuplicated() As Boolean
+    Dim i, j as Long
+    For i = LBound(applyArr) To UBound(applyArr) - 1
+        For j = i + 1 To UBound(applyArr)
+            If applyArr(i) = applyArr(j) Then
+                Let hasDuplicated = True
+                Exit Function 'Stop if found
+            End If
+        Next j
     Next i
 End Function
 
@@ -266,14 +295,42 @@ End Sub
 Private Sub markEditedLine(ByRef label As MsForms.label)
     Call canUpdateFormat(label, BACKGROUND, COLOR.line_edited)
     Call canUpdateFormat(label, FORE, COLOR.menu_text)
-    Call canUpdateFormat(label, italic, True)
+    Call canUpdateFormat(label, italic, False)
     Call canUpdateFormat(label, bold, False)
 End Sub
+
+Private Sub markDuplicatedLine(ByRef label As MsForms.label)
+    Call canUpdateFormat(label, BACKGROUND, COLOR.window_background)
+    Call canUpdateFormat(label, FORE, COLOR.line_duplicated)
+    Call canUpdateFormat(label, italic, False)
+    Call CanUpdateFormat(label, bold, True)
+End SUb
 
 Private Sub markPickingEditedLine(ByRef label As MsForms.label)
     Call canUpdateFormat(label, BACKGROUND, COLOR.line_picking_edited)
     Call canUpdateFormat(label, FORE, COLOR.highlight)
     Call canUpdateFormat(label, italic, True)
+    Call canUpdateFormat(label, bold, True)
+End Sub
+
+Private Sub markPickingDuplicatedLine(ByRef label As MsForms.label)
+    Call canUpdateFormat(label, BACKGROUND, COLOR.line_picking)
+    Call canUpdateFormat(label, FORE, COLOR.line_duplicated)
+    Call canUpdateFormat(label, italic, True)
+    Call canUpdateFormat(label, bold, True)
+End Sub
+
+Private Sub markPickingEditedDuplicatedLine(ByRef label As MsForms.label)
+    Call canUpdateFormat(label, BACKGROUND, COLOR.line_picking_edited)
+    Call canUpdateFormat(label, FORE, COLOR.line_duplicated)
+    Call canUpdateFormat(label, italic, True)
+    Call canUpdateFormat(label, bold, True)
+End Sub
+
+Private Sub markEditedDuplicatedLine(ByRef label As MsForms.label)
+    Call canUpdateFormat(label, BACKGROUND, COLOR.line_edited)
+    Call canUpdateFormat(label, FORE, COLOR.line_duplicated)
+    Call canUpdateFormat(label, italic, False)
     Call canUpdateFormat(label, bold, True)
 End Sub
 
@@ -285,20 +342,32 @@ Private Sub markHoverEditedLine(ByRef label As MsForms.label)
     Call canUpdateFormat(label, BACKGROUND, COLOR.line_hover_edited)
 End Sub
 
-Private Sub markKeybinding(ByRef label As MsForms.label)
-    Call canUpdateFormat(label, FORE, COLOR.highlight)
-    Call canUpdateFormat(label, italic, True)
-    Call canUpdateFormat(label, bold, True)
-End Sub
-
-Private Sub cleanMarkKeyBinding(ByRef label As MsForms.label)
+Private Sub cleanMarkLine(ByRef label As MsForms.label)
+    Call canUpdateFormat(label, BACKGROUND, COLOR.window_background)
     Call canUpdateFormat(label, FORE, COLOR.menu_text)
     Call canUpdateFormat(label, italic, False)
     Call canUpdateFormat(label, bold, False)
 End Sub
 
-Private Sub cleanMarkLine(ByRef label As MsForms.label)
-    Call canUpdateFormat(label, BACKGROUND, COLOR.window_background)
+Private Sub markKeybindingDuplicated(ByRef label As MsForms.label)
+    Call canUpdateFormat(label,  FORE, COLOR.line_duplicated)
+    Call canUpdateFormat(label, italic, True)
+    Call canUpdateFormat(label, bold, True)
+End Sub
+
+Private Sub markKeybindingPicking(ByRef label As MsForms.label)
+    Call canUpdateFormat(label, FORE, COLOR.highlight)
+    Call canUpdateFormat(label, italic, False)
+    Call canUpdateFormat(label, bold, True)
+End Sub
+
+Private Sub markKeybindingHover(ByRef label As MsForms.label)
+    Call canUpdateFormat(label, FORE, COLOR.highlight)
+    Call canUpdateFormat(label, italic, True)
+    Call canUpdateFormat(label, bold, True)
+End Sub
+
+Private Sub cleanMarkKeybinding(ByRef label As MsForms.label)
     Call canUpdateFormat(label, FORE, COLOR.menu_text)
     Call canUpdateFormat(label, italic, False)
     Call canUpdateFormat(label, bold, False)
@@ -310,7 +379,7 @@ Private Sub UserForm_Initialize()
     Call setShortcutC(New ShortcutController)
     Call setInfo(New InfoConstants)
     Call initUserForm
-    Call invisiblePattern
+    Call hidePattern
     Call initComboBox
     Call initButton
     Call initRow
@@ -324,7 +393,7 @@ Private Sub UserForm_Initialize()
 '        , ReplaceWithLabel _
 '        , ReplaceAreaInput _
 '        , WithinLabel _
-'        , WithInComboBox _
+'        , sub WithInComboBox _
 '        , SelectedAreaInput _
 '        , SearchLabel _
 '        , SearchComboBox _
@@ -377,11 +446,11 @@ Private Sub MultiPage_Click(ByVal Index As Long)
 End Sub
 
 Private Sub MultiPage_Exit(ByVal Cancel As MSForms.ReturnBoolean)
-    Call hidePickingAndEditing(isChange:=False)
+    Call hideEditing(isChange:=False)
 End Sub
 
 Private Sub KeyboardFrameContainer_Exit(ByVal Cancel As MSForms.ReturnBoolean)
-    Call hidePickingAndEditing(isChange:=False)
+    Call hideEditing(isChange:=False)
 End Sub
 
 Private Sub KeyboardFrame_KeyDown(ByVal KeyCode As MsForms.ReturnInteger, ByVal Shift As Integer)
@@ -410,6 +479,14 @@ End Sub
 
 Private Sub EditButton_Click()
     If isPicking Then Call showEditing
+End Sub
+
+Private Sub ApplyButton_Click()
+    Dim i As Long
+    For i = LBound(applyArr) To UBound(applyArr)
+        debug.print "applyArr(i):", applyArr(i) ' TODO: ⬅️ DELETE 
+    Next i
+    'TEST
 End Sub
 
 Private Sub FilterPlaceTextBox_Enter()
@@ -465,23 +542,28 @@ Private Sub initRow()
     Dim defaultMark As String
     Dim shortcut As String
     Call setShortcutTb(getShortcutC().getShortcutTable())
-    ReDim editedArr(getShortcutTb().ListRows.Count - 1)
+    Call setTbRows(getShortcutTb().ListRows)
+    Call letMaxRow(getTbRows().Count)
+    ReDim editedArr(getMaxRow() - 1)
+    ReDim applyArr(getMaxRow() -1)
     Call resetEdited
-    For Each row In getShortcutTb().ListRows
+    For Each row In getTbRows()
         Let keybinding = row.Range(1, getShortcutC().getCustomKeybindColumn())
         Let keybindingDefault = row.Range(1, getShortcutC().getDefaultKeybindColumn())
-        Let lineIndex = row.Range(1, getShortcutC().getNoColumn())
+        ' Let lineIndex = row.Range(1, getShortcutC().getNoColumn())
+        Let lineIndex = row.index
         Let shortcut = getShortcutC().convertCodeToName(keybinding)
         Let defaultMark = IIf(keybinding = keybindingDefault, DEFAULT, vbNullString)
         Call createRow( _
-            index:=row.index _
+            index:=CLng(lineIndex) _
             , command:=row.Range(1, getShortcutC().getCommandColumn()) _
             , shortcut:=shortcut _
             , when:=row.Range(1, getShortcutC().getWhenColumn()) _
             , status:=row.Range(1, getShortcutC().getStatusColumn()) & defaultMark _
         )
+        Let editedArr(lineIndex - 1) = DEFAULT
+        Let applyArr(lineIndex - 1) = shortcut
     Next row
-    Call letMaxRow(getShortcutTb().DataBodyRange.Rows.Count)
     Call createScrollBar(getMaxRow())
 End Sub
 
@@ -763,14 +845,20 @@ Public Sub labelMoveOn(ByRef label As MsForms.label)
     ' Check still in same label do nothing (Performance issues)
     If isSameLine(label, getHoverLabel()) Then Exit Sub
     ' Skip if picking line is hover Line
-    If isPickingLine(getLineIndex(label)) Then Exit Sub
-    Call updateHover(label)
+    If isPickingLine(getLineIndex(label)) Then 
+        Call resetHover()
+    Else
+        Call updateHover(label)
+    End If
     Call formatLabel
 End Sub
 
 Public Sub labelClick(ByRef label As MsForms.label)
+    ' Skip Editing
+    If isSameLine(getEditingLabel(), label) Then
+        Exit Sub
     ' Click 2 times
-    If isSameLine(getPickingLabel(), label) Then
+    Elseif isSameLine(getPickingLabel(), label) Then
         Call showEditing
         Exit Sub
     ' Titles Click
@@ -860,6 +948,11 @@ Private Sub hideEditing(Optional ByRef isChange As Boolean = True)
         key:=lineIndex _
         , value:=LTrim(getEditingLabel().caption) _
     )
+    ' Update apply shortcut
+    Call updateApply( _
+        key:=lineIndex _
+        , value:=LTrim(getEditingLabel().caption) _
+    )
     ' Highlight Line
     Call formatLabel
     ' Hide display
@@ -932,30 +1025,27 @@ End Sub
 
 Private Sub updateEdited(ByRef key As String, ByRef value As String)
     Dim keybinding As String
-    Dim collNo As String
     Dim shortcut As String
-    For Each row In getShortcutTb().ListRows
-        Let keybinding = row.Range(1, getShortcutC().getCustomKeybindColumn())
-        Let shortcut = getShortcutC().convertCodeToName(keybinding)
-        Let collNo = row.Range(1, getShortcutC().getNoColumn())
-        If collNo = key Then
-            ' DEFAULT
-            If shortcut = value Then
-                Let editedArr(collNo - 1) = DEFAULT
-            ' EDITED
-            Else
-                Let editedArr(collNo - 1) = value
-            End If
-        Exit For ' row loop
-        End If
-    Next row
+    Let keybinding = getTbRows()(key).Range(1, getShortcutC().getCustomKeybindColumn())
+    Let shortcut = getShortcutC().convertCodeToName(keybinding)
+    ' DEFAULT
+    If shortcut = value Then
+        Let editedArr(key - 1) = DEFAULT
+    ' EDITED
+    Else
+        Let editedArr(key - 1) = value
+    End If
 End Sub
 
 Private Sub resetEdited()
-    Dim i As Integer
+    Dim i As Long
     For i = LBound(editedArr) To UBound(editedArr)
         editedArr(i) = DEFAULT
     Next i
+End Sub
+
+Private Sub updateApply(ByRef key As String, ByRef value As String)
+    If applyArr(key - 1) <> value Then applyArr(key - 1) = value
 End Sub
 
 Private Sub updateInstruction()
@@ -974,14 +1064,22 @@ Private Sub formatLabel()
     For Each ctrl In Me.KeyboardFrameContainer.controls
         If Not isLabel(ctrl) Then GoTo NextCtrl ' Continue
         Let lineIndex = getLineIndex(ctrl)
+        If lineIndex = ZERO Then GoTo NextCtrl ' Skip Pattern Line
         If isKeyBinding(ctrl) Then
-            ' Highlight Keybinding font
-            If (isHoverLine(lineIndex) Or isPickingLine(lineIndex)) Then
-                Call markKeybinding(ctrl)
-            ' Clean Keybinding format
-            Else
-                Call cleanMarkKeyBinding(ctrl)
-            End If
+            Select Case True
+                ' Highlight Duplicate
+                Case isPickingLine(lineIndex)
+                    Call markKeybindingDuplicated(ctrl)
+                ' Highlight Picking
+                Case isPickingLine(lineIndex)
+                    Call markKeybindingPicking(ctrl)
+                ' Highlight Hover
+                Case isHoverLine(lineIndex)
+                    Call markKeybindingHover(ctrl)
+                ' Clean
+                Case Else
+                    Call cleanMarkKeybinding(ctrl)
+            End Select
         End If
         ' NOTE: VBA Select Case auto break if matching
         ' Label format
@@ -992,12 +1090,28 @@ Private Sub formatLabel()
             ' Clean Title
             Case isTitle(ctrl)
                 Call cleanMarkTitle(ctrl)
+            ' Highlight picking + edited + duplicated
+            Case ( _
+                isPickingLine(lineIndex) _
+                And isEditedLine(lineIndex) _
+                And isDuplicatedLine(lineIndex) _
+            )
+                Call markPickingEditedDuplicatedLine(ctrl)
+            ' Highlight picking + duplicated
+            Case isPickingLine(lineIndex) And isDuplicatedLine(lineIndex)
+                Call markPickingDuplicatedLine(ctrl)
+            ' Highlight edited + duplicated
+            Case isEditedLine(lineIndex) And isDuplicatedLine(lineIndex)
+                Call markEditedDuplicatedLine(ctrl)
             ' Highlight picking + edited
             Case isPickingLine(lineIndex) And isEditedLine(lineIndex)
                 Call markPickingEditedLine(ctrl)
             ' Highlight hover + edited
             Case isHoverLine(lineIndex) And isEditedLine(lineIndex)
                 Call markHoverEditedLine(ctrl)
+            ' Highlight duplicated
+            Case isDuplicatedLine(lineIndex)
+                Call markDuplicatedLine(ctrl)
             ' Highlight picking
             Case isPickingLine(lineIndex)
                 Call markPickingLine(ctrl)
@@ -1022,7 +1136,7 @@ End Sub
 
 ' CLEANING
 
-Private Sub invisiblePattern()
+Private Sub hidePattern()
     Let Me.KeyboardFrame.backColor = vbInactiveBorder
     ' _0 is pattern
     Let Me.Line1_0.visible = False
@@ -1050,6 +1164,7 @@ Private Sub clearUp()
     Call setEditingTextBox(Nothing)
     Call setPickingLabel(Nothing)
     Call setShortcutTb(Nothing)
+    Call setTbRows(Nothing)
     Call setShortcutC(Nothing)
     ' Clear Arrays
     Erase editedArr

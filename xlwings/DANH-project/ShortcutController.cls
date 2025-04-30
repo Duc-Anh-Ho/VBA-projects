@@ -25,7 +25,7 @@ Private Enum COLUMN
     status = when + 1
 End Enum
 Private ENUM MASK
-    NONE = 0
+    none = 0
     shiftKey =  1
     ctrlKey = 2
     altKey = 4
