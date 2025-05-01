@@ -93,7 +93,7 @@ End Property
 'G1.2- Trim if too long name
 Private Property Get trimSheetName(ByVal cellText As String, Optional ByVal numChar As Byte = MAX_SHEETNAME_LENGTH) As String
     If Len(cellText) >= numChar Then
-        Let trimSheetName = left(cellText, numChar)
+        Let trimSheetName = left$(cellText, numChar)
     Else
         Let trimSheetName = cellText
     End If

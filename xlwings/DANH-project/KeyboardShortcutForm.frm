@@ -20,7 +20,6 @@ Option Explicit
 Private userResponse As VbMsgBoxResult
 Private info As InfoConstants
 Private shortcutTb As ListObject
-Private tbRows as ListRows
 Private eventColl As Collection
 Private hoverLabel As MsForms.label
 Private hoverIndex As String
@@ -115,8 +114,6 @@ Private row As ListRow
 
 Private Sub letUserResponse(ByRef value As VbMsgBoxResult): Let userResponse = value: End Sub
 Private Sub setInfo(ByRef value As InfoConstants): Set info = value: End Sub
-Private Sub setShortcutTb(ByRef value As ListObject): Set shortcutTb = value: End Sub
-Private Sub setTbRows(ByRef value As ListRows): Set tbRows = value: End Sub
 Private Sub setEventColl(ByRef value As Collection): Set eventColl = value: End Sub
 Private Sub setHoverLabel(ByRef value As MsForms.label): Set hoverLabel = value: End Sub
 Private Sub letHoverIndex(ByRef value As String): Let hoverIndex = value: End Sub
@@ -141,8 +138,6 @@ End Sub
 
 Private Function getUserResponse() As VbMsgBoxResult: Let getUserResponse = userResponse: End Function
 Private Function getInfo() As InfoConstants: Let getInfo = info: End Function
-Private Function getShortcutTb() As ListObject: Set getShortcutTb = shortcutTb: End Function
-Private Function getTbRows() As ListRows: Set getTbRows = tbRows: End Function
 Private Function getEventColl() As Collection: Set getEventColl = eventColl: End Function
 Private Function getHoverLabel() As MsForms.label: Set getHoverLabel = hoverLabel: End Function
 Private Function getHoverIndex() As String: Let getHoverIndex = hoverIndex: End Function
@@ -232,6 +227,7 @@ Private Function isDuplicatedLine(ByRef lineIndex As String) As Boolean
         If _
             i <> CLng(lineIndex - 1) _
             And applyArr(i) = applyArr(lineIndex - 1) _
+            And applyArr(i) <> getShortcutC().getNoSet() _
         Then
             Let isDuplicatedLine = True
             Exit Function 'Stop if found
@@ -404,7 +400,13 @@ Private Sub UserForm_Initialize()
 '        , ReplaceAllButton _
 '        , CloseButton _
 '    )
-    Call MouseScroll.EnableMouseScroll(Me) ' Apply the mousewheel scrolling
+    ' Apply the mousewheel scrolling (NOTE: Disable scroll zoom)
+    Call MouseScroll.EnableMouseScroll( _
+        uForm:= Me _
+        , passScrollToParentAtMargins:= True _
+        , useShiftForPerpendicularScroll:= False _
+        , useCtrlToZoom:= False _
+    )
 End Sub
 
 ' DESTRUCTOR
@@ -483,10 +485,13 @@ End Sub
 
 Private Sub ApplyButton_Click()
     Dim i As Long
+    Dim applyCodeArr() As String
+    ' 2D Array start at 1 will store the converted code
+    ReDim applyCodeArr(1 To UBound(applyArr) + 1, 1 To 1)
     For i = LBound(applyArr) To UBound(applyArr)
-        debug.print "applyArr(i):", applyArr(i) ' TODO: ⬅️ DELETE 
+        Let applyCodeArr(i + 1, 1) = getShortcutC().convertNameToCode(applyArr(i))
     Next i
-    'TEST
+    Call getShortcutC().setColData(applyCodeArr, getShortcutC().getCustomKeybindingCol())
 End Sub
 
 Private Sub FilterPlaceTextBox_Enter()
@@ -541,25 +546,23 @@ Private Sub initRow()
     Dim lineIndex As String
     Dim defaultMark As String
     Dim shortcut As String
-    Call setShortcutTb(getShortcutC().getShortcutTable())
-    Call setTbRows(getShortcutTb().ListRows)
-    Call letMaxRow(getTbRows().Count)
+    Call letMaxRow(getShortcutC().getRows().Count)
     ReDim editedArr(getMaxRow() - 1)
     ReDim applyArr(getMaxRow() -1)
     Call resetEdited
-    For Each row In getTbRows()
-        Let keybinding = row.Range(1, getShortcutC().getCustomKeybindColumn())
-        Let keybindingDefault = row.Range(1, getShortcutC().getDefaultKeybindColumn())
-        ' Let lineIndex = row.Range(1, getShortcutC().getNoColumn())
+    For Each row In getShortcutC().getRows()
+        Let keybinding = row.Range(1, getShortcutC().getCustomKeybindingCol())
+        Let keybindingDefault = row.Range(1, getShortcutC().getDefaultKeybindingCol())
+        ' Let lineIndex = row.Range(1, getShortcutC().getNoCol())
         Let lineIndex = row.index
         Let shortcut = getShortcutC().convertCodeToName(keybinding)
         Let defaultMark = IIf(keybinding = keybindingDefault, DEFAULT, vbNullString)
         Call createRow( _
             index:=CLng(lineIndex) _
-            , command:=row.Range(1, getShortcutC().getCommandColumn()) _
+            , command:=row.Range(1, getShortcutC().getCommandCol()) _
             , shortcut:=shortcut _
-            , when:=row.Range(1, getShortcutC().getWhenColumn()) _
-            , status:=row.Range(1, getShortcutC().getStatusColumn()) & defaultMark _
+            , when:=row.Range(1, getShortcutC().getWhenCol()) _
+            , status:=row.Range(1, getShortcutC().getStatusCol()) & defaultMark _
         )
         Let editedArr(lineIndex - 1) = DEFAULT
         Let applyArr(lineIndex - 1) = shortcut
@@ -1014,8 +1017,29 @@ Private Sub movePicking(ByRef direction As Integer)
         Let nextIndex = 1
     End If
     Set nextLabel = Me.KeyboardFrame.controls(KEYBINDING_LABEL & nextIndex)
+    Call scrollPicking(nextLabel)
     Call showPicking(nextLabel)
     Set nextLabel = Nothing
+End Sub
+
+Private Sub scrollPicking(ByRef label As MsForms.label)
+    With label
+    Dim top as Single: Let top = .top
+    Dim bottom as Single: Let bottom = top + LINE_HEIGHT
+        'Frame scroll
+        With .parent
+        Dim scrollTop as Single: Let scrollTop = .ScrollTop
+        Dim scrollBottom as Single: Let scrollBottom = scrollTop + .InsideHeight
+        ' Scroll down
+        If bottom > scrollBottom Then
+            ' .ScrollTop = .ScrollTop + (bottom - scrollBottom)
+            .ScrollTop = bottom - .InsideHeight
+        ' Scroll up
+        ElseIf top < scrollTop Then
+            .ScrollTop = top
+        End If
+        End With ' .parent
+    End With ' label
 End Sub
 
 Private Sub hidePickingAndEditing(Optional ByRef isChange As Boolean = True)
@@ -1026,7 +1050,7 @@ End Sub
 Private Sub updateEdited(ByRef key As String, ByRef value As String)
     Dim keybinding As String
     Dim shortcut As String
-    Let keybinding = getTbRows()(key).Range(1, getShortcutC().getCustomKeybindColumn())
+    Let keybinding = getShortcutC().getRows()(key).Range(1, getShortcutC().getCustomKeybindingCol())
     Let shortcut = getShortcutC().convertCodeToName(keybinding)
     ' DEFAULT
     If shortcut = value Then
@@ -1163,8 +1187,6 @@ Private Sub clearUp()
     Call setEditingLabel(Nothing)
     Call setEditingTextBox(Nothing)
     Call setPickingLabel(Nothing)
-    Call setShortcutTb(Nothing)
-    Call setTbRows(Nothing)
     Call setShortcutC(Nothing)
     ' Clear Arrays
     Erase editedArr
