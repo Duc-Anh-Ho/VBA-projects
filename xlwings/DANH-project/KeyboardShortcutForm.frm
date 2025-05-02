@@ -223,11 +223,15 @@ End Function
 
 Private Function isDuplicatedLine(ByRef lineIndex As String) As Boolean
     Dim i As Long
+    Dim checkIndex As Long: Let checkIndex = CLng(lineIndex) - 1
     For i = LBound(applyArr) To UBound(applyArr)
         If _
-            i <> CLng(lineIndex - 1) _
-            And applyArr(i) = applyArr(lineIndex - 1) _
-            And applyArr(i) <> getShortcutC().getNoSet() _
+            (i <> checkIndex) _
+            And (applyArr(i) <> getShortcutC().getNoSet()) _
+            And ( _
+                (applyArr(i) = applyArr(checkIndex)) _
+                Or (InStr(applyArr(checkIndex), getShortcutC().getUnknown()) > 0) _
+            ) _
         Then
             Let isDuplicatedLine = True
             Exit Function 'Stop if found
@@ -236,14 +240,12 @@ Private Function isDuplicatedLine(ByRef lineIndex As String) As Boolean
 End Function
 
 Private Function hasDuplicated() As Boolean
-    Dim i, j as Long
-    For i = LBound(applyArr) To UBound(applyArr) - 1
-        For j = i + 1 To UBound(applyArr)
-            If applyArr(i) = applyArr(j) Then
-                Let hasDuplicated = True
-                Exit Function 'Stop if found
-            End If
-        Next j
+    Dim i As Long
+    For i = LBound(applyArr) To UBound(applyArr)
+        If isDuplicatedLine(CStr(i + 1)) Then
+            Let hasDuplicated = True
+            Exit Function
+        End If
     Next i
 End Function
 
@@ -492,6 +494,11 @@ Private Sub ApplyButton_Click()
         Let applyCodeArr(i + 1, 1) = getShortcutC().convertNameToCode(applyArr(i))
     Next i
     Call getShortcutC().setColData(applyCodeArr, getShortcutC().getCustomKeybindingCol())
+End Sub
+
+Private Sub RestoreDefaultButton_Click()
+    'TEST
+
 End Sub
 
 Private Sub FilterPlaceTextBox_Enter()
