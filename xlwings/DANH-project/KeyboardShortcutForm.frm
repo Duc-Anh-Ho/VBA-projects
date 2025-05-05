@@ -454,7 +454,7 @@ Private Sub MultiPage_Exit(ByVal Cancel As MSForms.ReturnBoolean)
 End Sub
 
 Private Sub KeyboardFrameContainer_Exit(ByVal Cancel As MSForms.ReturnBoolean)
-    Call hideEditing(isChange:=False)
+    Call hideEditing(isChange:=true)
 End Sub
 
 Private Sub KeyboardFrame_KeyDown(ByVal KeyCode As MsForms.ReturnInteger, ByVal Shift As Integer)
@@ -490,7 +490,7 @@ Private Sub ApplyButton_Click()
     Dim applyCodeArr() As String
     IF isEditing Then Call hideEditing(isChange:=True)
     If  hasDuplicated() Then
-    ' TODO:Create constant for message
+    ' TODO: Create constant for message
     Call letUserResponse(MsgBox( _
         getInfo().getPrompt & "There are still duplications or errors, please check again !!!", _
         vbOKOnly + vbExclamation, _
@@ -502,8 +502,10 @@ Private Sub ApplyButton_Click()
     For i = LBound(applyArr) To UBound(applyArr)
         Let applyCodeArr(i + 1, 1) = getShortcutC().convertNameToCode(applyArr(i))
     Next i
+    Call getShortcutC().unInstall
     Call getShortcutC().setColData(applyCodeArr, getShortcutC().getCustomKeybindingCol())
     Call getShortcutC().install
+    Call formatLabel
 End Sub
 
 Private Sub RestoreDefaultButton_Click()
