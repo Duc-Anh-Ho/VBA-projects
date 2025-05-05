@@ -137,7 +137,7 @@ End Sub
 ' ACCESSORS
 
 Private Function getUserResponse() As VbMsgBoxResult: Let getUserResponse = userResponse: End Function
-Private Function getInfo() As InfoConstants: Let getInfo = info: End Function
+Private Function getInfo() As InfoConstants: Set getInfo = info: End Function
 Private Function getEventColl() As Collection: Set getEventColl = eventColl: End Function
 Private Function getHoverLabel() As MsForms.label: Set getHoverLabel = hoverLabel: End Function
 Private Function getHoverIndex() As String: Let getHoverIndex = hoverIndex: End Function
@@ -488,12 +488,22 @@ End Sub
 Private Sub ApplyButton_Click()
     Dim i As Long
     Dim applyCodeArr() As String
+    IF isEditing Then Call hideEditing(isChange:=True)
+    If  hasDuplicated() Then
+    ' TODO:Create constant for message
+    Call letUserResponse(MsgBox( _
+        getInfo().getPrompt & "There are still duplications or errors, please check again !!!", _
+        vbOKOnly + vbExclamation, _
+        getInfo().getAuthor))
+        Exit Sub
+    End If
     ' 2D Array start at 1 will store the converted code
     ReDim applyCodeArr(1 To UBound(applyArr) + 1, 1 To 1)
     For i = LBound(applyArr) To UBound(applyArr)
         Let applyCodeArr(i + 1, 1) = getShortcutC().convertNameToCode(applyArr(i))
     Next i
     Call getShortcutC().setColData(applyCodeArr, getShortcutC().getCustomKeybindingCol())
+    Call getShortcutC().install
 End Sub
 
 Private Sub RestoreDefaultButton_Click()

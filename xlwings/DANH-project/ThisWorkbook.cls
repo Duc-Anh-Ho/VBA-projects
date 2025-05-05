@@ -72,4 +72,3 @@ Public Sub Stop_Run_Continously()
         procedure:="ThisWorkbook.Auto_Run_Continuously", _
         Schedule:=False
 End Sub
-
