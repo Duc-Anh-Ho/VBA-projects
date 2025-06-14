@@ -50,11 +50,11 @@ Public Property Get executeScript(ByRef scrpit As String) As String
     Dim returnTxt As String
     Set executionCmd = powerShell.Exec(scrpit)
     ' Delay for waiting exucte
-    Do While executionCmd.Status = PowerShellStt.Running
+    Do While executionCmd.status = PowerShellStt.Running
         Application.Wait (Now + TimeValue("00:00:01")) '<--1s
     Loop
     ' Check return successfull or not
-    Select Case executionCmd.Status
+    Select Case executionCmd.status
         'Successful
         Case PowerShellStt.Successful
             While Not executionCmd.StdOut.AtEndOfStream

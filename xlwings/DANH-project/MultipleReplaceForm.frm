@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} MultipleReplaceForm 
    Caption         =   "Multiple Replace"
-   ClientHeight    =   2961
+   ClientHeight    =   2955
    ClientLeft      =   119
    ClientTop       =   462
    ClientWidth     =   7336
@@ -106,7 +106,7 @@ Private Sub FindAreaInput_Exit(ByVal Cancel As MsForms.ReturnBoolean)
     On Error Resume Next
     Set findArea = Application.Evaluate(FindAreaInput.text)
     On Error GoTo 0
-    If typeName(findArea) <> "Range" Then
+    If TypeName(findArea) <> "Range" Then
         Let userResponse = MsgBox( _
             Prompt:=info.getPrompt & "Please choose 'Find What:' as Range!", _
             Buttons:=vbOKOnly + vbExclamation, _
@@ -122,7 +122,7 @@ Private Sub ReplaceAreaInput_Exit(ByVal Cancel As MsForms.ReturnBoolean)
     On Error Resume Next
     Set replaceArea = Application.Evaluate(ReplaceAreaInput.text)
     On Error GoTo 0
-    If typeName(replaceArea) <> "Range" Then
+    If TypeName(replaceArea) <> "Range" Then
         Let userResponse = MsgBox( _
             Prompt:=info.getPrompt & "Please choose 'Replace With:' as Range!", _
             Buttons:=vbOKOnly + vbExclamation, _
@@ -140,7 +140,7 @@ Private Sub SelectedAreaInput_Exit(ByVal Cancel As MsForms.ReturnBoolean)
     On Error Resume Next
     Set selectedArea = Application.Evaluate(SelectedAreaInput.text)
     On Error GoTo 0
-    If typeName(selectedArea) <> "Range" Then
+    If TypeName(selectedArea) <> "Range" Then
         Let userResponse = MsgBox( _
             Prompt:=info.getPrompt & "Please choose a selected area as Range!", _
             Buttons:=vbOKOnly + vbExclamation, _
@@ -264,3 +264,7 @@ Private Sub InitTabIndexes(ParamArray controls() As Variant)
         End If
     Next ctrl
 End Sub
+
+
+
+

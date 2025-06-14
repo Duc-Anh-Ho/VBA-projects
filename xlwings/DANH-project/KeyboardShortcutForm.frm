@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} KeyboardShortcutForm 
    Caption         =   "Settings"
-   ClientHeight    =   7686
-   ClientLeft      =   5488
-   ClientTop       =   4011
-   ClientWidth     =   10934
+   ClientHeight    =   3165
+   ClientLeft      =   4977
+   ClientTop       =   1680
+   ClientWidth     =   4564
    OleObjectBlob   =   "KeyboardShortcutForm.frx":0000
    StartUpPosition =   1  'CenterOwner
 End
@@ -60,13 +60,13 @@ Private Enum FORM_POSITION
     top = height / 2
     left = width / 2
 End Enum
-Private Enum DIRECTION
+Private Enum direction
     up = -1
     down = 1
 End Enum
-Private ENUM MASK
-    none = 0
-    shiftKey =  1
+Private Enum MASK
+    None = 0
+    shiftKey = 1
     ctrlKey = 2
     altKey = 4
 End Enum
@@ -101,12 +101,12 @@ Private Const ASTERISK As String = "*"
 Private Const ZERO As String = "0"
 Private Const BACKGROUND As String = "BackColor"
 Private Const FORE As String = "ForeColor"
-Private Const ITALIC As String = "FontItalic"
-Private Const BOLD As String = "FontBold"
+Private Const italic As String = "FontItalic"
+Private Const bold As String = "FontBold"
 Private Const EDIT_CAPTION As String = "Edit"
 ' Loop iterators
 Private ctrl As MsForms.control
-Private row As ListRow
+Private Row As ListRow
 
 ' NOTE: Used to use Mutators/Accessors as Public for fix bug when cls form as instance but not working
 
@@ -127,11 +127,11 @@ Private Sub setShortcutC(ByRef value As ShortcutController): Set shortcutC = val
 Private Sub letMaxRow(ByRef value As Long): Let maxRow = value: End Sub
 
 Private Sub setInstruction(ByRef text As String)
-    Let AsteriskInstructionLabel.Caption = ASTERISK & Space(1) & text
+    Let AsteriskInstructionLabel.caption = ASTERISK & Space(1) & text
 End Sub
 
-Private Sub setCaption(ByRef ctrl AS MsForms.Control,ByRef text As String)
-    Let ctrl.Caption = text
+Private Sub setCaption(ByRef ctrl As MsForms.control, ByRef text As String)
+    Let ctrl.caption = text
 End Sub
 
 ' ACCESSORS
@@ -301,8 +301,8 @@ Private Sub markDuplicatedLine(ByRef label As MsForms.label)
     Call canUpdateFormat(label, BACKGROUND, COLOR.window_background)
     Call canUpdateFormat(label, FORE, COLOR.line_duplicated)
     Call canUpdateFormat(label, italic, False)
-    Call CanUpdateFormat(label, bold, True)
-End SUb
+    Call canUpdateFormat(label, bold, True)
+End Sub
 
 Private Sub markPickingEditedLine(ByRef label As MsForms.label)
     Call canUpdateFormat(label, BACKGROUND, COLOR.line_picking_edited)
@@ -348,7 +348,7 @@ Private Sub cleanMarkLine(ByRef label As MsForms.label)
 End Sub
 
 Private Sub markKeybindingDuplicated(ByRef label As MsForms.label)
-    Call canUpdateFormat(label,  FORE, COLOR.line_duplicated)
+    Call canUpdateFormat(label, FORE, COLOR.line_duplicated)
     Call canUpdateFormat(label, italic, True)
     Call canUpdateFormat(label, bold, True)
 End Sub
@@ -404,10 +404,10 @@ Private Sub UserForm_Initialize()
 '    )
     ' Apply the mousewheel scrolling (NOTE: Disable scroll zoom)
     Call MouseScroll.EnableMouseScroll( _
-        uForm:= Me _
-        , passScrollToParentAtMargins:= True _
-        , useShiftForPerpendicularScroll:= False _
-        , useCtrlToZoom:= False _
+        uForm:=Me _
+        , passScrollToParentAtMargins:=True _
+        , useShiftForPerpendicularScroll:=False _
+        , useCtrlToZoom:=False _
     )
 End Sub
 
@@ -445,24 +445,24 @@ Private Sub MultiPage_Change()
     Call hidePickingAndEditing(isChange:=False)
 End Sub
 
-Private Sub MultiPage_Click(ByVal Index As Long)
+Private Sub MultiPage_Click(ByVal index As Long)
     Call hidePickingAndEditing(isChange:=False)
 End Sub
 
-Private Sub MultiPage_Exit(ByVal Cancel As MSForms.ReturnBoolean)
+Private Sub MultiPage_Exit(ByVal Cancel As MsForms.ReturnBoolean)
     Call hideEditing(isChange:=False)
 End Sub
 
-Private Sub KeyboardFrameContainer_Exit(ByVal Cancel As MSForms.ReturnBoolean)
-    Call hideEditing(isChange:=true)
+Private Sub KeyboardFrameContainer_Exit(ByVal Cancel As MsForms.ReturnBoolean)
+    Call hideEditing(isChange:=True)
 End Sub
 
-Private Sub KeyboardFrame_KeyDown(ByVal KeyCode As MsForms.ReturnInteger, ByVal Shift As Integer)
-    Select Case KeyCode
-        Case vbKeyReturn: If Shift = MASK.none Then Call showEditing
-        Case vbKeyEscape: If Shift = MASK.none Then Call hidePickingAndEditing(isChange:=False)
-        Case vbKeyUp: IF Shift = MASK.none Then Call movePicking(DIRECTION.up)
-        Case vbKeyDown: IF Shift = MASK.none Then Call movePicking(DIRECTION.down)
+Private Sub KeyboardFrame_KeyDown(ByVal keyCode As MsForms.ReturnInteger, ByVal Shift As Integer)
+    Select Case keyCode
+        Case vbKeyReturn: If Shift = MASK.None Then Call showEditing
+        Case vbKeyEscape: If Shift = MASK.None Then Call hidePickingAndEditing(isChange:=False)
+        Case vbKeyUp: If Shift = MASK.None Then Call movePicking(direction.up)
+        Case vbKeyDown: If Shift = MASK.None Then Call movePicking(direction.down)
     End Select
 End Sub
 
@@ -473,6 +473,9 @@ End Sub
 
 Private Sub ApplyAndCloseButton_Click()
     'TODO save
+    ' NEW S
+    Call ApplyButton_Click
+    ' NEW E
     Call KeyboardShortcutForm.closeForm
 End Sub
 
@@ -488,8 +491,8 @@ End Sub
 Private Sub ApplyButton_Click()
     Dim i As Long
     Dim applyCodeArr() As String
-    IF isEditing Then Call hideEditing(isChange:=True)
-    If  hasDuplicated() Then
+    If isEditing Then Call hideEditing(isChange:=True)
+    If hasDuplicated() Then
     ' TODO: Create constant for message
     Call letUserResponse(MsgBox( _
         getInfo().getPrompt & "There are still duplications or errors, please check again !!!", _
@@ -502,10 +505,12 @@ Private Sub ApplyButton_Click()
     For i = LBound(applyArr) To UBound(applyArr)
         Let applyCodeArr(i + 1, 1) = getShortcutC().convertNameToCode(applyArr(i))
     Next i
-    Call getShortcutC().unInstall
+    ' Call getShortcutC().unInstall
     Call getShortcutC().setColData(applyCodeArr, getShortcutC().getCustomKeybindingCol())
     Call getShortcutC().install
-    Call formatLabel
+    ' TODO: NEW S
+    ThisWorkbook.Save
+    ' TODO: NEW E
 End Sub
 
 Private Sub RestoreDefaultButton_Click()
@@ -556,7 +561,7 @@ Private Sub initButton()
     ' TODO make order button init
     ' Init EditResetButton
     Call setCaption(ctrl:=Me.EditButton, text:=EDIT_CAPTION)
-    Let EditButton.enabled = True
+    Let EditButton.Enabled = True
 End Sub
 
 Private Sub initRow()
@@ -567,32 +572,32 @@ Private Sub initRow()
     Dim shortcut As String
     Call letMaxRow(getShortcutC().getRows().Count)
     ReDim editedArr(getMaxRow() - 1)
-    ReDim applyArr(getMaxRow() -1)
+    ReDim applyArr(getMaxRow() - 1)
     Call resetEdited
-    For Each row In getShortcutC().getRows()
-        Let keybinding = row.Range(1, getShortcutC().getCustomKeybindingCol())
-        Let keybindingDefault = row.Range(1, getShortcutC().getDefaultKeybindingCol())
+    For Each Row In getShortcutC().getRows()
+        Let keybinding = Row.Range(1, getShortcutC().getCustomKeybindingCol())
+        Let keybindingDefault = Row.Range(1, getShortcutC().getDefaultKeybindingCol())
         ' Let lineIndex = row.Range(1, getShortcutC().getNoCol())
-        Let lineIndex = row.index
+        Let lineIndex = Row.index
         Let shortcut = getShortcutC().convertCodeToName(keybinding)
         Let defaultMark = IIf(keybinding = keybindingDefault, DEFAULT, vbNullString)
         Call createRow( _
             index:=CLng(lineIndex) _
-            , command:=row.Range(1, getShortcutC().getCommandCol()) _
+            , command:=Row.Range(1, getShortcutC().getCommandCol()) _
             , shortcut:=shortcut _
-            , when:=row.Range(1, getShortcutC().getWhenCol()) _
-            , status:=row.Range(1, getShortcutC().getStatusCol()) & defaultMark _
+            , when:=Row.Range(1, getShortcutC().getWhenCol()) _
+            , status:=Row.Range(1, getShortcutC().getStatusCol()) & defaultMark _
         )
         Let editedArr(lineIndex - 1) = DEFAULT
         Let applyArr(lineIndex - 1) = shortcut
-    Next row
+    Next Row
     Call createScrollBar(getMaxRow())
 End Sub
 
 Private Sub initOverLay()
     ' Outer overlay
     Call createOverlayLabel( _
-        parentCtrl:=Me.Controls _
+        parentCtrl:=Me.controls _
         , width:=Me.InsideWidth _
         , height:=Me.InsideHeight _
         , top:=0 _
@@ -603,7 +608,7 @@ Private Sub initOverLay()
     )
     ' Inner overlay
     Call createOverlayLabel( _
-        parentCtrl:=Me.MultiPage.KeyboardShortcutsPage.Controls _
+        parentCtrl:=Me.MultiPage.KeyboardShortcutsPage.controls _
         , width:=Me.MultiPage.KeyboardShortcutsPage.InsideWidth _
         , height:=Me.MultiPage.KeyboardShortcutsPage.InsideHeight _
         , top:=0 _
@@ -809,7 +814,7 @@ Private Sub createOverlayLabel( _
     Set overlayLabel = parentCtrl.add( _
         bstrProgId:=PROG_ID_LABEL _
         , name:=name _
-        , visible:= visible) 'init will hide
+        , visible:=visible)  'init will hide
     With overlayLabel
         .caption = caption
         .Tag = OVERLAY_TAG & name
@@ -818,21 +823,21 @@ Private Sub createOverlayLabel( _
         .top = top
         .left = left
         .backColor = backColor
-        .BackStyle = backStyle
+        .backStyle = backStyle
         .BorderStyle = hasBorder
         .visible = visible
-        .ZOrder zOrder ' 0: Bring to front
+        .zOrder zOrder ' 0: Bring to front
     End With
     Set overlayLabel = Nothing
 End Sub
 
-Private Sub addEvent(ByRef ctrl As MSForms.Control)
+Private Sub addEvent(ByRef ctrl As MsForms.control)
     If isLabel(ctrl) Then
-        If isTitle(ctrl) Then getEventColl().Add createLabelEvent(ctrl)
-        If isLine(ctrl) Then getEventColl().Add createLabelEvent(ctrl)
-        If isOverlay(ctrl) Then getEventColl().Add createLabelEvent(ctrl)
+        If isTitle(ctrl) Then getEventColl().add createLabelEvent(ctrl)
+        If isLine(ctrl) Then getEventColl().add createLabelEvent(ctrl)
+        If isOverlay(ctrl) Then getEventColl().add createLabelEvent(ctrl)
     ElseIf isTextBox(ctrl) Then
-        If isLine(ctrl) Then getEventColl().Add createTextBoxEvent(ctrl)
+        If isLine(ctrl) Then getEventColl().add createTextBoxEvent(ctrl)
     End If
 End Sub
 
@@ -867,8 +872,8 @@ Public Sub labelMoveOn(ByRef label As MsForms.label)
     ' Check still in same label do nothing (Performance issues)
     If isSameLine(label, getHoverLabel()) Then Exit Sub
     ' Skip if picking line is hover Line
-    If isPickingLine(getLineIndex(label)) Then 
-        Call resetHover()
+    If isPickingLine(getLineIndex(label)) Then
+        Call resetHover
     Else
         Call updateHover(label)
     End If
@@ -880,7 +885,7 @@ Public Sub labelClick(ByRef label As MsForms.label)
     If isSameLine(getEditingLabel(), label) Then
         Exit Sub
     ' Click 2 times
-    Elseif isSameLine(getPickingLabel(), label) Then
+    ElseIf isSameLine(getPickingLabel(), label) Then
         Call showEditing
         Exit Sub
     ' Titles Click
@@ -889,7 +894,7 @@ Public Sub labelClick(ByRef label As MsForms.label)
         MsgBox ("TODO: Sort By" & label.caption)
     ' Lines Click
     ElseIf isLine(label) Then
-        Call hidePickingAndEditing(true)
+        Call hidePickingAndEditing(True)
         Call showPicking(label)
     ElseIf isOverlay(label) Then
         Call hidePickingAndEditing(False)
@@ -905,10 +910,10 @@ End Sub
 
 Public Sub textBoxKeyDown( _
     ByRef textBox As MsForms.textBox _
-    , ByRef KeyCode As MsForms.ReturnInteger _
+    , ByRef keyCode As MsForms.ReturnInteger _
     , ByRef Shift As Integer _
 )
-    Call letEditingShortcut(getShortcutC().convertKeyToName(KeyCode, Shift))
+    Call letEditingShortcut(getShortcutC().convertKeyToName(keyCode, Shift))
     ' Enter press save editing
     If (getEditingShortcut() = getShortcutC().getEnterKey()) Then
         Call hideEditing(isChange:=True)
@@ -923,7 +928,7 @@ Public Sub textBoxKeyDown( _
         Let textBox.text = getEditingShortcut()
     End If
     'Prevent default keyDown
-    Let KeyCode = 0
+    Let keyCode = 0
 End Sub
 
 Public Sub textBoxChange(ByRef textBox As MsForms.textBox)
@@ -948,7 +953,7 @@ Private Sub showEditing()
     Call displayTextBox(isDisplay:=True)
     Call getEditingTextBox().SetFocus
     ' Disable Edit Button
-    Let EditButton.enabled = False
+    Let EditButton.Enabled = False
     Call updateInstruction
 End Sub
 
@@ -981,7 +986,7 @@ Private Sub hideEditing(Optional ByRef isChange As Boolean = True)
     Call displayTextBox(isDisplay:=False)
     Call resetEditing
     ' Disable Edit Button
-    Let EditButton.enabled = True
+    Let EditButton.Enabled = True
     Call updateInstruction
 End Sub
 
@@ -1025,7 +1030,7 @@ Private Sub resetPicking()
 End Sub
 
 Private Sub movePicking(ByRef direction As Integer)
-    if Not isPicking Then Exit Sub
+    If Not isPicking Then Exit Sub
     Dim nextIndex As String
     Dim nextLabel As MsForms.label
     ' Update Next picking by index
@@ -1043,19 +1048,19 @@ End Sub
 
 Private Sub scrollPicking(ByRef label As MsForms.label)
     With label
-    Dim top as Single: Let top = .top
-    Dim bottom as Single: Let bottom = top + LINE_HEIGHT
+    Dim top As Single: Let top = .top
+    Dim bottom As Single: Let bottom = top + LINE_HEIGHT
         'Frame scroll
-        With .parent
-        Dim scrollTop as Single: Let scrollTop = .ScrollTop
-        Dim scrollBottom as Single: Let scrollBottom = scrollTop + .InsideHeight
+        With .Parent
+        Dim scrollTop As Single: Let scrollTop = .scrollTop
+        Dim scrollBottom As Single: Let scrollBottom = scrollTop + .InsideHeight
         ' Scroll down
         If bottom > scrollBottom Then
             ' .ScrollTop = .ScrollTop + (bottom - scrollBottom)
-            .ScrollTop = bottom - .InsideHeight
+            .scrollTop = bottom - .InsideHeight
         ' Scroll up
         ElseIf top < scrollTop Then
-            .ScrollTop = top
+            .scrollTop = top
         End If
         End With ' .parent
     End With ' label
@@ -1210,3 +1215,5 @@ Private Sub clearUp()
     ' Clear Arrays
     Erase editedArr
 End Sub
+
+

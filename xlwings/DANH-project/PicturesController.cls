@@ -74,9 +74,9 @@ End Property
 '2.
 Public Property Let selectObjectMode(ByRef objectMode As Boolean)
     If objectMode And Not CommandBars("Drawing").controls("Select Objects").State Then
-        Call CommandBars("Drawing").controls("Select Objects").execute
+        Call CommandBars("Drawing").controls("Select Objects").Execute
     ElseIf Not objectMode And CommandBars("Drawing").controls("Select Objects").State Then
-        Call CommandBars("Drawing").controls("Select Objects").execute
+        Call CommandBars("Drawing").controls("Select Objects").Execute
     End If
 End Property
 '2
@@ -96,7 +96,7 @@ Public Property Let hasFakeBorder(ByRef isFake As Boolean)
                 .Fill.visible = msoTrue
                 .Fill.foreColor.RGB = FAKE_BORDER_COLOR
                 .Line.visible = msoFalse
-                .ZOrder msoSendToBack
+                .zOrder msoSendToBack
             End With
         Next Sh
     Else
@@ -188,23 +188,23 @@ End Property
 'METHODS
 '1,2,3
 Public Sub lockRatio(ByRef targetObject As Object)
-    Select Case typeName(targetObject)
+    Select Case TypeName(targetObject)
         Case "Shape"
             Let targetObject.LockAspectRatio = isLockRatio
-            Call targetObject.ZOrder(msoBringToFront)
+            Call targetObject.zOrder(msoBringToFront)
         Case Else
             Let targetObject.ShapeRange.LockAspectRatio = isLockRatio
-            Call targetObject.ShapeRange.ZOrder(msoBringToFront)
+            Call targetObject.ShapeRange.zOrder(msoBringToFront)
     End Select
 End Sub
 '1,2
 Private Sub setTargetPlace(targetOj As Object, Optional hasConfirm As Boolean = True)
-    Select Case typeName(targetOj)
+    Select Case TypeName(targetOj)
         Case "Range"
             Set targetPlace = targetOj
         Case "DrawingObjects"
             MsgBox _
-                Prompt:="Sorry! we've not supported " & typeName(targetOj) & " yet" _
+                Prompt:="Sorry! we've not supported " & TypeName(targetOj) & " yet" _
                     & vbNewLine & "Please select another object type !!!!", _
                 Buttons:=vbOKOnly + vbCritical, _
                 Title:=info.getAuthor
@@ -213,7 +213,7 @@ Private Sub setTargetPlace(targetOj As Object, Optional hasConfirm As Boolean = 
             If hasConfirm Then
                 userResponse = MsgBox( _
                     Prompt:="You've selected: '" & targetOj.name & _
-                        "' as type: " & typeName(targetOj) & vbNewLine & _
+                        "' as type: " & TypeName(targetOj) & vbNewLine & _
                         "Do you want to replace " & targetOj.name & "?", _
                     Buttons:=vbYesNoCancel + vbQuestion, _
                     Title:=info.getAuthor)
@@ -236,10 +236,10 @@ End Sub
 Private Sub deleteOldPicture()
     If targetPlace Is Nothing Then Exit Sub
     If userResponse = vbYes Then
-        Select Case typeName(targetPlace)
+        Select Case TypeName(targetPlace)
             Case "ChartArea"
                 MsgBox _
-                    Prompt:="The captured picture is inside the " & typeName(selection) _
+                    Prompt:="The captured picture is inside the " & TypeName(Selection) _
                         & vbNewLine & "Can't delete it automatically", _
                     Buttons:=vbOKOnly + vbExclamation, _
                     Title:=info.getAuthor
@@ -269,8 +269,8 @@ Private Sub capturePicture()
         .ScreenUpdating = False
         .CommandBars.ExecuteMso "ScreenClipping" 'important key
     End With
-    If typeName(selection) = "Picture" Then
-        Set targetObject = selection
+    If TypeName(Selection) = "Picture" Then
+        Set targetObject = Selection
 '        targetObject.Cut
 '    'Paste to A1 as default
 '    targetObject = ws.Paste Destination:=ws.Range("A1")
@@ -295,7 +295,7 @@ Private Sub scalePicture(ByVal isLockRatio As Boolean)
     'Scale up when too small
     If targetPlace.height < customOffset * 2 Or _
     targetPlace.width < customOffset * 2 Then
-        If typeName(targetPlace) <> "Range" Then
+        If TypeName(targetPlace) <> "Range" Then
             Let targetPlace.height = targetPlace.height + customOffset * 2
             Let targetPlace.width = targetPlace.width + customOffset * 2
         End If
@@ -343,7 +343,7 @@ Public Sub snip()
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
     Call system.speedOn
-    Call setTargetPlace(selection)
+    Call setTargetPlace(Selection)
     If targetPlace Is Nothing Then GoTo ExecuteProcedure
     Call capturePicture
     Call scalePicture(isLockRatio)
@@ -360,7 +360,7 @@ Public Sub assign()
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
     Call system.speedOn
-    Call setTargetPlace(selection, hasConfirm:=False)
+    Call setTargetPlace(Selection, hasConfirm:=False)
     If targetPlace Is Nothing Then GoTo ExecuteProcedure
     Call assignOnAction("ThisWorkbook.Auto_Arrange_Shape")
     Let hasFakeBorder = True
@@ -378,7 +378,7 @@ On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
     If Not hasSelectObjectMode Then GoTo ExecuteProcedure
     Call system.speedOn
-    Call setTargetPlace(selection, hasConfirm:=False)
+    Call setTargetPlace(Selection, hasConfirm:=False)
     If targetPlace Is Nothing Then GoTo ExecuteProcedure
     Call setTargetObject(Application.Caller)
     Call scalePicture(isLockRatio)
@@ -422,9 +422,9 @@ Public Sub arrangeToMerge()
     On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
     Call system.speedOn
-    If typeName(selection) = "GroupObject" Then
-        Call setTargetPlace(selection.TopLeftCell.MergeArea)
-        Call setTargetObject(selection.name)
+    If TypeName(Selection) = "GroupObject" Then
+        Call setTargetPlace(Selection.TopLeftCell.MergeArea)
+        Call setTargetObject(Selection.name)
         Call scalePicture(isLockRatio)
     End If
 GoTo ExecuteProcedure
@@ -433,5 +433,7 @@ ErrorHandle:
 ExecuteProcedure:
     Call system.speedOff
 End Sub
+
+
 
 

@@ -35,13 +35,9 @@ Private userResponse As VbMsgBoxResult
 Private info As InfoConstants
 Private systemTimer As Single
 Public WithEvents app As Application
-' Attribute app.VB_VarHelpID = -1
 Public WithEvents wb As Workbook
-' Attribute wb.VB_VarHelpID = -1
 Public WithEvents ws As Worksheet
-' Attribute ws.VB_VarHelpID = -1
 Public wd As Window
-' Attribute wd.VB_VarHelpID = -1
 'Public wss As Worksheets 'TODO: Refactor as global accessor get wss for sheets controller
 'Public wsObs As Sheets 'wsObs could be Charts || DialogSheets || Worksheets (ws regular || ws marcro)
 Public sheetOb As Object 'SheetOb could be Chart || DialogSheet || Worksheet (ws regular || ws marcro)
@@ -127,12 +123,12 @@ On Error GoTo ErrorHandle
             If Not app.ActiveWindow Is Nothing Then
                 GoTo ExecuteProcedure
             Else
-                Select Case typeName(app.ActiveWindow)
+                Select Case TypeName(app.ActiveWindow)
                     Case WD_TYPE
                         Set wd = app.ActiveWindow
                         Let resultStr = resultStr & "_" & WD_TYPE
                     Case Else
-                        Let resultStr = resultStr & "_" & typeName(app.ActiveWindow) & "_Un-handle"
+                        Let resultStr = resultStr & "_" & TypeName(app.ActiveWindow) & "_Un-handle"
                         GoTo ExecuteProcedure
                 End Select
             End If
@@ -141,14 +137,14 @@ On Error GoTo ErrorHandle
             If app.ActiveWorkbook Is Nothing Then
                 GoTo ExecuteProcedure
             Else
-                Select Case typeName(app.ActiveWorkbook)
+                Select Case TypeName(app.ActiveWorkbook)
                     Case WB_TYPE
                         Set wd = app.ActiveWindow
                         Set wd = app.ActiveWindow
                         Set wb = app.ActiveWorkbook
                         Let resultStr = resultStr & "_" & WB_TYPE
                     Case Else
-                        Let resultStr = resultStr & "_" & typeName(app.ActiveWorkbook) & "_Un-Handle"
+                        Let resultStr = resultStr & "_" & TypeName(app.ActiveWorkbook) & "_Un-Handle"
                         GoTo ExecuteProcedure
                 End Select
             End If
@@ -157,7 +153,7 @@ On Error GoTo ErrorHandle
                 GoTo ExecuteProcedure
             Else
                 Set sheetOb = wb.ActiveSheet
-                Select Case typeName(wb.ActiveSheet)
+                Select Case TypeName(wb.ActiveSheet)
                     Case WS_TYPE
                         Set ws = wb.ActiveSheet
                         Set chartSh = Nothing
@@ -175,7 +171,7 @@ On Error GoTo ErrorHandle
                         Let resultStr = resultStr & "_" & DIALOG_TYPE
                         GoTo ExecuteProcedure ' DialogSheet DON'T have type attribute
                     Case Else
-                        Let resultStr = resultStr & "_" & typeName(wb.ActiveSheet) & "_Un-Handle"
+                        Let resultStr = resultStr & "_" & TypeName(wb.ActiveSheet) & "_Un-Handle"
                         GoTo ExecuteProcedure
                 End Select
             End If
@@ -237,10 +233,10 @@ On Error GoTo ErrorHandle
             ElseIf Application.ActiveSheet Is Nothing Then
                 Let mess = "Don't active any sheet yet, please select one!"
                 GoTo ExecuteProcedure
-            ElseIf typeName(Application.ActiveSheet) <> WS_TYPE Then
+            ElseIf TypeName(Application.ActiveSheet) <> WS_TYPE Then
                 Let mess = _
                     "You've selected a " & _
-                    typeName(Application.ActiveSheet) & _
+                    TypeName(Application.ActiveSheet) & _
                     ", need to select a " & _
                     workPlaceType
                 GoTo ExecuteProcedure
@@ -269,10 +265,10 @@ On Error GoTo ErrorHandle
             ElseIf Application.ActiveSheet Is Nothing Then
                 Let mess = "Don't active any sheet yet, please select one!"
                 GoTo ExecuteProcedure
-            ElseIf typeName(Application.ActiveSheet) <> CHART_TYPE Then
+            ElseIf TypeName(Application.ActiveSheet) <> CHART_TYPE Then
                 Let mess = _
                     "You've selected a " & _
-                    typeName(Application.ActiveSheet) & _
+                    TypeName(Application.ActiveSheet) & _
                     ", need to select a " & _
                     workPlaceType
                 GoTo ExecuteProcedure
@@ -295,10 +291,10 @@ On Error GoTo ErrorHandle
             ElseIf Application.ActiveSheet Is Nothing Then
                 Let mess = "Don't active any sheet yet, please select one!"
                 GoTo ExecuteProcedure
-            ElseIf typeName(Application.ActiveSheet) <> DIALOG_TYPE Then
+            ElseIf TypeName(Application.ActiveSheet) <> DIALOG_TYPE Then
                 Let mess = _
                     "You've selected a " & _
-                    typeName(Application.ActiveSheet) & _
+                    TypeName(Application.ActiveSheet) & _
                     ", need to select a " & _
                     workPlaceType
                 GoTo ExecuteProcedure
@@ -321,10 +317,10 @@ On Error GoTo ErrorHandle
             ElseIf Application.ActiveSheet Is Nothing Then
                 Let mess = "Don't active any sheet yet, please select one!"
                 GoTo ExecuteProcedure
-            ElseIf typeName(Application.ActiveSheet) <> WS_TYPE Then
+            ElseIf TypeName(Application.ActiveSheet) <> WS_TYPE Then
                 Let mess = _
                     "You've selected a " & _
-                    typeName(Application.ActiveSheet) & _
+                    TypeName(Application.ActiveSheet) & _
                     ", need to select a " & _
                     workPlaceType
                 GoTo ExecuteProcedure
@@ -355,10 +351,10 @@ On Error GoTo ErrorHandle
             ElseIf Application.ActiveSheet Is Nothing Then
                 Let mess = "Don't active any sheet yet, please select one!"
                 GoTo ExecuteProcedure
-            ElseIf typeName(Application.ActiveSheet) <> CHART_TYPE Then
+            ElseIf TypeName(Application.ActiveSheet) <> CHART_TYPE Then
                 Let mess = _
                     "You've selected a " & _
-                    typeName(Application.ActiveSheet) & _
+                    TypeName(Application.ActiveSheet) & _
                     ", need to select a " & _
                     workPlaceType
                 GoTo ExecuteProcedure
@@ -389,10 +385,10 @@ On Error GoTo ErrorHandle
             ElseIf Application.ActiveSheet Is Nothing Then
                 Let mess = "Don't active any sheet yet, please select one!"
                 GoTo ExecuteProcedure
-            ElseIf typeName(Application.ActiveSheet) <> WS_TYPE Then
+            ElseIf TypeName(Application.ActiveSheet) <> WS_TYPE Then
                 Let mess = _
                     "You've selected a " & _
-                    typeName(Application.ActiveSheet) & _
+                    TypeName(Application.ActiveSheet) & _
                     ", need to select a " & _
                     workPlaceType
                 GoTo ExecuteProcedure
@@ -423,10 +419,10 @@ On Error GoTo ErrorHandle
             ElseIf Application.ActiveSheet Is Nothing Then
                 Let mess = "Don't active any sheet yet, please select one!"
                 GoTo ExecuteProcedure
-            ElseIf typeName(Application.ActiveSheet) <> WS_TYPE Then
+            ElseIf TypeName(Application.ActiveSheet) <> WS_TYPE Then
                 Let mess = _
                     "You've selected a " & _
-                    typeName(Application.ActiveSheet) & _
+                    TypeName(Application.ActiveSheet) & _
                     ", need to select a " & _
                     workPlaceType
                 GoTo ExecuteProcedure
@@ -585,13 +581,13 @@ ErrorHandle:
 ExecuteProcedure:
 End Property
 'FILE
-Public Property Get getFileName(Optional ByRef typeName As String = "name") As String
+Public Property Get getFileName(Optional ByRef TypeName As String = "name") As String
 On Error GoTo ErrorHandle
     If Application.ActiveWorkbook Is Nothing Then GoTo ExecuteProcedure
     Dim fileSystem As Object
     Set fileSystem = createFileSystem()
     With Application.ActiveWorkbook
-        Select Case typeName
+        Select Case TypeName
             Case "name"
                 Let getFileName = .name
             Case "path"
@@ -643,14 +639,14 @@ On Error GoTo ErrorHandle
         If cell.value = False Then
             Let getLastRow = 0
         Else
-            Let getLastRow = cell.row
+            Let getLastRow = cell.Row
         End If
     Else
         Set cell = ws.Cells.Find("*", SearchOrder:=xlByRows, SearchDirection:=xlPrevious)
         If cell Is Nothing Then
             Let getLastRow = 0
         Else
-            Let getLastRow = cell.row
+            Let getLastRow = cell.Row
         End If
     End If
 GoTo ExecuteProcedure
@@ -667,14 +663,14 @@ On Error GoTo ErrorHandle
         If cell.value = False Then
             Let getLastColumn = 0
         Else
-            Let getLastColumn = cell.COLUMN
+            Let getLastColumn = cell.Column
         End If
     Else
         Set cell = ws.Cells.Find("*", SearchOrder:=xlByColumns, SearchDirection:=xlPrevious)
         If cell Is Nothing Then
             Let getLastColumn = 0
         Else
-            Let getLastColumn = cell.COLUMN
+            Let getLastColumn = cell.Column
         End If
     End If
 GoTo ExecuteProcedure
@@ -739,7 +735,7 @@ ManyDimensions:
         Dim arr1Length As Long: Let arr1Length = getArrayLength(arr1)
         Dim arr2Length As Long: Let arr2Length = getArrayLength(arr2)
         ReDim arr(LBound(arr1) To arr1Length + arr2Length, dimension To dimension)
-        Dim i, j As Long
+        Dim i As Long, j As Long
         For i = LBound(arr) To UBound(arr1)
             arr(i, dimension) = arr1(i, dimension)
         Next i
@@ -797,7 +793,7 @@ End Property
 Public Property Let setStatusBar(ByVal content As Variant)
     If Not hasWorkPlace(True, EXCEL_TYPE) Then Exit Property
     Let app.DisplayStatusBar = False
-    If typeName(content) = "String" Then
+    If TypeName(content) = "String" Then
         Let app.statusBar = content
     Else
         Let app.statusBar = vbNullString
@@ -905,28 +901,28 @@ End Sub
 
 'Error Handler
 Public Sub tackleErrors()
-    Select Case Err.Number
+    Select Case ERR.Number
         Case 0
         'Can't enable Addin
         Case 1004
         'Can not import VBA file
         Case 50057
             Let userResponse = MsgBox( _
-                Err.Description & _
+                ERR.Description & _
                 vbNewLine & _
                 info.getPrompt & _
                 "Can not import this file!")
         'FIle import is not VBA file
         Case 50021
             Let userResponse = MsgBox( _
-                Err.Description & _
+                ERR.Description & _
                 vbNewLine & _
                 info.getPrompt & _
                 "This file is not VBA file!")
         'VBA file have password
         Case 50289
             Let userResponse = MsgBox( _
-                Prompt:=Err.Description & _
+                Prompt:=ERR.Description & _
                     vbNewLine & _
                     info.getPrompt & _
                     "Can not access this VBA file because of been protected by a password!", _
@@ -944,15 +940,15 @@ End Sub
 Private Sub errorDisplay()
     Dim errorMessage As String
     Let errorMessage = _
-        "Error # " & Str(Err.Number) & _
-        " was generated by " & Err.source & _
+        "Error # " & Str(ERR.Number) & _
+        " was generated by " & ERR.Source & _
         vbNewLine & "Error Line: " & Erl & _
-        vbNewLine & Err.Description
+        vbNewLine & ERR.Description
     Let userResponse = MsgBox( _
         Prompt:=errorMessage, _
         Title:="Error", _
-        HelpFile:=Err.HelpFile, _
-        Context:=Err.HelpContext)
+        HelpFile:=ERR.HelpFile, _
+        Context:=ERR.HelpContext)
 End Sub
 
 'VBE - DEBUGGER
@@ -965,6 +961,10 @@ End Sub
 Public Sub clearImmediateWindow()
     Debug.Print String(65535, vbCr)
 End Sub
+
+
+
+
 
 
 

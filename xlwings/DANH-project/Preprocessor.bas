@@ -10,7 +10,7 @@ Option Explicit
         Public Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal Milliseconds As LongPtr)
         Public Declare PtrSafe Function GetTickCount Lib "kernel32" () As LongPtr
         Public Declare PtrSafe Sub CopyMemory Lib "kernel32.dll" Alias _
-            "RtlMoveMemory" (ByRef Destination As Any, ByRef source As Any, _
+            "RtlMoveMemory" (ByRef Destination As Any, ByRef Source As Any, _
             ByVal Length As Long)
         'Subs/Functions
         ' Get Ribbon From Pointer Memory
@@ -20,7 +20,7 @@ Option Explicit
             Let lRibbonPointer = CLngPtr(Replace(lRibbonName.RefersTo, "=", ""))
             CopyMemory _
                 Destination:=objRibbon, _
-                source:=lRibbonPointer, _
+                Source:=lRibbonPointer, _
                 Length:=LenB(lRibbonPointer)
             Set GetRibbon = objRibbon
             Set objRibbon = Nothing
@@ -35,7 +35,7 @@ Option Explicit
         Public Declare Sub Sleep Lib "kernel32" (ByVal Milliseconds As Long)
         Public Declare Function GetTickCount Lib "kernel32" () As Long
         Public Declare Sub CopyMemory Lib "kernel32.dll" Alias _
-            "RtlMoveMemory" (ByRef Destination As Any, ByRef source As Any, _
+            "RtlMoveMemory" (ByRef Destination As Any, ByRef Source As Any, _
             ByVal Length As Long)
         'Subs/Functions
         ' Get Ribbon From Pointer Memory
@@ -43,7 +43,7 @@ Option Explicit
             Dim objRibbon As Object
             CopyMemory _
                 Destination:=objRibbon, _
-                source:=lRibbonPointer, _
+                Source:=lRibbonPointer, _
                 Length:=LenB(lRibbonPointer)
             Set GetRibbon = objRibbon
             Set objRibbon = Nothing
@@ -67,5 +67,7 @@ Option Explicit
 '        Set GetRibbon = objRibbon
 '        Set objRibbon = Nothing
 'End Function
+
+
 
 

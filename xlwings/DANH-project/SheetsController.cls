@@ -38,11 +38,8 @@ Private wss As Sheets
 Private selectedWss As Sheets
 Private ws As Object
 Private WithEvents wsEvent As Worksheet
-' Attribute wsEvent.VB_VarHelpID = -1
 Private WithEvents appEvent As Application
-' Attribute appEvent.VB_VarHelpID = -1
 Private WithEvents wbEvent As Workbook
-' Attribute wbEvent.VB_VarHelpID = -1
 
 'Initialize Variables
 Private Function hasVariables() As Boolean
@@ -126,11 +123,11 @@ Private Property Get getRenameRange(Optional ByVal onSheet As Worksheet) As Rang
     If onSheet Is Nothing Then Set onSheet = system.ws
     Set getRenameRange = onSheet.Range( _
         Cell1:=Cells( _
-            Range(TITLE_RENAME_CELL).row + 1, _
-            Range(TITLE_RENAME_CELL).COLUMN), _
+            Range(TITLE_RENAME_CELL).Row + 1, _
+            Range(TITLE_RENAME_CELL).Column), _
         Cell2:=Cells( _
-            system.getLastRow(onSheet, Range(TITLE_RENAME_CELL).COLUMN), _
-            Range(TITLE_RENAME_CELL).COLUMN))
+            system.getLastRow(onSheet, Range(TITLE_RENAME_CELL).Column), _
+            Range(TITLE_RENAME_CELL).Column))
 End Property
 
 ' MUTATORS
@@ -143,7 +140,7 @@ Private Sub addSheetsAsRange()
     Dim addSheetCount As Long
     Dim mess As String
     'Check Selected Range
-    If typeName(selection) <> "Range" Then
+    If TypeName(Selection) <> "Range" Then
         Let userResponse = MsgBox( _
             Prompt:=info.getPrompt & _
                 "You have to select range first for adding sheet(s)!", _
@@ -151,7 +148,7 @@ Private Sub addSheetsAsRange()
             Title:=info.getAuthor)
         Exit Sub
     End If
-    Set addSheetRange = selection
+    Set addSheetRange = Selection
     Let addSheetCount = WorksheetFunction.CountIf(addSheetRange, "<>")
     ' Check empty Selected Range
     If Not CBool(addSheetCount) Then
@@ -496,7 +493,7 @@ Private Sub renameSheet( _
                 'Check don't exist and not null
                 If Not system.hasSheet(info.getAuthor & "___" & newName) And newName <> vbNullString Then
                     ' Change to dump name
-                    Let wss(cell.row - 1).name = info.getAuthor & "___" & newName
+                    Let wss(cell.Row - 1).name = info.getAuthor & "___" & newName
                   End If
             Next cell
             ' Rename Sheets
@@ -508,8 +505,8 @@ Private Sub renameSheet( _
                 'Check don't exist and not null
                 If Not system.hasSheet(newName) And newName <> vbNullString Then
                     ' Change to dump name
-                    Let wss(cell.row - 1).name = newName
-                    Let onSheet.Range(TITLE_NAME_CELL).Offset(cell.row - 1).value = CStr(newName)
+                    Let wss(cell.Row - 1).name = newName
+                    Let onSheet.Range(TITLE_NAME_CELL).Offset(cell.Row - 1).value = CStr(newName)
                 End If
             Next cell
             ' Update list sheet
@@ -652,7 +649,7 @@ Private Sub appEvent_SheetActivate(ByVal sheetObject As Object)
 On Error GoTo ErrorHandle
     Call system.speedOn
     '2 levels check previous sheet
-    If (typeName(sheetObject) = "Worksheet") Then
+    If (TypeName(sheetObject) = "Worksheet") Then
         If sheetObject.Type = xlWorksheet Then ' xlWorksheet = -4167
             Call insertListSheetsColumn(sheetObject)
         End If
@@ -668,7 +665,7 @@ Private Sub appEvent_SheetDeactivate(ByVal sheetObject As Object)
 On Error GoTo ErrorHandle
     Call system.speedOn
     '2 levels check previous sheet
-    If (typeName(sheetObject) = "Worksheet") Then
+    If (TypeName(sheetObject) = "Worksheet") Then
         If sheetObject.Type = xlWorksheet Then ' xlWorksheet = -4167
             Call deleteListColumn(sheetObject)
         End If
@@ -681,34 +678,34 @@ ExecuteProcedure:
 End Sub
 
 ' Conflict with appEvent_SheetActivate (Run before  )
-Private Sub appEvent_SheetChange(ByVal sheetObject As Object, ByVal Target As Range)
+Private Sub appEvent_SheetChange(ByVal sheetObject As Object, ByVal target As Range)
 
 End Sub
 
-Private Sub wsEvent_Change(ByVal Target As Range)
-    If Intersect(Target, listSheetRange) Is Nothing Then Exit Sub
+Private Sub wsEvent_Change(ByVal target As Range)
+    If Intersect(target, listSheetRange) Is Nothing Then Exit Sub
 '    sheetObject.CircleInvalid
-    If Target.Cells.Count = 1 Then
-        If preventchangedFlag = Target.text Then Exit Sub
+    If target.Cells.Count = 1 Then
+        If preventchangedFlag = target.text Then Exit Sub
         Let userResponse = MsgBox( _
             Prompt:=info.getPrompt & _
                 "This cell auto generate by List Sheets, don't manually modify this!" _
                 & vbNewLine & "Please trigger List Sheets button on Danh Tools tab to remove this column.", _
             Buttons:=vbOKCancel + vbExclamation, _
             Title:=info.getAuthor)
-        Let Target.value = preventchangedFlag
+        Let target.value = preventchangedFlag
     End If
 End Sub
 
-Private Sub wsEvent_SelectionChange(ByVal Target As Range)
+Private Sub wsEvent_SelectionChange(ByVal target As Range)
   '2 levels check previous sheet
-    If Intersect(Target, listSheetRange) Is Nothing Then
+    If Intersect(target, listSheetRange) Is Nothing Then
          wsEvent.Unprotect
         Exit Sub
     Else
 '        sheetObject.CircleInvalid
-        If Target.Cells.Count = 1 Then
-            Let preventchangedFlag = Target.text
+        If target.Cells.Count = 1 Then
+            Let preventchangedFlag = target.text
         Else
             'Prevent delete, insert, sort, format list sheet
             wsEvent.Protect _
@@ -729,3 +726,5 @@ Private Sub wsEvent_SelectionChange(ByVal Target As Range)
         End If
     End If
 End Sub
+
+

@@ -15,11 +15,8 @@ Private system As SystemUpdate
 Private fileSystem As Object
 Private userResponse As VbMsgBoxResult
 Private WithEvents appEvent As Application
-' Attribute appEvent.VB_VarHelpID = -1
 Private WithEvents wbEvent As Workbook
-' Attribute wbEvent.VB_VarHelpID = -1
 Private WithEvents wsEvent As Worksheet
-' Attribute wsEvent.VB_VarHelpID = -1
 'Initialize Variables
 Private Function hasVariables() As Boolean
 On Error GoTo ErrorHandle
@@ -75,7 +72,8 @@ End Sub
 
 'EVENT
 
-Private Sub appEvent_SheetChange(ByVal sheetObject As Object, ByVal Target As Range)
+Private Sub appEvent_SheetChange(ByVal sheetObject As Object, ByVal target As Range)
     Call refreshAllPivotTableCaches
 End Sub
+
 

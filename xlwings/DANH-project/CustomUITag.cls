@@ -68,3 +68,4 @@ Public Property Let letVisible(ByVal newVisible As Boolean): Let isVisible = new
 ' METHODS
 
 ' MAIN
+

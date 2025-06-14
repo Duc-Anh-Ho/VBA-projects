@@ -64,12 +64,12 @@ Attribute VB_Name = "MouseScroll"
 Option Explicit
 
 #If Mac Then 'Placeholders
-    Public Function EnableMouseScroll(ByVal uForm As MSForms.UserForm _
+    Public Function EnableMouseScroll(ByVal uForm As MsForms.UserForm _
                                     , Optional ByVal passScrollToParentAtMargins As Boolean = True _
                                     , Optional ByVal useShiftForPerpendicularScroll As Boolean = True _
                                     , Optional ByVal useCtrlToZoom As Boolean = True) As Boolean
     End Function
-    Public Sub DisableMouseScroll(ByVal uForm As MSForms.UserForm): End Sub
+    Public Sub DisableMouseScroll(ByVal uForm As MsForms.UserForm): End Sub
     Public Sub SetHoveredControl(ByVal moCtrl As MouseOverControl): End Sub
     Public Sub ProcessMouseData(): End Sub
 #Else
@@ -120,7 +120,7 @@ End Type
     Private Declare Function IUnknown_GetWindow Lib "shlwapi" Alias "#172" (ByVal pIUnk As IUnknown, ByVal hwnd As Long) As Long
     Private Declare Function PostMessage Lib "user32" Alias "PostMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
     Private Declare Function SetWindowsHookEx Lib "user32" Alias "SetWindowsHookExA" (ByVal idHook As Long, ByVal lpfn As Long, ByVal hmod As Long, ByVal dwThreadId As Long) As Long
-    Private Declare Function ShowWindowAsync Lib "user32" (ByVal hWnd As Long, ByVal nCmdShow As Long) As Long
+    Private Declare Function ShowWindowAsync Lib "user32" (ByVal hwnd As Long, ByVal nCmdShow As Long) As Long
     Private Declare Function SystemParametersInfo Lib "user32" Alias "SystemParametersInfoA" (ByVal uAction As Long, ByVal uParam As Long, ByRef lpvParam As Any, ByVal fuWinIni As Long) As Long
     Private Declare Function UnhookWindowsHookEx Lib "user32" (ByVal hHook As Long) As Long
     Private Declare Function WindowFromPoint Lib "user32" (ByVal xPoint As Long, ByVal yPoint As Long) As Long
@@ -512,7 +512,7 @@ End Sub
 Private Sub UpdateLastCombo()
     On Error Resume Next
     If m_lastHoveredControl Is Nothing Then GoTo ErrHandle
-    If typeName(m_lastCombo) <> typeName(m_lastHoveredControl.getControl) Then GoTo ErrHandle
+    If TypeName(m_lastCombo) <> TypeName(m_lastHoveredControl.getControl) Then GoTo ErrHandle
     Set m_lastCombo = m_lastHoveredControl.getControl
     On Error GoTo 0
 ErrHandle:
@@ -728,9 +728,9 @@ Private Sub ScrollY(ByVal ctrl As Object, ByRef scrollAmount As SCROLL_AMOUNT)
             '
             'Store the Top position of the scroll. Can throw - must guard
             On Error Resume Next
-            lastScrollTop = ctrl.ScrollTop
-            If Err.Number <> 0 Then
-                Err.Clear
+            lastScrollTop = ctrl.scrollTop
+            If ERR.Number <> 0 Then
+                ERR.Clear
                 Exit Sub
             End If
             On Error GoTo 0
@@ -746,14 +746,14 @@ Private Sub ScrollY(ByVal ctrl As Object, ByRef scrollAmount As SCROLL_AMOUNT)
             If newScrollTop < 0 Then newScrollTop = 0
             '
             'Apply new scroll if needed
-            If ctrl.ScrollTop <> newScrollTop Then
-                ctrl.ScrollTop = newScrollTop
+            If ctrl.scrollTop <> newScrollTop Then
+                ctrl.scrollTop = newScrollTop
                 If ctrlType = ctForm Then ctrl.Repaint
             End If
             '
             If m_lastSO And soPassScrollToParentAtMargins Then
                 'If scroll hasn't changed pass scroll to parent control
-                If ctrl.ScrollTop = lastScrollTop And ctrlType <> ctForm Then
+                If ctrl.scrollTop = lastScrollTop And ctrlType <> ctForm Then
                     If ctrlType = ctPage Then Set ctrl = ctrl.Parent 'Multi
                     Call ScrollY(ctrl.Parent, scrollAmount)
                 End If
@@ -804,8 +804,8 @@ Private Sub ListScrollY(ByVal ctrl As Object _
     '
     On Error Resume Next 'could fail for undropped ComboBox
     If lastTopIndex <> newTopIndex Then ctrl.TopIndex = newTopIndex
-    If Err.Number <> 0 Then
-        Err.Clear
+    If ERR.Number <> 0 Then
+        ERR.Clear
         Call ScrollY(ctrl.Parent, scrollAmount)
         Exit Sub
     End If
@@ -968,8 +968,8 @@ Private Sub ScrollX(ByVal ctrl As Object, ByRef scrollAmount As SCROLL_AMOUNT)
             'Store the Left position of the scroll. Can throw - must guard
             On Error Resume Next
             lastScrollLeft = ctrl.ScrollLeft
-            If Err.Number <> 0 Then
-                Err.Clear
+            If ERR.Number <> 0 Then
+                ERR.Clear
                 Exit Sub
             End If
             On Error GoTo 0
@@ -1095,7 +1095,7 @@ Private Function GetControlType(ByVal objControl As Object) As CONTROL_TYPE
         GetControlType = ctNone
         Exit Function
     End If
-    Select Case typeName(objControl)
+    Select Case TypeName(objControl)
         Case "ComboBox"
             GetControlType = ctCombo
         Case "Frame"
@@ -1157,3 +1157,4 @@ Private Function GetWindowUnderCursor() As LongPtr
 End Function
 
 #End If 'End of #If Mac
+

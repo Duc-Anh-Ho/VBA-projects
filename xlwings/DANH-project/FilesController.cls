@@ -245,7 +245,7 @@ On Error GoTo ErrorHandle
     Dim path As Variant
     Let filePaths = getFilePaths
     ' Check if don't select files
-    If typeName(filePaths) = "Boolean" Then GoTo ExecuteProcedure
+    If TypeName(filePaths) = "Boolean" Then GoTo ExecuteProcedure
     'Loop through all paths
     For Each path In filePaths
         Call importVBAFile(path)
@@ -310,25 +310,27 @@ ExecuteProcedure:
 End Sub
 
 'File Name to clipboard
-Public Sub copyFileName(Optional ByRef typeName As String = "name")
+Public Sub copyFileName(Optional ByRef TypeName As String = "name")
 On Error GoTo ErrorHandle
     Dim name As String
-    Let name = system.getFileName(typeName)
+    Let name = system.getFileName(TypeName)
     If name = vbNullString Then
          MsgBox _
                 Prompt:=info.getPrompt & _
-                    "This file doesn't have " & typeName & _
+                    "This file doesn't have " & TypeName & _
                     vbNewLine & _
                     "Please save it first!!", _
                 Buttons:=vbOKOnly + vbExclamation, _
                 Title:=info.getAuthor
         GoTo ExecuteProcedure
     End If
-    Let system.setClipboard = system.getFileName(typeName)
+    Let system.setClipboard = system.getFileName(TypeName)
 ErrorHandle:
     Call system.tackleErrors
 ExecuteProcedure:
 End Sub
+
+
 
 
 

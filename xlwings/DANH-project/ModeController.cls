@@ -14,12 +14,9 @@ Private info As InfoConstants
 Private system As SystemUpdate
 Private userResponse As VbMsgBoxResult
 Private app As Application
-Attribute app.VB_VarHelpID = -1
 Private wd As Window
 Private wb As Workbook
-Attribute wb.VB_VarHelpID = -1
 Private ws As Worksheet
-Attribute ws.VB_VarHelpID = -1
 
 'Constructor
 Private Sub Class_Initialize()
@@ -109,9 +106,10 @@ Sub zoomMax()
     Dim lastRow As Long: Let lastRow = system.getLastRow(ws)
     Dim lastColumn As Long: Let lastColumn = system.getLastColumn(ws)
     If lastRow = 0 Or lastColumn = 0 Then Exit Sub 'Empty sheet
-    Dim selected As Variant: Set selected = selection
+    Dim selected As Variant: Set selected = Selection
     Dim rg As Range: Set rg = Range(Cells(1, 1), Cells(lastRow, lastColumn))
     rg.Select
     Let wd.Zoom = True
     selected.Select
 End Sub
+

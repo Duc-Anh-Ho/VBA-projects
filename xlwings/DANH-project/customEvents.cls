@@ -2,7 +2,7 @@ VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
-Attribute VB_Name = "customEvents"
+Attribute VB_Name = "CustomEvents"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
@@ -15,11 +15,8 @@ Private system As SystemUpdate
 Private fileSystem As Object
 Private userResponse As VbMsgBoxResult
 Private WithEvents appEvent As Application
-'Attribute appEvent.VB_VarHelpID = -1
 Private WithEvents wbEvent As Workbook
-'Attribute wbEvent.VB_VarHelpID = -1
 Private WithEvents wsEvent As Worksheet
-'Attribute wsEvent.VB_VarHelpID = -1
 Private isOnlySh As Boolean
 Private previousWb As Workbook
 
@@ -79,7 +76,7 @@ Private Sub appEvent_WorkbookActivate(ByVal wb As Workbook)
     
     'Check case deleted workbook to reset  Custom UI
     ' *Can't check Is Nothing because after remove previousWb, somehow, it's become object type not workbook or nothing
-    If typeName(previousWb) <> "Workbook" Then
+    If TypeName(previousWb) <> "Workbook" Then
         Set CustomUi.loadedRibbon = Nothing
         Call CustomUi.refreshCustomRibbon
     Else
@@ -121,4 +118,6 @@ Private Sub popup(ByVal buttonName As String, ByRef wb As Workbook)
     wb.Activate
     Application.EnableEvents = True
 End Sub
+
+
 

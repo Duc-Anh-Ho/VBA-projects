@@ -11,9 +11,9 @@ Option Explicit
 'Declare Variables
 Private shortcutWs As Worksheet
 Private shortcutTb As ListObject
-Private rows As ListRows
-Private cols as ListColumns
-Private Const DOT as String = "."
+Private Rows As ListRows
+Private cols As ListColumns
+Private Const DOT As String = "."
 Private Const SHORTCUT_MODULE_NAME As String = "Shortcuts"
 Private Const SHORTCUT_SHEET_NAME As String = "keyboard-shortcut"
 Private Const SHORTCUT_TABLE_NAME As String = "Keybinding"
@@ -37,173 +37,173 @@ Private Enum COL
 End Enum
 
 Private Enum MASK
-    none = 0
-    shiftKey =  1
+    None = 0
+    shiftKey = 1
     ctrlKey = 2
     altKey = 4
 End Enum
 
 Enum KEY_CODE
     Shift = vbKeyShift   ' 16
-    Ctrl  = vbKeyControl ' 17
-    Alt   = vbKeyMenu    ' 18
+    ctrl = vbKeyControl  ' 17
+    Alt = vbKeyMenu      ' 18
     ' Numbers (48~57 - D0~D9)
-    Zero  = vbKey0: One  = vbKey1: Two = vbKey2: Three = vbKey3
-    Four  = vbKey4: Five = vbKey5: Six = vbKey6: Seven = vbKey7
+    ZERO = vbKey0: One = vbKey1: Two = vbKey2: Three = vbKey3
+    Four = vbKey4: Five = vbKey5: Six = vbKey6: Seven = vbKey7
     Eight = vbKey8: Nine = vbKey9
     ' Letters (65~90)
     A = vbKeyA: B = vbKeyB: C = vbKeyC: D = vbKeyD: E = vbKeyE
-    F = vbKeyF: G = vbKeyG: H = vbKeyH: I = vbKeyI: J = vbKeyJ
-    K = vbKeyK: L = vbKeyL: M = vbKeyM: N = vbKeyN: O = vbKeyO
-    P = vbKeyP: Q = vbKeyQ: R = vbKeyR: S = vbKeyS: T = vbKeyT
-    U = vbKeyU: V = vbKeyV: W = vbKeyW: X = vbKeyX: Y = vbKeyY
+    F = vbKeyF: G = vbKeyG: H = vbKeyH: i = vbKeyI: j = vbKeyJ
+    k = vbKeyK: L = vbKeyL: m = vbKeyM: N = vbKeyN: o = vbKeyO
+    p = vbKeyP: Q = vbKeyQ: r = vbKeyR: S = vbKeyS: T = vbKeyT
+    U = vbKeyU: v = vbKeyV: W = vbKeyW: x = vbKeyX: y = vbKeyY
     Z = vbKeyZ
     ' Numpad (96~105)
-    Numpad0   = vbKeyNumpad0  : Numpad1  = vbKeyNumpad1
-    Numpad2   = vbKeyNumpad2  : Numpad3  = vbKeyNumpad3
-    Numpad4   = vbKeyNumpad4  : Numpad5  = vbKeyNumpad5
-    Numpad6   = vbKeyNumpad6  : Numpad7  = vbKeyNumpad7
-    Numpad8   = vbKeyNumpad8  : Numpad9  = vbKeyNumpad9
+    Numpad0 = vbKeyNumpad0: Numpad1 = vbKeyNumpad1
+    Numpad2 = vbKeyNumpad2: Numpad3 = vbKeyNumpad3
+    Numpad4 = vbKeyNumpad4: Numpad5 = vbKeyNumpad5
+    Numpad6 = vbKeyNumpad6: Numpad7 = vbKeyNumpad7
+    Numpad8 = vbKeyNumpad8: Numpad9 = vbKeyNumpad9
     ' Function keys (112~127)
-    FOne       = vbKeyF1 : FTwo      = vbKeyF2 : FThree   = vbKeyF3
-    FFour      = vbKeyF4 : FFive     = vbKeyF5 : FSix     = vbKeyF6
-    FSeven     = vbKeyF7 : FEight    = vbKeyF8 : FNine    = vbKeyF9
-    FTen       = vbKeyF10: FEleven   = vbKeyF11: FTwelve  = vbKeyF12
-    FThirteen  = vbKeyF13: FFourteen = vbKeyF14: FFifteen = vbKeyF15
-    FSixteen   = vbKeyF16
+    FOne = vbKeyF1: FTwo = vbKeyF2: FThree = vbKeyF3
+    FFour = vbKeyF4: FFive = vbKeyF5: FSix = vbKeyF6
+    FSeven = vbKeyF7: FEight = vbKeyF8: FNine = vbKeyF9
+    FTen = vbKeyF10: FEleven = vbKeyF11: FTwelve = vbKeyF12
+    FThirteen = vbKeyF13: FFourteen = vbKeyF14: FFifteen = vbKeyF15
+    FSixteen = vbKeyF16
     ' Available keys
-    Backspace      = vbKeyBack        ' 8
-    TabKey         = vbKeyTab         ' 9
-    ClearKey       = vbKeyClear       ' 12
-    EnterKey       = vbKeyReturn      ' 13
-    Break          = vbKeyPause       ' 19
-    CapsLock       = vbKeyCapital     ' 20
-    Escape         = vbKeyEscape      ' 27
-    SpaceKey       = vbKeySpace       ' 32
-    PageUp         = vbKeyPageUp      ' 33
-    PageDown       = vbKeyPageDown    ' 34
-    EndKey         = vbKeyEnd         ' 35
-    Home           = vbKeyHome        ' 36
-    LeftArrow      = vbKeyLeft        ' 37
-    UpArrow        = vbKeyUp          ' 38
-    RightArrow     = vbKeyRight       ' 39
-    DownArrow      = vbKeyDown        ' 40
-    Insert         = vbKeyInsert      ' 45
-    Delete         = vbKeyDelete      ' 46
-    Help           = vbKeyHelp        ' 47
-    Multiply       = vbKeyMultiply    ' 106
-    AddKey         = vbKeyAdd         ' 107
-    EnterNum       = vbKeySeparator   ' 108
-    Subtract       = vbKeySubtract    ' 109
-    DecimalKey     = vbKeyDecimal     ' 110
-    Divide         = vbKeyDivide      ' 111
-    NumLock        = vbKeyNumLock     ' 144
-    ScrollLock     = 145
+    Backspace = vbKeyBack             ' 8
+    TabKey = vbKeyTab                 ' 9
+    ClearKey = vbKeyClear             ' 12
+    EnterKey = vbKeyReturn            ' 13
+    Break = vbKeyPause                ' 19
+    CapsLock = vbKeyCapital           ' 20
+    Escape = vbKeyEscape              ' 27
+    SpaceKey = vbKeySpace             ' 32
+    PageUp = vbKeyPageUp              ' 33
+    PageDown = vbKeyPageDown          ' 34
+    EndKey = vbKeyEnd                 ' 35
+    Home = vbKeyHome                  ' 36
+    LeftArrow = vbKeyLeft             ' 37
+    UpArrow = vbKeyUp                 ' 38
+    RightArrow = vbKeyRight           ' 39
+    DownArrow = vbKeyDown             ' 40
+    Insert = vbKeyInsert              ' 45
+    Delete = vbKeyDelete              ' 46
+    Help = vbKeyHelp                  ' 47
+    Multiply = vbKeyMultiply          ' 106
+    AddKey = vbKeyAdd                 ' 107
+    EnterNum = vbKeySeparator         ' 108
+    Subtract = vbKeySubtract          ' 109
+    DecimalKey = vbKeyDecimal         ' 110
+    Divide = vbKeyDivide              ' 111
+    NumLock = vbKeyNumlock            ' 144
+    ScrollLock = 145
 
-    Semicolon          = 186
-    Equals             = 187
-    Comma              = 188
-    Hyphen             = 189
-    Period             = 190
-    ForwardSlash       = 191
-    GraveAccent        = 192 ' Tilde
-    OpenBracket        = 219
-    Backslash          = 220 ' Pipe
-    CloseBracket       = 221
-    Apostrophe         = 222 ' Quote
-    Slash              = 226
+    Semicolon = 186
+    Equals = 187
+    Comma = 188
+    Hyphen = 189
+    Period = 190
+    ForwardSlash = 191
+    GraveAccent = 192        ' Tilde
+    OpenBracket = 219
+    Backslash = 220          ' Pipe
+    CloseBracket = 221
+    Apostrophe = 222         ' Quote
+    Slash = 226
 
     ' Non-test
 
-    FSeventeen   = 128 : FEighteen   = 129 : FNineteen  = 130
-    FTwenty      = 131 : FTwentyOne  = 132 : FTwentyTwo = 133
-    FTwentyThree = 134 : FTwentyFour = 135
+    FSeventeen = 128: FEighteen = 129: FNineteen = 130
+    FTwenty = 131: FTwentyOne = 132: FTwentyTwo = 133
+    FTwentyThree = 134: FTwentyFour = 135
 
-    None         = 0
+    None = 0
 
     ' Mouse with VBA constants (1~6)
-    LeftMouse    = vbKeyLButton      ' 1
-    RightMouse   = vbKeyRButton      ' 2
-    CancelKey    = vbKeyCancel       ' 3
-    MiddleMouse  = vbKeyMButton      ' 4
-    XButton1     = 5
-    XButton2     = 6
+    LeftMouse = vbKeyLButton         ' 1
+    RightMouse = vbKeyRButton        ' 2
+    CancelKey = vbKeyCancel          ' 3
+    MiddleMouse = vbKeyMButton       ' 4
+    XButton1 = 5
+    XButton2 = 6
 
     ' Other keys
-    LineFeed     = 10
-    KanaMode     = 21 ' = HangulMode
-    JunjaMode    = 23
-    FinalMode    = 24
-    KanjiMode    = 25 ' = HanjaMode
-    IMEConvert   = 28
-    IMENonconvert= 29
-    IMEAccept    = 30 ' = IMEAceept
-    IMEModeChange= 31
-    SelectKey    = vbKeySelect       ' 41
-    PrintKey     = vbKeyPrint        ' 42
-    Execute      = vbKeyExecute      ' 43
-    PrintScreen  = vbKeySnapshot     ' 44
+    LineFeed = 10
+    KanaMode = 21     ' = HangulMode
+    JunjaMode = 23
+    FinalMode = 24
+    KanjiMode = 25    ' = HanjaMode
+    IMEConvert = 28
+    IMENonconvert = 29
+    IMEAccept = 30    ' = IMEAceept
+    IMEModeChange = 31
+    SelectKey = vbKeySelect          ' 41
+    PrintKey = vbKeyPrint            ' 42
+    Execute = vbKeyExecute           ' 43
+    PrintScreen = vbKeySnapshot      ' 44
 
     ' Windows keys
-    LeftWin      = 91
-    RightWin     = 92
-    MenuKey      = 93 ' Can conflict with build-in
+    LeftWin = 91
+    RightWin = 92
+    MenuKey = 93      ' Can conflict with build-in
 
     ' Other special keys
-    Sleep        = 95
-    LeftShift    = 160
-    RightShift   = 161
-    LeftControl  = 162
+    Sleep = 95
+    LeftShift = 160
+    RightShift = 161
+    LeftControl = 162
     RightControl = 163
-    LeftMenu     = 164
-    RightMenu    = 165
+    LeftMenu = 164
+    RightMenu = 165
 
     ' Browser keys
-    BrowserBack        = 166
-    BrowserForward     = 167
-    BrowserRefresh     = 168
-    BrowserStop        = 169
-    BrowserSearch      = 170
-    BrowserFavorites   = 171
-    BrowserHome        = 172
+    BrowserBack = 166
+    BrowserForward = 167
+    BrowserRefresh = 168
+    BrowserStop = 169
+    BrowserSearch = 170
+    BrowserFavorites = 171
+    BrowserHome = 172
 
     ' Media keys
-    VolumeMute         = 173
-    VolumeDown         = 174
-    VolumeUp           = 175
-    NextTrack          = 176
-    PrevTrack          = 177
-    StopMedia          = 178
-    PlayPause          = 179
+    VolumeMute = 173
+    VolumeDown = 174
+    VolumeUp = 175
+    NextTrack = 176
+    PrevTrack = 177
+    StopMedia = 178
+    PlayPause = 179
 
     ' Application keys
-    StartMail          = 180
-    SelectMedia        = 181
-    StartApp1          = 182
-    StartApp2          = 183
+    StartMail = 180
+    SelectMedia = 181
+    StartApp1 = 182
+    StartApp2 = 183
 
     ' Other characters and special keys
-    Power              = 223
-    Wake               = 227
-    ProcessKey         = 229
-    Packet             = 231
-    Reset              = 233
-    Jump               = 234
-    PlayStop           = 235
-    Eject              = 236
-    Attn               = 246
-    Crsel              = 247
-    Exsel              = 248
-    EraseEof           = 249
-    Play               = 250
-    Zoom               = 251
-    NoName             = 252
-    Pa1                = 253
-    ClearEnd           = 254
+    Power = 223
+    Wake = 227
+    ProcessKey = 229
+    Packet = 231
+    Reset = 233
+    Jump = 234
+    PlayStop = 235
+    Eject = 236
+    Attn = 246
+    Crsel = 247
+    Exsel = 248
+    EraseEof = 249
+    Play = 250
+    Zoom = 251
+    NoName = 252
+    Pa1 = 253
+    ClearEnd = 254
 End Enum
 
 ' CODE constant
-Private Const LEN_MODIFIER_CODE AS Byte = 1
+Private Const LEN_MODIFIER_CODE As Byte = 1
 Private Const CTRL_CODE As String = "^"
 Private Const SHIFT_CODE As String = "+"
 Private Const ALT_CODE As String = "%"
@@ -405,7 +405,7 @@ Private Const CTRL_SHIFT_ALT_PLUS   As String = CTRL_SHIFT_PLUS & ALT_PLUS
 Private Const SHIFT_ALT_PLUS        As String = SHIFT_PLUS & ALT_PLUS
 
 ' Loop iterators
-Private row As ListRow
+Private Row As ListRow
 
 ' Constructor
 Private Sub Class_Initialize()
@@ -465,23 +465,23 @@ Public Sub install()
     ' NOTE: Shortcuts is a module for calling as full global scope
     Dim procedure As String
     Dim key As String
-    For Each row In shortcutTb.ListRows
-        Let procedure = row.Range(1, getProcedureCol()).value
-        Let key = row.Range(1, getCustomKeybindingCol()).value
+    For Each Row In shortcutTb.ListRows
+        Let procedure = Row.Range(1, getProcedureCol()).value
+        Let key = Row.Range(1, getCustomKeybindingCol()).value
         ' Skip Blank Keybinding
         If key <> vbNullString Then
             Call restore(key)
             Call add(key, procedure)
         End If
-    Next row
+    Next Row
 End Sub
 
 Public Sub unInstall()
     Dim key As String
-    For Each row In shortcutTb.ListRows
-        Let key = row.Range(1, getCustomKeybindingCol()).value
+    For Each Row In shortcutTb.ListRows
+        Let key = Row.Range(1, getCustomKeybindingCol()).value
         If key <> vbNullString Then Call restore(key)
-    Next row
+    Next Row
 End Sub
 
 Public Function convertKeyToName(ByRef keyCode As MsForms.ReturnInteger, ByRef Shift As Integer) As String
@@ -500,13 +500,13 @@ Public Function convertKeyToName(ByRef keyCode As MsForms.ReturnInteger, ByRef S
     'Listen main key
     Select Case keyCode
         'Skip modifier
-        Case KEY_CODE.Ctrl:   Let key = vbNullString
+        Case KEY_CODE.ctrl:   Let key = vbNullString
         Case KEY_CODE.Shift:  Let key = vbNullString
         Case KEY_CODE.Alt:    Let key = vbNullString
         ' A~Z, F1~F24, 1~9, 1~9(num)
         Case KEY_CODE.A To KEY_CODE.Z:              Let key = Chr(keyCode)
         Case KEY_CODE.FOne To KEY_CODE.FFifteen:    Let key = FUNCTION_MARK & (keyCode - KEY_CODE.FOne + 1)
-        Case KEY_CODE.Zero To KEY_CODE.Nine:        Let key = Chr(keyCode)
+        Case KEY_CODE.ZERO To KEY_CODE.Nine:        Let key = Chr(keyCode)
         Case KEY_CODE.Numpad0:      Let key = NUMPAD0_NAME
         Case KEY_CODE.Numpad1:      Let key = NUMPAD1_NAME
         Case KEY_CODE.Numpad2:      Let key = NUMPAD2_NAME
@@ -642,17 +642,17 @@ Public Function convertCodeToName(ByRef code As String) As String
     ' Handle Ctrl modifier
     If left$(code, LEN_MODIFIER_CODE) = CTRL_CODE Then
         Let modifier = CTRL_PLUS
-        Let code = mid$(code, LEN_MODIFIER_CODE + 1)
+        Let code = Mid$(code, LEN_MODIFIER_CODE + 1)
     End If
     ' Handle Shift modifier
     If left$(code, LEN_MODIFIER_CODE) = SHIFT_CODE Then
         Let modifier = modifier & SHIFT_PLUS
-        Let code = mid$(code, LEN_MODIFIER_CODE + 1)
+        Let code = Mid$(code, LEN_MODIFIER_CODE + 1)
     End If
     ' Handle Alt modifier
     If left$(code, LEN_MODIFIER_CODE) = ALT_CODE Then
         Let modifier = modifier & ALT_PLUS
-        Let code = mid$(code, LEN_MODIFIER_CODE + 1)
+        Let code = Mid$(code, LEN_MODIFIER_CODE + 1)
     End If
     ' Map the remaining code to key name
     Select Case code
@@ -726,17 +726,17 @@ Public Function convertNameToCode(ByVal name As String) As String
     ' Handle Ctrl modifier
     If left$(name, Len(CTRL_PLUS)) = CTRL_PLUS Then
         Let modifier = CTRL_CODE
-        Let name = mid$(name, Len(CTRL_PLUS) + 1)
+        Let name = Mid$(name, Len(CTRL_PLUS) + 1)
     End If
     ' Handle Shift modifier
     If left$(name, Len(SHIFT_PLUS)) = SHIFT_PLUS Then
         Let modifier = modifier & SHIFT_CODE
-        Let name = mid$(name, Len(SHIFT_PLUS) + 1)
+        Let name = Mid$(name, Len(SHIFT_PLUS) + 1)
     End If
     ' Handle Alt modifier
     If left$(name, Len(ALT_PLUS)) = ALT_PLUS Then
         Let modifier = modifier & ALT_CODE
-        Let name = mid$(name, Len(ALT_PLUS) + 1)
+        Let name = Mid$(name, Len(ALT_PLUS) + 1)
     End If
     ' Map the remaining key name back to its code
     Select Case name
@@ -796,3 +796,4 @@ Public Function convertNameToCode(ByVal name As String) As String
     End Select
     Let convertNameToCode = modifier & name
 End Function
+

@@ -14,11 +14,11 @@ Private Enum InternetStt
     Disconnect = 0
     Loading = -1
 End Enum
-Private Enum COLUMN
+Private Enum Column
     no = 1
     name = 2
     Address = 3
-    Status = 4
+    status = 4
 End Enum
 
 'PING SHEET
@@ -27,25 +27,25 @@ Private Sub pingCheck()
     Dim internetC As InternetConnector
     Dim pingSh  As Worksheet
     Dim pingShName As String
-    Dim row As Long
+    Dim Row As Long
     Dim link As String
     Set system = New SystemUpdate
     Set internetC = New InternetConnector
     Let pingShName = PING_SHEET_NAME
     Set pingSh = Application.ThisWorkbook.Worksheets(pingShName)
     Do Until Not Switch_Button
-        For row = DATA_FIRST_ROW To system.getLastRow(pingSh, COLUMN.Address)
-            Let link = pingSh.Cells(row, COLUMN.Address).value
+        For Row = DATA_FIRST_ROW To system.getLastRow(pingSh, Column.Address)
+            Let link = pingSh.Cells(Row, Column.Address).value
             If internetC.isConnect(link) Then
-                Let pingSh.Cells(row, COLUMN.Status).value = InternetStt.Connect
+                Let pingSh.Cells(Row, Column.status).value = InternetStt.Connect
             Else
-                Let pingSh.Cells(row, COLUMN.Status).value = InternetStt.Disconnect
+                Let pingSh.Cells(Row, Column.status).value = InternetStt.Disconnect
             End If
-        Next row
+        Next Row
     Loop
-    For row = DATA_FIRST_ROW To system.getLastRow(pingSh, COLUMN.Address)
-        Let pingSh.Cells(row, COLUMN.Status).value = InternetStt.Loading
-    Next row
+    For Row = DATA_FIRST_ROW To system.getLastRow(pingSh, Column.Address)
+        Let pingSh.Cells(Row, Column.status).value = InternetStt.Loading
+    Next Row
 End Sub
 
 Private Sub Switch_Button_Click()

@@ -43,7 +43,8 @@ Public Sub aaTestCode()
     ' Set form = New KeyboardShortcutForm
     ' Call form.Show(vbModal)  ' vbModeless or vbModal
     ' Set form = Nothing
-    Call KeyboardShortcutForm.Show(vbModal)
+    Call shortcuts.test
+    ' Call KeyboardShortcutForm.Show(vbModal)
 '    If ActiveWorkbook.path = "" Then MsgBox "Not saved"
 ''''''''''''''''''''
 '    Dim system As SystemUpdate
@@ -72,4 +73,6 @@ Public Sub aaTestCode()
     'xlExcel4MacroSheet
     'xlExcel4IntMacroSheet
 End Sub
+
+
 

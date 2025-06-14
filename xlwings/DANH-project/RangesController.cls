@@ -20,11 +20,8 @@ Private isBold As Boolean
 Private blurRate As Byte
 Private addSize As Byte
 Private WithEvents appEvent As Application
-' Attribute appEvent.VB_VarHelpID = -1
 Private WithEvents wbEvent As Workbook
-' Attribute wbEvent.VB_VarHelpID = -1
 Private WithEvents wsEvent As Worksheet
-' Attribute wsEvent.VB_VarHelpID = -1
 'Private Const INPUT_BOX_RANGE_TYPE As Byte = 8
 Private Const START_CHAR As Byte = 1
 Private Const SHEET_TYPE As String = "Worksheet"
@@ -68,7 +65,7 @@ End Sub
 'ASSESSORS
 '0- Check targetRange
 Private Property Get isRange(selectedRange As Variant, Optional hasMessage As Boolean = True) As Boolean
-    If typeName(selectedRange) = "Range" Then
+    If TypeName(selectedRange) = "Range" Then
 '    If TypeName(Selection) = "ChartArea" Then
         Set targetRange = selectedRange
         Let isRange = True
@@ -145,8 +142,8 @@ Private Sub triggerBoldFirstLine(ByRef cell As Range)
         .Font.bold
 End Sub
 '3-0 Highlight Range
-Private Sub HighlightRange(ByRef Target As Range)
-    With Target
+Private Sub HighlightRange(ByRef target As Range)
+    With target
         .EntireRow.Interior.COLOR = getHighlightColor
         .EntireColumn.Interior.COLOR = getHighlightColor
         .Interior.TintAndShade = getBlurRate / 100
@@ -173,7 +170,7 @@ End Sub
 Public Sub invertColor()
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
-    If Not isRange(selection) Then GoTo ExecuteProcedure
+    If Not isRange(Selection) Then GoTo ExecuteProcedure
     Call system.speedOn
     Dim cell As Object
     'Loop through range areas
@@ -192,7 +189,7 @@ End Sub
 Public Sub boldFirstLine()
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
-    If Not isRange(selection) Then GoTo ExecuteProcedure
+    If Not isRange(Selection) Then GoTo ExecuteProcedure
     Call system.speedOn
     Dim cell As Range
     'Loop through ranges
@@ -229,7 +226,7 @@ On Error GoTo ErrorHandle
     Call system.speedOn
     '  Change sheets address because targetRange now is in revious sheet *
     If targetRange Is Nothing Then
-        If isRange(selection, False) Then
+        If isRange(Selection, False) Then
             'Do Nothing
         End If
     End If
@@ -244,10 +241,10 @@ ExecuteProcedure:
     Call system.speedOff
 End Sub
 '3.3 Highlight
-Public Sub highlight(ByVal Target As Object)
+Public Sub highlight(ByVal target As Object)
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
-    If Not isRange(Target, False) Then GoTo ExecuteProcedure
+    If Not isRange(target, False) Then GoTo ExecuteProcedure
     Call system.speedOn
     Call HighlightRange(targetRange)
 GoTo ExecuteProcedure
@@ -323,7 +320,7 @@ On Error GoTo ErrorHandle
                     DataOption:=xlSortNormal
                 .SetRange sortArea
                 .Header = xlNo
-                .Apply
+                .apply
             End With
             Set findArea = .Range("A1:A" & size)
             Set replaceArea = .Range("B1:B" & size)
@@ -361,22 +358,24 @@ End Function
 'EVENTS
 
 Private Sub appEvent_SheetDeactivate(ByVal sheetObject As Object)
-    If typeName(sheetObject) = SHEET_TYPE Then
+    If TypeName(sheetObject) = SHEET_TYPE Then
         Call pasteHighlightFormat(sheetObject)
     End If
 End Sub
 
 Private Sub appEvent_SheetActivate(ByVal sheetObject As Object)
-    If typeName(sheetObject) = SHEET_TYPE Then
+    If TypeName(sheetObject) = SHEET_TYPE Then
         Call storeHighlightFormat(sheetObject)
-        Call highlight(selection)
+        Call highlight(Selection)
     End If
 End Sub
 
-Private Sub appEvent_SheetSelectionChange(ByVal sheetObject As Object, ByVal Target As Range)
-    If typeName(sheetObject) = SHEET_TYPE Then
+Private Sub appEvent_SheetSelectionChange(ByVal sheetObject As Object, ByVal target As Range)
+    If TypeName(sheetObject) = SHEET_TYPE Then
         Call pasteHighlightFormat(sheetObject)
-        Call highlight(Target)
+        Call highlight(target)
     End If
 End Sub
+
+
 

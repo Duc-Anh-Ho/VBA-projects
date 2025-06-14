@@ -10,7 +10,6 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Private WithEvents textBoxE As MsForms.textBox
-' Attribute textBoxE.VB_VarHelpID = -1
 
 ' MUTATORS
 
@@ -32,10 +31,11 @@ End Sub
 
 ' EVENTS
 
-Private Sub textBoxE_KeyDown(ByVal KeyCode As MsForms.ReturnInteger, ByVal Shift As Integer)
-    Call KeyboardShortcutForm.textBoxKeyDown(getTextBox, KeyCode, Shift)
+Private Sub textBoxE_KeyDown(ByVal keyCode As MsForms.ReturnInteger, ByVal Shift As Integer)
+    Call KeyboardShortcutForm.textBoxKeyDown(getTextBox, keyCode, Shift)
 End Sub
 
 Private Sub textBoxE_Change()
     Call KeyboardShortcutForm.textBoxChange(getTextBox)
 End Sub
+
