@@ -31,3 +31,4 @@ Private Sub labelE_DblClick(ByVal Cancel As MsForms.ReturnBoolean)
     Call KeyboardShortcutForm.labelDbClick(getLabel)
 End Sub
 
+

@@ -500,13 +500,13 @@ Public Property Get hasWorkbook(wbName As String) As Boolean
 End Property
 'SHEET
 Public Property Get hasSheet(shName As String) As Boolean
-    Dim Sh As Object ' Object for Special Worksheets
-    For Each Sh In wb.Sheets
-        If Sh.name = shName Then
+    Dim sh As Object ' Object for Special Worksheets
+    For Each sh In wb.Sheets
+        If sh.name = shName Then
             Let hasSheet = True
             Exit Property
         End If
-    Next Sh
+    Next sh
     Let hasSheet = False
 End Property
 '//OBJECT CREATE BY SCRIPTS
@@ -961,6 +961,8 @@ End Sub
 Public Sub clearImmediateWindow()
     Debug.Print String(65535, vbCr)
 End Sub
+
+
 
 
 

@@ -52,9 +52,9 @@ Enum KEY_CODE
     Four = vbKey4: Five = vbKey5: Six = vbKey6: Seven = vbKey7
     Eight = vbKey8: Nine = vbKey9
     ' Letters (65~90)
-    A = vbKeyA: B = vbKeyB: C = vbKeyC: D = vbKeyD: E = vbKeyE
-    F = vbKeyF: G = vbKeyG: H = vbKeyH: i = vbKeyI: j = vbKeyJ
-    k = vbKeyK: L = vbKeyL: m = vbKeyM: N = vbKeyN: o = vbKeyO
+    A = vbKeyA: B = vbKeyB: C = vbKeyC: D = vbKeyD: e = vbKeyE
+    F = vbKeyF: g = vbKeyG: H = vbKeyH: i = vbKeyI: j = vbKeyJ
+    k = vbKeyK: l = vbKeyL: m = vbKeyM: N = vbKeyN: o = vbKeyO
     p = vbKeyP: Q = vbKeyQ: r = vbKeyR: S = vbKeyS: T = vbKeyT
     U = vbKeyU: v = vbKeyV: W = vbKeyW: x = vbKeyX: y = vbKeyY
     Z = vbKeyZ

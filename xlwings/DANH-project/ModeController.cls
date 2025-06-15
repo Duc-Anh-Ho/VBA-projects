@@ -102,14 +102,30 @@ ExecuteProcedure:
     Call system.speedOff
 End Sub
 
-Sub zoomMax()
+Public Sub zoom100()
+On Error GoTo ErrorHandle
+    If Not hasVariables Then GoTo ExecuteProcedure
+    With wd
+    If .Zoom <> 100 Then
+        Let .Zoom = 100
+    End If
+    End With
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call system.tackleErrors
+ExecuteProcedure:
+    Call system.speedOff
+End Sub
+
+Private Sub zoomMax()
     Dim lastRow As Long: Let lastRow = system.getLastRow(ws)
     Dim lastColumn As Long: Let lastColumn = system.getLastColumn(ws)
     If lastRow = 0 Or lastColumn = 0 Then Exit Sub 'Empty sheet
     Dim selected As Variant: Set selected = Selection
     Dim rg As Range: Set rg = Range(Cells(1, 1), Cells(lastRow, lastColumn))
-    rg.Select
+    Call rg.Select
     Let wd.Zoom = True
-    selected.Select
+    Call selected.Select
 End Sub
+
 

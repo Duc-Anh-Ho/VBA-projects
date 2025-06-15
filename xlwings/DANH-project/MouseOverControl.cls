@@ -217,3 +217,4 @@ Private Sub Class_Terminate()
     If m_isCallback Then ProcessMouseData
 End Sub
 
+

@@ -11,6 +11,25 @@ Private system As SystemUpdate
 Private fileSystem As Object
 Private userResponse As VbMsgBoxResult
 
+' WINDOW Detect DPI
+Private Declare PtrSafe Function GetDC Lib "user32" (ByVal hwnd As LongPtr) As LongPtr
+Private Declare PtrSafe Function GetDeviceCaps Lib "gdi32" (ByVal hdc As LongPtr, ByVal nIndex As Long) As Long
+Private Declare PtrSafe Function ReleaseDC Lib "user32" (ByVal hwnd As LongPtr, ByVal hdc As LongPtr) As Long
+
+Const LOGPIXELSX = 88 ' Horizontal DPI
+Const LOGPIXELSY = 90 ' Vertical DPI
+
+Public Sub showDPI()
+    Dim hdc As LongPtr: hdc = GetDC(0)
+    Dim dpiX As Long, dpiY As Long
+    Let dpiX = GetDeviceCaps(hdc, LOGPIXELSX)
+    Let dpiY = GetDeviceCaps(hdc, LOGPIXELSY)
+    Call ReleaseDC(0, hdc)
+
+    Debug.Print "Screen DPI" & vbCrLf & "DPI X: " & dpiX & vbCrLf & "DPI Y: " & dpiY
+End Sub
+
+
 Public Sub aSaveBackup()
     If ThisWorkbook.name = ADDIN_FILE_NAME Then
         ThisWorkbook.SaveAs _
@@ -43,7 +62,7 @@ Public Sub aaTestCode()
     ' Set form = New KeyboardShortcutForm
     ' Call form.Show(vbModal)  ' vbModeless or vbModal
     ' Set form = Nothing
-    Call shortcuts.test
+    Call Shortcuts.test
     ' Call KeyboardShortcutForm.Show(vbModal)
 '    If ActiveWorkbook.path = "" Then MsgBox "Not saved"
 ''''''''''''''''''''
@@ -73,6 +92,8 @@ Public Sub aaTestCode()
     'xlExcel4MacroSheet
     'xlExcel4IntMacroSheet
 End Sub
+
+
 
 
 

@@ -81,33 +81,33 @@ Public Property Let selectObjectMode(ByRef objectMode As Boolean)
 End Property
 '2
 Public Property Let hasFakeBorder(ByRef isFake As Boolean)
-    Dim Sh As Shape
+    Dim sh As Shape
     Dim fakeBorderName As String
     Let fakeBorderName = info.getAuthor & "_fakeBorder_"
     If isFake Then
-        For Each Sh In system.ws.Shapes
+        For Each sh In system.ws.Shapes
             With system.ws.Shapes.AddShape( _
                 Type:=msoShapeRectangle, _
-                left:=Sh.left - MARKER_LINE_WEIGHT / 2, _
-                top:=Sh.top - MARKER_LINE_WEIGHT / 2, _
-                width:=Sh.width + MARKER_LINE_WEIGHT, _
-                height:=Sh.height + MARKER_LINE_WEIGHT)
+                left:=sh.left - MARKER_LINE_WEIGHT / 2, _
+                top:=sh.top - MARKER_LINE_WEIGHT / 2, _
+                width:=sh.width + MARKER_LINE_WEIGHT, _
+                height:=sh.height + MARKER_LINE_WEIGHT)
                 .name = fakeBorderName & .name
                 .Fill.visible = msoTrue
                 .Fill.foreColor.RGB = FAKE_BORDER_COLOR
-                .Line.visible = msoFalse
+                .line.visible = msoFalse
                 .zOrder msoSendToBack
             End With
-        Next Sh
+        Next sh
     Else
-        For Each Sh In system.ws.Shapes
-            If Sh.name Like (fakeBorderName & "*") Then Call Sh.Delete
-        Next Sh
+        For Each sh In system.ws.Shapes
+            If sh.name Like (fakeBorderName & "*") Then Call sh.Delete
+        Next sh
     End If
 End Property
 '2
 Public Property Let hasMarkTargetPlace(ByRef isMarked As Boolean)
-    Dim Sh As Shape
+    Dim sh As Shape
     Dim markUpName As String
     Let markUpName = info.getAuthor & "_marker"
     If isMarked Then
@@ -122,10 +122,10 @@ Public Property Let hasMarkTargetPlace(ByRef isMarked As Boolean)
             .Fill.foreColor.RGB = MARKER_COLOR
             .Fill.Transparency = MARKER_TRANSPARENT_RATE / 100
             .Fill.Solid
-            .Line.visible = msoTrue
-            .Line.foreColor.RGB = MARKER_COLOR
-            .Line.Weight = MARKER_LINE_WEIGHT
-            .Line.DashStyle = msoLineSysDot
+            .line.visible = msoTrue
+            .line.foreColor.RGB = MARKER_COLOR
+            .line.Weight = MARKER_LINE_WEIGHT
+            .line.DashStyle = msoLineSysDot
             .TextFrame.Characters.text = MARKER_TEXT
             .TextFrame.Characters.Font.name = MARKER_TEXT_FONT
             .TextFrame.Characters.Font.bold = msoTrue
@@ -137,14 +137,14 @@ Public Property Let hasMarkTargetPlace(ByRef isMarked As Boolean)
             .TextFrame2.TextRange.ParagraphFormat.Alignment = msoAlignCenter
         End With
     Else
-        For Each Sh In system.ws.Shapes
-            If Sh.name = markUpName Then Call Sh.Delete
-        Next Sh
+        For Each sh In system.ws.Shapes
+            If sh.name = markUpName Then Call sh.Delete
+        Next sh
     End If
 End Property
 '3
 Public Property Let hasMarkTargetObject(ByRef isMarked As Boolean)
-    Dim Sh As Shape
+    Dim sh As Shape
     Dim groupSh As Shape
     Dim tearSh As Shape
     Dim tearName As String
@@ -152,24 +152,24 @@ Public Property Let hasMarkTargetObject(ByRef isMarked As Boolean)
     Let tearName = info.getAuthor & "_tear_"
     Let groupName = info.getAuthor & "_group_"
     If isMarked Then
-        For Each Sh In system.ws.Shapes
+        For Each sh In system.ws.Shapes
             Set tearSh = system.ws.Shapes.AddShape( _
                 Type:=msoShapeTear, _
-                left:=Sh.left, _
-                top:=Sh.top, _
-                width:=Sh.width / 20, _
-                height:=Sh.width / 20)
+                left:=sh.left, _
+                top:=sh.top, _
+                width:=sh.width / 20, _
+                height:=sh.width / 20)
             With tearSh
-                .Line.visible = msoFalse
+                .line.visible = msoFalse
                 .Fill.foreColor.RGB = MARKER_TEAR_COLOR
                 .Adjustments.item(1) = 1.85
                 .IncrementRotation 270
                 .name = tearName & .name 're-name for marker_delete
             End With
             'Group and rename tear with target object
-            Set groupSh = system.ws.Shapes.Range(Array(tearSh.name, Sh.name)).Group
+            Set groupSh = system.ws.Shapes.Range(Array(tearSh.name, sh.name)).group
             Let groupSh.name = groupName & groupSh.name
-        Next Sh
+        Next sh
     Else
         'Loop all shapes in sheet
         For Each groupSh In system.ws.Shapes
@@ -178,9 +178,9 @@ Public Property Let hasMarkTargetObject(ByRef isMarked As Boolean)
                 groupSh.Type = msoGroup _
                 And groupSh.name Like (groupName & "*") Then
                 'Loop all shapes in group
-                For Each Sh In groupSh.GroupItems
-                    If Sh.name Like (tearName & "*") Then Call Sh.Delete
-                Next Sh
+                For Each sh In groupSh.GroupItems
+                    If sh.name Like (tearName & "*") Then Call sh.Delete
+                Next sh
             End If
         Next groupSh
     End If
@@ -252,16 +252,16 @@ Private Sub deleteOldPicture()
 End Sub
 '2.
 Private Sub setTargetObject(ByRef objectName As String)
-    Dim Sh As Shape
+    Dim sh As Shape
     Dim shGItem As Shape
-        For Each Sh In system.ws.Shapes
-            If Sh.Type = msoGroup Then
-                For Each shGItem In Sh.GroupItems
-                    If shGItem.name = objectName Then Set targetObject = Sh
+        For Each sh In system.ws.Shapes
+            If sh.Type = msoGroup Then
+                For Each shGItem In sh.GroupItems
+                    If shGItem.name = objectName Then Set targetObject = sh
                 Next shGItem
             End If
-            If Sh.name = objectName Then Set targetObject = Sh
-        Next Sh
+            If sh.name = objectName Then Set targetObject = sh
+        Next sh
 End Sub
 '1.
 Private Sub capturePicture()
@@ -285,10 +285,10 @@ Private Sub capturePicture()
 End Sub
 '2
 Private Sub assignOnAction(ByRef script As String)
-    Dim Sh As Shape
-    For Each Sh In system.ws.Shapes
-        Let Sh.OnAction = script
-    Next Sh
+    Dim sh As Shape
+    For Each sh In system.ws.Shapes
+        Let sh.OnAction = script
+    Next sh
 End Sub
 '1,2,3
 Private Sub scalePicture(ByVal isLockRatio As Boolean)

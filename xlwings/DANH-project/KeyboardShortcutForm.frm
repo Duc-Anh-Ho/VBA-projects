@@ -1031,16 +1031,16 @@ End Sub
 
 Private Sub movePicking(ByRef direction As Integer)
     If Not isPicking Then Exit Sub
-    Dim nextIndex As String
+    Dim NextIndex As String
     Dim nextLabel As MsForms.label
     ' Update Next picking by index
-    Let nextIndex = getPickingIndex() + direction
-    If nextIndex > getMaxRow() Then
-        Let nextIndex = getMaxRow()
-    ElseIf nextIndex < 1 Then ' Min Row
-        Let nextIndex = 1
+    Let NextIndex = getPickingIndex() + direction
+    If NextIndex > getMaxRow() Then
+        Let NextIndex = getMaxRow()
+    ElseIf NextIndex < 1 Then ' Min Row
+        Let NextIndex = 1
     End If
-    Set nextLabel = Me.KeyboardFrame.controls(KEYBINDING_LABEL & nextIndex)
+    Set nextLabel = Me.KeyboardFrame.controls(KEYBINDING_LABEL & NextIndex)
     Call scrollPicking(nextLabel)
     Call showPicking(nextLabel)
     Set nextLabel = Nothing

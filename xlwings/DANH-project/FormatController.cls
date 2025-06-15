@@ -109,10 +109,10 @@ Private Sub pasteFormatOtherObject()
 End Sub
 '2-0  Move or  Size With Cell
 Private Sub MoveAndSize(Optional ByVal placementStt As Byte = xlMoveAndSize)
-    Dim Sh As Object
-    For Each Sh In system.ws.Shapes
-        Sh.Placement = placementStt
-    Next Sh
+    Dim sh As Object
+    For Each sh In system.ws.Shapes
+        sh.placement = placementStt
+    Next sh
 End Sub
 '3-0 Clear content (default Del)
 Public Sub clearContentRanges()
