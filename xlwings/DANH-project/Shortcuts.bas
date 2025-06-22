@@ -1,5 +1,5 @@
 Attribute VB_Name = "Shortcuts"
-'Must put Onkey procedure methods in a module for calling as full global scope
+' Must put Onkey procedure methods in a module for calling as full global scope
 Option Explicit
 
 'METHODS
@@ -164,7 +164,7 @@ End Sub
 
 Private Sub setRedFont()
     If Not TypeOf Selection Is Excel.Range Then Exit Sub
-     Let Selection.Font.COLOR = IIf(Selection.Font.COLOR = 255, vbBlack, 255) ' xlColorIndexAutomatic
+    Let Selection.Font.COLOR = IIf(Selection.Font.COLOR = 255, vbBlack, 255) ' xlColorIndexAutomatic
 End Sub
 
 Private Sub setYellowBackground()
@@ -225,14 +225,18 @@ Private Sub listAllShapes( _
     , Optional ByRef index As Long = 0 _
 )
     If Not TypeOf Selection Is Excel.Range Then Exit Sub
+    Dim textFormat As String: Let textFormat = "@"
+    Dim defaultHeader As String: Let defaultHeader = "Selection Pane"
     Dim shp As Shape
     ' target can be Shapes or GroupShapes
     Set target = IIf(target Is Nothing, ActiveSheet.Shapes, target)
     If index = 0 Then
-        Let Selection.Cells(1, 1).value = "Selection Pane"
+        Let Selection.Cells(1, 1).NumberFormat = "@"
+        Let Selection.Cells(1, 1).value = defaultHeader
         Let index = index + 1
     End If
     For Each shp In target
+        Let Selection.Cells(1, 1).Offset(index, 0).NumberFormat = "@"
         Let Selection.Cells(1, 1).Offset(index, 0).value = shp.name
         Let index = index + 1
         If shp.Type = msoGroup Then Call listAllShapes(shp.GroupItems, index)
@@ -457,7 +461,6 @@ SkipGroup:
     ' TODO: Undo Rename
 End Sub
 
-
 Private Sub unGroup(group As Variant)
     Dim sh As Shape
     If TypeOf group Is Excel.Shapes Then
@@ -536,8 +539,8 @@ Private Sub formatFileStart()
     For Each ws In wb.Worksheets
         If ws.Type = xlWorksheet Then
             With ws
-                .Cells.RowHeight = 15       ' Standard height
-                .Cells.ColumnWidth = 8   ' Standard width
+                Let .Cells.RowHeight = 18  ' Standard height
+                Let .Cells.ColumnWidth = 8   ' Standard width
             End With
         End If
     Next ws
@@ -564,15 +567,19 @@ Private Sub formatFileEnd()
     Application.ScreenUpdating = True
 End Sub
 
-Public Sub test()
-    ' Application.OnKey "^P", "showListWorkbooks"
-    Call formatFileStart
+Private Sub testShareX()
+    Dim picC As PicturesController
+    Set picC = New PicturesController
+    Call picC.snipShareX
 End Sub
 
-' TODO
+Public Sub test()
+    ' Application.OnKey "^P", "showListWorkbooks"
+    Call testShareX
+End Sub
+
+' TODO xxx
 Private Sub storeFormatA1()
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Sheets("formatStored")
 End Sub
-
-

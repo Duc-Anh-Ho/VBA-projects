@@ -18,6 +18,7 @@ Private customOffset As Byte
 Private targetPlace As Object
 Private targetObject As Object
 Private isLockRatio As Boolean
+Private Const DEFAULT_LOCK_RATIO As Boolean = True
 Private Const MARKER_COLOR As Long = vbRed
 Private Const FAKE_BORDER_COLOR As Long = vbMagenta
 Private Const MARKER_TEAR_COLOR As Long = vbMagenta
@@ -334,10 +335,32 @@ Private Sub scalePicture(ByVal isLockRatio As Boolean)
 '    targetObject.ShapeRange.LockAspectRatio = True
     Let letLockRatio = False
     Call lockRatio(targetObject)
-    system.app.ScreenUpdating = True
+    Let system.app.ScreenUpdating = True
 End Sub
 
 'MAIN
+Public Sub snipShareX()
+On Error GoTo ErrorHandle
+    If Not hasVariables Then GoTo ExecuteProcedure
+    Call system.speedOn
+    Call setTargetPlace(Selection)
+    If targetPlace Is Nothing Then GoTo ExecuteProcedure
+    Dim sxC As ShareXController
+    Set sxC = New ShareXController
+    Let sxC.letWorkflow = "capture-last-region-workflow"
+    Call sxC.start(5000)
+    ' TODO: REFACTOR HERE
+    Set targetObject = ActiveSheet.Pictures.Paste
+    Let letLockRatio = True
+    Call scalePicture(isLockRatio)
+    Call deleteOldPicture
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call system.tackleErrors
+ExecuteProcedure:
+    Let Application.ScreenUpdating = True
+    Call system.speedOff
+End Sub
 '1. Snipping Tool
 Public Sub snip()
 On Error GoTo ErrorHandle
@@ -433,7 +456,3 @@ ErrorHandle:
 ExecuteProcedure:
     Call system.speedOff
 End Sub
-
-
-
-
