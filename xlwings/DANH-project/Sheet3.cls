@@ -15,7 +15,7 @@ Private Enum InternetStt
     Loading = -1
 End Enum
 Private Enum Column
-    no = 1
+    No = 1
     name = 2
     Address = 3
     status = 4

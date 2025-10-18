@@ -12,6 +12,7 @@ Attribute VB_Exposed = False
 ' Version: 1.0.0
 ' Update: 2022/10/02
 ' Check README.md for more information
+' TODO: Change this to Utils_ModuleController.cls
 Option Explicit
 'Declare Variables
 Private info As InfoConstants
@@ -56,13 +57,13 @@ Private Enum VBAfolder ' Codes for path array
     Els = 4
 End Enum
 Private Enum UserReponse 'Codes for msgBox selection
-    OK = 1
+    Ok = 1
     Cancel = 2
     Abort = 3
     Retry = 4
     Ignore = 5
     Yes = 6
-    no = 7
+    No = 7
 End Enum
 'Initialize Variables
 Private Function hasVariables() As Boolean
@@ -329,10 +330,6 @@ ErrorHandle:
     Call system.tackleErrors
 ExecuteProcedure:
 End Sub
-
-
-
-
 
 
 

@@ -2,7 +2,7 @@ Attribute VB_Name = "Preprocessor"
 Option Explicit
 
 'Preprocessor Library Declaration
-#If Mac Then ' <--Mac
+#If MAC Then ' <--Mac
     MsgBox "MacOS chay khong duoc, cai win di"
 #Else '<-- Window
     #If VBA7 Then '<-- VBA7 - Office Ver > 2007

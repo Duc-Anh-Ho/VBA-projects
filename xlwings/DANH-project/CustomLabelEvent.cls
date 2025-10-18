@@ -10,6 +10,7 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Private WithEvents labelE As MsForms.label
+Attribute labelE.VB_VarHelpID = -1
 
 ' MUTATORS
 

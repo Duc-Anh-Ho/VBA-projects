@@ -11,10 +11,11 @@ Attribute VB_Exposed = False
 Option Explicit
 'Declare Variables
 'Local
+' --- Constant ---
 Private Const FILE_SYSTEM_SCRIPT As String = "Scripting.FileSystemObject"
 'Reference: ss64.com/vb/shell.html -- 2 diffirence COM classes
-Private Const POWER_SHELL_SCRIPT As String = "Wscript.Shell" '  Windows Script Host Shell object
-'Private Const POWER_SHELL_SCRIPT As String = "Shell.Application" '  Shell Application object
+Private Const WSHELL_SCRIPT As String = "Wscript.Shell" '  Windows Script Host Shell object
+'Private Const WSHELL_SCRIPT As String = "Shell.Application" '  Shell Application object
 Private Const FILE_STREAM_SCRIPT As String = "ADODB.Stream"
 Private Const CDO_CONFIG_SCRIPT As String = "CDO.Configuration"
 Private Const CDO_MESS_SCRIPT As String = "CDO.Message"
@@ -31,13 +32,17 @@ Private Const WS_TYPE_DETAIL_MACRO As String = "xlExcel4MacroSheet"
 Private Const WS_TYPE_DETAIL_INT_MACRO As String = "xlExcel4IntMacroSheet"
 Private Const CHART_TYPE As String = "Chart"
 Private Const DIALOG_TYPE As String = "DialogSheet"
+' --- Object ---
 Private userResponse As VbMsgBoxResult
-Private info As InfoConstants
 Private systemTimer As Single
+' --- Dependencies ---
+Private info As InfoConstants
+Private Script As Utils_Scripts
+' ---
 Public WithEvents app As Application
 Public WithEvents wb As Workbook
 Public WithEvents ws As Worksheet
-Public wd As Window
+Public wd As window
 'Public wss As Worksheets 'TODO: Refactor as global accessor get wss for sheets controller
 'Public wsObs As Sheets 'wsObs could be Charts || DialogSheets || Worksheets (ws regular || ws marcro)
 Public sheetOb As Object 'SheetOb could be Chart || DialogSheet || Worksheet (ws regular || ws marcro)
@@ -48,6 +53,7 @@ Public dialogSh As DialogSheet
 Private Function hasVariables() As Boolean
 On Error GoTo ErrorHandle
     Set info = New InfoConstants
+    Set Script = New Utils_Scripts
     Let systemTimer = Timer ' start timer
     Let hasVariables = True
     GoTo ExecuteProcedure
@@ -65,9 +71,11 @@ ErrorHandle:
     Call tackleErrors
 ExecuteProcedure:
 End Sub
+
 'Destructor
 Private Sub Class_Terminate()
-    '
+    Set info = Nothing
+    Set Script = Nothing
 End Sub
 
 'ASSESSORS
@@ -509,14 +517,16 @@ Public Property Get hasSheet(shName As String) As Boolean
     Next sh
     Let hasSheet = False
 End Property
+
+' @@@@ TODO: Remove
 '//OBJECT CREATE BY SCRIPTS
 'FILE
 Public Property Get createFileSystem() As Object
     Set createFileSystem = CreateObject(FILE_SYSTEM_SCRIPT)
 End Property
 'SHELL/CMD
-Public Property Get createPowerShell() As Object
-    Set createPowerShell = CreateObject(POWER_SHELL_SCRIPT)
+Public Property Get createWShell() As Object
+    Set createWShell = CreateObject(WSHELL_SCRIPT)
 End Property
 'STREAM
 Public Property Get createFileStream() As Object
@@ -542,6 +552,8 @@ End Property
 Public Property Get createDictionary() As Object
     Set createClipboard = CreateObject(DICTIONARY_SCRIPT)
 End Property
+' @@@@
+
 'TIMER
 Public Property Get getTimerMilestone() As String
 On Error GoTo ErrorHandle
@@ -572,7 +584,7 @@ Public Property Get getExcelFile(ByVal path As Variant) As Workbook
 On Error GoTo ErrorHandle
     With Application
         If path <> False Then Set getExcelFile = .Workbooks.Open( _
-                fileName:=path, _
+                filename:=path, _
                 ReadOnly:=True)
     End With
 GoTo ExecuteProcedure
@@ -584,8 +596,10 @@ End Property
 Public Property Get getFileName(Optional ByRef TypeName As String = "name") As String
 On Error GoTo ErrorHandle
     If Application.ActiveWorkbook Is Nothing Then GoTo ExecuteProcedure
-    Dim fileSystem As Object
-    Set fileSystem = createFileSystem()
+    ' Dim fileSystem As Object
+    ' Set fileSystem = createFileSystem()
+
+    Dim fileSystem As Object: Set fileSystem = CreateObject(FILE_SYSTEM_SCRIPT)
     With Application.ActiveWorkbook
         Select Case TypeName
             Case "name"
@@ -593,7 +607,7 @@ On Error GoTo ErrorHandle
             Case "path"
                 Let getFileName = .path
             Case "fullName"
-                Let getFileName = .FullName
+                Let getFileName = .fullName
             Case "shortName"
                 Let getFileName = fileSystem.GetBaseName(.name)
             Case "extension"
@@ -951,16 +965,10 @@ Private Sub errorDisplay()
         Context:=ERR.HelpContext)
 End Sub
 
-'VBE - DEBUGGER
-Public Sub debugAssert(condition As Boolean)
-#If debugger Then
-    Debug.Assert condition
-#End If
-End Sub
 
-Public Sub clearImmediateWindow()
-    Debug.Print String(65535, vbCr)
-End Sub
+
+
+
 
 
 

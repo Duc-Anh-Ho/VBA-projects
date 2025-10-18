@@ -15,8 +15,11 @@ Private system As SystemUpdate
 Private fileSystem As Object
 Private userResponse As VbMsgBoxResult
 Private WithEvents appEvent As Application
+Attribute appEvent.VB_VarHelpID = -1
 Private WithEvents wbEvent As Workbook
-Private WithEvents wsEvent As Worksheet
+Attribute wbEvent.VB_VarHelpID = -1
+Private WithEvents WsEvent As Worksheet
+Attribute WsEvent.VB_VarHelpID = -1
 Private isOnlySh As Boolean
 Private previousWb As Workbook
 
@@ -27,7 +30,7 @@ Private Sub Class_Initialize()
     Set info = New InfoConstants
     Set appEvent = Excel.Application
     Set wbEvent = appEvent.ThisWorkbook
-    Set wsEvent = wbEvent.ActiveSheet
+    Set WsEvent = wbEvent.ActiveSheet
     Let isOnlySh = True
 End Sub
 'Destructor
@@ -36,7 +39,7 @@ Private Sub Class_Terminate()
     Set system = Nothing
     Set appEvent = Nothing
     Set wbEvent = Nothing
-    Set wsEvent = Nothing
+    Set WsEvent = Nothing
 End Sub
 
 Private Sub appEvent_SheetActivate(ByVal ws As Object)
@@ -118,6 +121,8 @@ Private Sub popup(ByVal buttonName As String, ByRef wb As Workbook)
     wb.Activate
     Application.EnableEvents = True
 End Sub
+
+
 
 
 

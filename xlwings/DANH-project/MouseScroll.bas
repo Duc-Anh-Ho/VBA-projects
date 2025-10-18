@@ -63,7 +63,7 @@ Attribute VB_Name = "MouseScroll"
 
 Option Explicit
 
-#If Mac Then 'Placeholders
+#If MAC Then 'Placeholders
     Public Function EnableMouseScroll(ByVal uForm As MsForms.UserForm _
                                     , Optional ByVal passScrollToParentAtMargins As Boolean = True _
                                     , Optional ByVal useShiftForPerpendicularScroll As Boolean = True _

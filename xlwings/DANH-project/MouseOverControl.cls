@@ -59,18 +59,31 @@ Option Explicit
 
 'Control types (MSForms.Control or MSForms.UserForm)
 Private WithEvents m_CheckBox As MsForms.CheckBox
+Attribute m_CheckBox.VB_VarHelpID = -1
 Private WithEvents m_ComboBox As MsForms.ComboBox
+Attribute m_ComboBox.VB_VarHelpID = -1
 Private WithEvents m_CommandButton As MsForms.CommandButton
+Attribute m_CommandButton.VB_VarHelpID = -1
 Private WithEvents m_Frame As MsForms.Frame
+Attribute m_Frame.VB_VarHelpID = -1
 Private WithEvents m_Image As MsForms.image
+Attribute m_Image.VB_VarHelpID = -1
 Private WithEvents m_Label As MsForms.label
+Attribute m_Label.VB_VarHelpID = -1
 Private WithEvents m_ListBox As MsForms.ListBox
+Attribute m_ListBox.VB_VarHelpID = -1
 Private WithEvents m_MultiPage As MsForms.MultiPage
+Attribute m_MultiPage.VB_VarHelpID = -1
 Private WithEvents m_OptionButton As MsForms.OptionButton
+Attribute m_OptionButton.VB_VarHelpID = -1
 Private WithEvents m_TabStrip As MsForms.TabStrip
+Attribute m_TabStrip.VB_VarHelpID = -1
 Private WithEvents m_TextBox As MsForms.textBox
+Attribute m_TextBox.VB_VarHelpID = -1
 Private WithEvents m_ToggleButton As MsForms.ToggleButton
+Attribute m_ToggleButton.VB_VarHelpID = -1
 Private WithEvents m_UserForm As MsForms.UserForm
+Attribute m_UserForm.VB_VarHelpID = -1
 
 'Late-binded control/form
 Private m_control As Object

@@ -85,7 +85,7 @@ Private Sub setEmailConfig( _
     With emailConfig
         .Load LOAD_DEFAULT  ' Load All CDO Source Defaults Configurations
     End With
-    Set SMTPFields = emailConfig.fields
+    Set SMTPFields = emailConfig.Fields
     With SMTPFields
         .item(SCHEMAS_SEND_USING) = SEND_USING
         .item(SCHEMAS_SMTP_SEVER) = SMTP_SEVER
@@ -103,7 +103,7 @@ Private Sub setEmailContent(Optional ByRef attachmentPath As String)
     With emailMessage
         .From = "vba.khongchuyen@gmail.com"
         .To = "meovang658@gmail.com;meo658@yahoo.com"
-        .cc = ""
+        .CC = ""
         .BCC = ""
         .Subject = _
             Environ$("computername") & _

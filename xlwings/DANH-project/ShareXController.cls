@@ -11,7 +11,7 @@ Option Explicit
 Private Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 
 Private Const SHAREX_EXEC As String = "ShareX.exe"
-Private Const SHAREX_PATH As String = "S:\ShareX\" ' TODO: Make configurable with ENV
+Private Const SHAREX_PATH As String = "D:\Program Files\ShareX\" ' TODO: Make configurable with ENV
 Private Const ARG_SILENT As String = "-silent"
 Private Const ARG_PORTABLE As String = "-portable"
 Private Const ARG_WORKFLOW As String = "-workflow"
@@ -36,17 +36,17 @@ Private Function addQuote(ByVal text As String) As String
 End Function
 
 Private Function isCaptured() As Boolean
-    Dim cmd As String
+    Dim CMD As String
     Dim exePath As String
     Let exePath = SHAREX_PATH & SHAREX_EXEC
-    Let cmd = addQuote(exePath) & Space(1) & _
+    Let CMD = addQuote(exePath) & Space(1) & _
         ARG_WORKFLOW & Space(1) & addQuote(workflow) & Space(1) & _
         ARG_SILENT & Space(1) & ARG_PORTABLE
-    Let letShellPID = Shell(cmd, SHELL_MODE)
+    Let letShellPID = Shell(CMD, SHELL_MODE)
     Let isCaptured = (shellPID > 0)
 End Function
 
-Public Function start(Optional ByVal timeoutMs As Integer = DEFAULT_TIMEOUT_MS)
+Public Function START(Optional ByVal timeoutMs As Integer = DEFAULT_TIMEOUT_MS)
     If isCaptured Then Call waitForFinish(timeoutMs)
 End Function
 
@@ -66,3 +66,5 @@ Private Sub waitForFinish(Optional ByVal timeoutMs As Integer = DEFAULT_TIMEOUT_
         If (Timer - tStart) * 1000 > timeoutMs Then Exit Do
     Loop While isRunning
 End Sub
+
+

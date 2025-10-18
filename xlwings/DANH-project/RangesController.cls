@@ -20,8 +20,11 @@ Private isBold As Boolean
 Private blurRate As Byte
 Private addSize As Byte
 Private WithEvents appEvent As Application
+Attribute appEvent.VB_VarHelpID = -1
 Private WithEvents wbEvent As Workbook
-Private WithEvents wsEvent As Worksheet
+Attribute wbEvent.VB_VarHelpID = -1
+Private WithEvents WsEvent As Worksheet
+Attribute WsEvent.VB_VarHelpID = -1
 'Private Const INPUT_BOX_RANGE_TYPE As Byte = 8
 Private Const START_CHAR As Byte = 1
 Private Const SHEET_TYPE As String = "Worksheet"
@@ -43,7 +46,7 @@ On Error GoTo ErrorHandle
     End If
     Set appEvent = system.app
     Set wbEvent = system.wb
-    Set wsEvent = system.ws
+    Set WsEvent = system.ws
     Let hasVariables = True
     GoTo ExecuteProcedure
 ErrorHandle:
@@ -59,7 +62,7 @@ End Sub
 Private Sub Class_Terminate()
     Set appEvent = Nothing
     Set wbEvent = Nothing
-    Set wsEvent = Nothing
+    Set WsEvent = Nothing
 End Sub
 
 'ASSESSORS
@@ -130,12 +133,12 @@ Public Property Let letAddSize(ByRef newAddSize As Byte): Let addSize = newAddSi
 '2-1 Trigger Bold First Line
 Private Sub triggerBoldFirstLine(ByRef cell As Range)
     Let cell.Characters( _
-            Start:=START_CHAR, _
+            START:=START_CHAR, _
             Length:=InStr( _
                 cell.value, _
                 getNewLine)) _
         .Font.bold = Not cell.Characters( _
-            Start:=START_CHAR, _
+            START:=START_CHAR, _
             Length:=InStr( _
                 cell.value, _
                 getNewLine)) _

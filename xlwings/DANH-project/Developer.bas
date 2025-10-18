@@ -29,11 +29,10 @@ Public Sub showDPI()
     Debug.Print "Screen DPI" & vbCrLf & "DPI X: " & dpiX & vbCrLf & "DPI Y: " & dpiY
 End Sub
 
-
 Public Sub aSaveBackup()
     If ThisWorkbook.name = ADDIN_FILE_NAME Then
         ThisWorkbook.SaveAs _
-            fileName:=INSTALL_FILE_FULLNAME, _
+            filename:=INSTALL_FILE_FULLNAME, _
             FileFormat:=xlExcel12 ' xlExcel12 = xlsb
     End If
     Application.OnTime Now + TimeValue("00:00:03"), "reOpen"
@@ -62,7 +61,7 @@ Public Sub aaTestCode()
     ' Set form = New KeyboardShortcutForm
     ' Call form.Show(vbModal)  ' vbModeless or vbModal
     ' Set form = Nothing
-    Call Shortcuts.test
+    Call Shortcuts.Test
     ' Call KeyboardShortcutForm.Show(vbModal)
 '    If ActiveWorkbook.path = "" Then MsgBox "Not saved"
 ''''''''''''''''''''
@@ -93,7 +92,53 @@ Public Sub aaTestCode()
     'xlExcel4IntMacroSheet
 End Sub
 
+' 2025-10-18
+' Helper methods that using in Imediate Window
 
+Public Sub Clip(Optional ByRef text As String = VbNullString)
+    Dim VBE As Utils_VBE
+    Set VBE = New Utils_VBE
+    Call VBE.SaveToClipboard(text)
+End Sub
 
+Public Sub CloseVBEProjectWindow()
+    Dim VBE As Utils_VBE
+    Set VBE = New Utils_VBE
+    Call VBE.CloseProjectWindow
+End Sub
 
+Public Sub CloseVBEPropertiesWindow()
+    Dim VBE As Utils_VBE
+    Set VBE = New Utils_VBE
+    Call VBE.ClosePropertiesWindow
+End Sub
 
+Public Sub CloseAllVBEWindows()
+    Dim VBE As Utils_VBE
+    Set VBE = New Utils_VBE
+    Call VBE.CloseAllWindows
+End Sub
+
+Public Sub ListComponents(Optional ByRef typeName As String = vbNullString)
+    Dim VBE As Utils_VBE
+    Set VBE = New Utils_VBE
+    Call VBE.ListComponentsByTypeName(typeName)
+End Sub
+
+Public Sub OpenComponent(ByRef name As String)
+    Dim VBE As Utils_VBE
+    Set VBE = New Utils_VBE
+    Call VBE.OpenComponentByName(name)
+End Sub
+
+Public Sub Cls()
+    Dim VBE As Utils_VBE
+    Set VBE = New Utils_VBE
+    Call VBE.ClearImmediateWindow
+End Sub
+
+Public Sub Clear()
+    Dim VBE As Utils_VBE
+    Set VBE = New Utils_VBE
+    Call VBE.ClearImmediateWindowUnix
+End Sub

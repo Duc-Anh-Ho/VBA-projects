@@ -37,9 +37,12 @@ Private cell As Object
 Private wss As Sheets
 Private selectedWss As Sheets
 Private ws As Object
-Private WithEvents wsEvent As Worksheet
+Private WithEvents WsEvent As Worksheet
+Attribute WsEvent.VB_VarHelpID = -1
 Private WithEvents appEvent As Application
+Attribute appEvent.VB_VarHelpID = -1
 Private WithEvents wbEvent As Workbook
+Attribute wbEvent.VB_VarHelpID = -1
 
 'Initialize Variables
 Private Function hasVariables() As Boolean
@@ -55,7 +58,7 @@ On Error GoTo ErrorHandle
     Set wbEvent = system.wb
 '    Set wss = system.wb.Worksheets
     Set wss = system.wb.Sheets
-    Set wsEvent = system.ws
+    Set WsEvent = system.ws
     Set selectedWss = system.app.Windows(wbEvent.name).SelectedSheets
     Let hasVariables = True
     GoTo ExecuteProcedure
@@ -74,7 +77,7 @@ Private Sub Class_Terminate()
     ' Set system = Nothing
     Set appEvent = Nothing
     Set wbEvent = Nothing
-    Set wsEvent = Nothing
+    Set WsEvent = Nothing
 End Sub
 
 'ASSESSORS
@@ -226,7 +229,7 @@ Private Sub insertListSheetsColumn(Optional ByVal onSheet As Worksheet)
         ' Initialize listSheetRange
         Set listSheetRange = Range( _
             Range(TITLE_NO_CELL), _
-            Range(TITLE_NAME_CELL).Offset(wss.Count))
+            Range(TITLE_NAME_CELL).offset(wss.Count))
         ' Disble copy/cut before insert
         appEvent.CutCopyMode = False
         ' Add No and Name columns
@@ -298,7 +301,7 @@ Private Sub insertListSheetsColumn(Optional ByVal onSheet As Worksheet)
         'Loop through all worksheets
         For Each ws In wss
             ' Add No column data
-            With onSheet.Range(TITLE_NO_CELL).Offset(ws.index)
+            With onSheet.Range(TITLE_NO_CELL).offset(ws.index)
                 ' Add format
                 .ClearFormats
                 .Font.bold = LIST_ISBOLD
@@ -327,10 +330,10 @@ Private Sub insertListSheetsColumn(Optional ByVal onSheet As Worksheet)
                 .Validation.ShowError = True
             End With
             ' Add Name coulmn data
-            With onSheet.Range(TITLE_NAME_CELL).Offset(ws.index)
+            With onSheet.Range(TITLE_NAME_CELL).offset(ws.index)
                 ' Add Hyperlinks to Name column
                 ws.Hyperlinks.add _
-                    Anchor:=onSheet.Range(TITLE_NAME_CELL).Offset(ws.index), _
+                    Anchor:=onSheet.Range(TITLE_NAME_CELL).offset(ws.index), _
                     Address:="", _
                     SubAddress:="'" & ws.name & "'" & "!" & TITLE_NO_CELL, _
                     screentip:=CStr("Click here to go to " & ws.index & ": " & ws.name)
@@ -408,8 +411,8 @@ Private Sub insertRenameColumn(Optional ByVal onSheet As Worksheet)
             .Validation.ShowError = True
         End With
         With onSheet.Range( _
-            Range(TITLE_RENAME_CELL).Offset(1), _
-            Range(TITLE_RENAME_CELL).Offset(wss.Count))
+            Range(TITLE_RENAME_CELL).offset(1), _
+            Range(TITLE_RENAME_CELL).offset(wss.Count))
             ' Add Format
             .ClearFormats
             .Font.bold = LIST_ISBOLD
@@ -428,7 +431,7 @@ Private Sub insertRenameColumn(Optional ByVal onSheet As Worksheet)
                     Formula1:= _
                         "=COUNTIF(" _
                             & Range(TITLE_RENAME_CELL).EntireColumn.Address _
-                            & "," & Range(TITLE_RENAME_CELL).Offset(1).Address(RowAbsolute:=False, ColumnAbsolute:=False) _
+                            & "," & Range(TITLE_RENAME_CELL).offset(1).Address(RowAbsolute:=False, ColumnAbsolute:=False) _
                         & ")= 1"
             .Validation.IgnoreBlank = True
             .Validation.ErrorTitle = info.getAuthor
@@ -478,12 +481,12 @@ Private Sub renameSheet( _
             Set listSheetRange = Union( _
                 Range( _
                     Range(TITLE_NO_CELL), _
-                    Range(TITLE_NAME_CELL).Offset(wss.Count)), _
+                    Range(TITLE_NAME_CELL).offset(wss.Count)), _
                 Range(TITLE_RENAME_CELL))
             ' Initialize renameSheetRange
             Set renameSheetRange = Range( _
-                Range(TITLE_RENAME_CELL).Offset(1), _
-                Range(TITLE_RENAME_CELL).Offset(wss.Count))
+                Range(TITLE_RENAME_CELL).offset(1), _
+                Range(TITLE_RENAME_CELL).offset(wss.Count))
             ' Change to dump name for prevent duplication
             For Each cell In renameSheetRange
                 'Remove special chars in newName
@@ -506,7 +509,7 @@ Private Sub renameSheet( _
                 If Not system.hasSheet(newName) And newName <> vbNullString Then
                     ' Change to dump name
                     Let wss(cell.Row - 1).name = newName
-                    Let onSheet.Range(TITLE_NAME_CELL).Offset(cell.Row - 1).value = CStr(newName)
+                    Let onSheet.Range(TITLE_NAME_CELL).offset(cell.Row - 1).value = CStr(newName)
                 End If
             Next cell
             ' Update list sheet
@@ -518,12 +521,12 @@ Private Sub renameSheet( _
             Set listSheetRange = Union( _
                 Range( _
                     Range(TITLE_NO_CELL), _
-                    Range(TITLE_NAME_CELL).Offset(wss.Count)), _
+                    Range(TITLE_NAME_CELL).offset(wss.Count)), _
                 Range(TITLE_RENAME_CELL))
             ' Initialize renameSheetRange
             Set renameSheetRange = Range( _
-                Range(TITLE_RENAME_CELL).Offset(1), _
-                Range(TITLE_RENAME_CELL).Offset(wss.Count))
+                Range(TITLE_RENAME_CELL).offset(1), _
+                Range(TITLE_RENAME_CELL).offset(wss.Count))
         End If
     Else
         Let userResponse = MsgBox(Prompt:=info.getPrompt & _
@@ -700,7 +703,7 @@ End Sub
 Private Sub wsEvent_SelectionChange(ByVal target As Range)
   '2 levels check previous sheet
     If Intersect(target, listSheetRange) Is Nothing Then
-         wsEvent.Unprotect
+         WsEvent.Unprotect
         Exit Sub
     Else
 '        sheetObject.CircleInvalid
@@ -708,7 +711,7 @@ Private Sub wsEvent_SelectionChange(ByVal target As Range)
             Let preventchangedFlag = target.text
         Else
             'Prevent delete, insert, sort, format list sheet
-            wsEvent.Protect _
+            WsEvent.Protect _
                 DrawingObjects:=False, _
                 Contents:=True, _
                 Scenarios:=False, _

@@ -8,13 +8,15 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 ' Check README.md for more information
-
 Option Explicit
-'Declare Variables
+' --- Dependencies ---
 Private info As InfoConstants
 Private system As SystemUpdate
-Private fileSystem As Object
+Private Script As Utils_Scripts
+' --- Object ---
 Private userResponse As VbMsgBoxResult
+' --- Member ---
+Private fileSystem As Object
 Private addinPath As String
 Private addinShortName As String
 Private addinName As String
@@ -27,7 +29,8 @@ Private Function hasVariables() As Boolean
 On Error GoTo ErrorHandle
     Set info = New InfoConstants
     Set system = New SystemUpdate
-    Set fileSystem = system.createFileSystem
+    Set Script = New Utils_Scripts
+    Set fileSystem = Script.fileSystem
     'NOTE: Don't need to have workplace for this procedure
     'UserLibraryPath of PC:
     '"C:\Users\Admin\AppData\Roaming\Microsoft\AddIns\"
@@ -50,14 +53,15 @@ End Sub
 Private Sub Class_Terminate()
     Set info = Nothing
     Set system = Nothing
+    Set Script = Nothing
     Set fileSystem = Nothing
 End Sub
 
 'METHODS
 Private Function checkIsAddinWb(ByRef currentWb As Workbook)
-    If currentWb.FullName = addinFullName Then
+    If currentWb.fullName = addinFullName Then
         Let IsAddinWb = True
-    ElseIf currentWb.FullName <> addinFullName Then
+    ElseIf currentWb.fullName <> addinFullName Then
         Let IsAddinWb = False
     End If
 End Function
@@ -72,14 +76,14 @@ End Function
 
 Private Sub saveFileAsAddin(ByRef currentWb As Workbook)
     currentWb.SaveAs _
-        fileName:=addinFullName, _
+        filename:=addinFullName, _
         FileFormat:=xlOpenXMLAddIn ' xlOpenXMLAddIn = .xlam/55
 End Sub
 
 Private Sub enableAddin(ByRef isEnable As Boolean)
     Dim ai As addin
     For Each ai In Application.AddIns
-        If ai.FullName = addinFullName Then
+        If ai.fullName = addinFullName Then
             If AddIns("danh-tools").Installed <> isEnable Then
                 Let AddIns(addinShortName).Installed = isEnable
             End If
@@ -213,4 +217,10 @@ ErrorHandle:
 ExecuteProcedure:
     Call system.speedOff
 End Sub
+
+
+
+
+
+
 

@@ -51,7 +51,7 @@ Private Enum COLOR
     menu_bar = vbMenuBar
 End Enum
 Private Enum FORM_POSITION
-    manual = 0
+    MANUAL = 0
     center_owner = 1
     center_screen = 2
     windows_default = 3
@@ -541,7 +541,7 @@ End Sub
 ' Init
 Private Sub initUserForm()
     With Me
-        .StartUpPosition = FORM_POSITION.manual
+        .StartUpPosition = FORM_POSITION.MANUAL
         .height = FORM_POSITION.height
         .width = FORM_POSITION.width
         .top = FORM_POSITION.top

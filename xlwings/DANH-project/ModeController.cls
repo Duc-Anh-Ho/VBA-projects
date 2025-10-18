@@ -14,7 +14,7 @@ Private info As InfoConstants
 Private system As SystemUpdate
 Private userResponse As VbMsgBoxResult
 Private app As Application
-Private wd As Window
+Private wd As window
 Private wb As Workbook
 Private ws As Worksheet
 
@@ -127,5 +127,6 @@ Private Sub zoomMax()
     Let wd.Zoom = True
     Call selected.Select
 End Sub
+
 
 

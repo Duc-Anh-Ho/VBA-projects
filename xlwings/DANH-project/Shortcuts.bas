@@ -1,7 +1,7 @@
 Attribute VB_Name = "Shortcuts"
-' Must put Onkey procedure methods in a module for calling as full global scope
+' Check README.md for more information
 Option Explicit
-
+' NOTE: Must put Onkey procedure methods in a module for calling as full global scope
 'METHODS
 Private Sub copyName()
     Dim fileController As FilesController
@@ -236,8 +236,8 @@ Private Sub listAllShapes( _
         Let index = index + 1
     End If
     For Each shp In target
-        Let Selection.Cells(1, 1).Offset(index, 0).NumberFormat = "@"
-        Let Selection.Cells(1, 1).Offset(index, 0).value = shp.name
+        Let Selection.Cells(1, 1).offset(index, 0).NumberFormat = "@"
+        Let Selection.Cells(1, 1).offset(index, 0).value = shp.name
         Let index = index + 1
         If shp.Type = msoGroup Then Call listAllShapes(shp.GroupItems, index)
     Next shp
@@ -255,11 +255,11 @@ Private Sub renameAllShapes( _
     Set target = IIf(target Is Nothing, ActiveSheet.Shapes, target)
     If index = 0 Then Let index = index + 1
     For Each shp In target
-        Let name = Selection.Cells(1, 1).Offset(index, 0).value
+        Let name = Selection.Cells(1, 1).offset(index, 0).value
         If RTrim(name) = vbNullString Then
             Let shp.name = "index_" & index
         Else
-            Let shp.name = Selection.Cells(1, 1).Offset(index, 0).value
+            Let shp.name = Selection.Cells(1, 1).offset(index, 0).value
         End If
         Let index = index + 1
         If shp.Type = msoGroup Then Call renameAllShapes(shp.GroupItems, index)
@@ -461,6 +461,48 @@ SkipGroup:
     ' TODO: Undo Rename
 End Sub
 
+Private Sub groupAllShapes()
+    Dim wb As Workbook: Set wb = ActiveWorkbook
+    Dim ws As Worksheet
+    Dim i As Integer
+    If wb Is Nothing Then Exit Sub
+    If wb.Worksheets.Count = 0 Then Exit Sub
+    Let Application.ScreenUpdating = False
+    For i = wb.Sheets.Count To 1 Step -1
+        Set ws = wb.Sheets(i)
+        If ws.Type = xlWorksheet Then
+            Call ws.Activate
+            Call groupIntersectedShapes(ws)
+        End If
+    Next i
+    Let Application.ScreenUpdating = True
+End Sub
+    
+Private Sub formatFileEnd()
+    Dim wb As Workbook: Set wb = ActiveWorkbook
+    Dim ws As Worksheet
+    Dim i As Integer
+    If wb Is Nothing Then Exit Sub
+    If wb.Worksheets.Count = 0 Then Exit Sub
+    If Not isBackupSaved Then Exit Sub
+    Let Application.ScreenUpdating = False
+    For i = wb.Sheets.Count To 1 Step -1
+        Set ws = wb.Sheets(i)
+        If ws.Type = xlWorksheet Then
+            Call ws.Activate
+            Call ws.Range("A1").Select
+            Call zoomMode100
+            Call convertGroupToImage(ws)
+        End If
+    Next i
+    Let Application.ScreenUpdating = True
+End Sub
+
+'TODO: Refactor
+Private Sub saveBackup()
+    If Not isBackupSaved Then Exit Sub
+End Sub
+
 Private Sub unGroup(group As Variant)
     Dim sh As Shape
     If TypeOf group Is Excel.Shapes Then
@@ -546,40 +588,522 @@ Private Sub formatFileStart()
     Next ws
 End Sub
     
-Private Sub formatFileEnd()
-    Dim wb As Workbook: Set wb = ActiveWorkbook
-    Dim ws As Worksheet
-    Dim i As Integer
-    If wb Is Nothing Then Exit Sub
-    If wb.Worksheets.Count = 0 Then Exit Sub
-    If Not isBackupSaved Then Exit Sub
-    Application.ScreenUpdating = False
-    For i = wb.Sheets.Count To 1 Step -1
-        Set ws = wb.Sheets(i)
-        If ws.Type = xlWorksheet Then
-            Call ws.Activate
-            Call ws.Range("A1").Select
-            Call zoomMode100
-            Call groupIntersectedShapes(ws)
-            Call convertGroupToImage(ws)
-        End If
-    Next i
-    Application.ScreenUpdating = True
-End Sub
-
-Private Sub testShareX()
+Private Sub captureShareX()
     Dim picC As PicturesController
     Set picC = New PicturesController
     Call picC.snipShareX
+'    Call picC.snipShareX("D:\screenshots")
 End Sub
 
-Public Sub test()
-    ' Application.OnKey "^P", "showListWorkbooks"
-    Call testShareX
+Public Sub decreaseWidth(Optional ByRef offset As Byte = 2)
+    Dim obj As Object: Set obj = Selection
+    Select Case True
+        Case TypeOf obj Is Excel.Shape: GoTo changeSize
+        Case TypeOf obj Is Excel.Rectangle: GoTo changeSize
+        Case TypeOf obj Is Excel.Oval: GoTo changeSize
+        Case TypeOf obj Is Excel.GroupObject: GoTo changeSize
+        Case TypeOf obj Is Excel.DrawingObjects: GoTo changeSize
+        Case TypeOf obj Is Excel.Picture: GoTo changeSize
+        Case TypeOf obj Is Excel.line: GoTo changeSize
+        Case TypeOf obj Is Excel.ChartArea: GoTo changeSize
+        ' NO USE
+        Case TypeOf obj Is Excel.Range: Exit Sub
+        Case TypeOf obj Is Excel.PlotArea: Exit Sub
+    End Select
+changeSize:
+    obj.width = obj.width - offset
 End Sub
+
+Public Sub increaseWidth(Optional ByRef offset As Byte = 2)
+    Dim obj As Object: Set obj = Selection
+    Select Case True
+        Case TypeOf obj Is Excel.Shape: GoTo changeSize
+        Case TypeOf obj Is Excel.Rectangle: GoTo changeSize
+        Case TypeOf obj Is Excel.Oval: GoTo changeSize
+        Case TypeOf obj Is Excel.GroupObject: GoTo changeSize
+        Case TypeOf obj Is Excel.DrawingObjects: GoTo changeSize
+        Case TypeOf obj Is Excel.Picture: GoTo changeSize
+        Case TypeOf obj Is Excel.line: GoTo changeSize
+        Case TypeOf obj Is Excel.ChartArea: GoTo changeSize
+        ' NO USE
+        Case TypeOf obj Is Excel.Range: Exit Sub
+        Case TypeOf obj Is Excel.PlotArea: Exit Sub
+    End Select
+changeSize:
+    obj.width = obj.width + offset
+End Sub
+
+Public Sub decreaseHeight(Optional ByRef offset As Byte = 2)
+    Dim obj As Object: Set obj = Selection
+    Select Case True
+        Case TypeOf obj Is Excel.Shape: GoTo changeSize
+        Case TypeOf obj Is Excel.Rectangle: GoTo changeSize
+        Case TypeOf obj Is Excel.Oval: GoTo changeSize
+        Case TypeOf obj Is Excel.GroupObject: GoTo changeSize
+        Case TypeOf obj Is Excel.DrawingObjects: GoTo changeSize
+        Case TypeOf obj Is Excel.Picture: GoTo changeSize
+        Case TypeOf obj Is Excel.line: GoTo changeSize
+        Case TypeOf obj Is Excel.ChartArea: GoTo changeSize
+        ' NO USE
+        Case TypeOf obj Is Excel.Range: Exit Sub
+        Case TypeOf obj Is Excel.PlotArea: Exit Sub
+    End Select
+changeSize:
+    obj.height = obj.height - offset
+End Sub
+
+Public Sub increaseHeight(Optional ByRef offset As Byte = 2)
+    Dim obj As Object: Set obj = Selection
+    Select Case True
+        Case TypeOf obj Is Excel.Shape: GoTo changeSize
+        Case TypeOf obj Is Excel.Rectangle: GoTo changeSize
+        Case TypeOf obj Is Excel.Oval: GoTo changeSize
+        Case TypeOf obj Is Excel.GroupObject: GoTo changeSize
+        Case TypeOf obj Is Excel.DrawingObjects: GoTo changeSize
+        Case TypeOf obj Is Excel.Picture: GoTo changeSize
+        Case TypeOf obj Is Excel.line: GoTo changeSize
+        Case TypeOf obj Is Excel.ChartArea: GoTo changeSize
+        ' NO USE
+        Case TypeOf obj Is Excel.Range: Exit Sub
+        Case TypeOf obj Is Excel.PlotArea: Exit Sub
+    End Select
+changeSize:
+    obj.height = obj.height + offset
+End Sub
+
+Public Sub Test()
+Dim Test As PJ1_Logic
+Dim Test2 As Utils_Scripts
+Set Test = New PJ1_Logic
+Set Test2 = New Utils_Scripts
+Dim xx As Object: Set xx = Test2.WinSCP
+' Call Test.Init(Excel.Application.ActiveSheet)
+' Call Test.CheckFileName
+End Sub
+
+' xxxxx
+
+' Simple check for Windows
+Private Function IsWindows() As Boolean
+    IsWindows = (InStr(1, Application.OperatingSystem, "Windows", vbTextCompare) > 0)
+End Function
 
 ' TODO xxx
 Private Sub storeFormatA1()
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Sheets("formatStored")
 End Sub
+
+' ----
+
+' ' TODO: This can move to common
+Private Function checkPathExist(ByVal path As String) As Boolean
+    If Dir(path) <> "" Then
+        Let checkPathExist = True
+    Else
+        Let checkPathExist = False
+    End If
+End Function
+
+Private Sub CheckFileName()
+    Dim ws As Worksheet: Set ws = ActiveSheet
+    With ws
+    Dim PASS As String: Let PASS = .Range("H1").value
+    Dim FAIL As String: Let FAIL = .Range("I1").value
+    Dim testCasePath As String: Let testCasePath = .Range("E6").value
+    Dim checkListPath As String: Let checkListPath = .Range("E7").value
+    Let .Range("F6").value = IIf(checkPathExist(testCasePath), PASS, FAIL)
+    Let .Range("F7").value = IIf(checkPathExist(checkListPath), PASS, FAIL)
+    End With
+End Sub
+
+Private Sub findDbClose()
+    Dim wsh As Object: Set wsh = CreateObject("WScript.Shell")
+    Dim NODE_PATH As String: Let NODE_PATH = "D:\environments\node\node.exe"
+    Dim EXEC_PATH As String: Let EXEC_PATH = "D:\share\ASS\Tasks\template\find_db_close.js"
+    Dim exec As Object: Set exec = wsh.exec("""" & NODE_PATH & """ """ & EXEC_PATH & """")
+    Dim csLog As String: Let csLog = Replace(exec.StdOut.ReadAll, vbCrLf, vbLf)
+    Dim lines() As String: Let lines = Split(csLog, vbLf)
+    Dim startCell As Range: Set startCell = ActiveSheet.Range("P2")
+    Dim startRow As Long: startRow = startCell.Row
+    Dim startCol As Long: startCol = startCell.Column
+    ActiveSheet.Range(startCell, ActiveSheet.Cells(startRow + 50, startCol)).ClearContents
+    Dim i As Long
+    For i = LBound(lines) To UBound(lines)
+        If Trim(lines(i)) <> "" Then ActiveSheet.Cells(startRow + i, startCol).value = lines(i)
+    Next i
+End Sub
+
+Private Sub findPhase1()
+    Dim wsh As Object: Set wsh = CreateObject("WScript.Shell")
+    Dim NODE_PATH As String: Let NODE_PATH = "D:\environments\node\node.exe"
+    Dim EXEC_PATH As String: Let EXEC_PATH = "D:\share\ASS\Tasks\template\find_src_P1.js"
+    Dim exec As Object: Set exec = wsh.exec("""" & NODE_PATH & """ """ & EXEC_PATH & """")
+    Dim csLog As String: Let csLog = Replace(exec.StdOut.ReadAll, vbCrLf, vbLf)
+    Dim lines() As String: Let lines = Split(csLog, vbLf)
+    Dim startCell As Range: Set startCell = ActiveSheet.Range("R2")
+    Dim startRow As Long: startRow = startCell.Row
+    Dim startCol As Long: startCol = startCell.Column
+    ActiveSheet.Range(startCell, ActiveSheet.Cells(startRow + 300, startCol)).ClearContents
+    Dim i As Long
+    For i = LBound(lines) To UBound(lines)
+        If Trim(lines(i)) <> "" Then ActiveSheet.Cells(startRow + i, startCol).value = lines(i)
+    Next i
+End Sub
+
+'Private Function getRelativePath(ByRef filename As String) As String
+'    Dim shortName As String: Let shortName = left(filename, Len(filename) - 4)
+'    Dim subPath As String: Let subPath = left(shortName, 4) & "\" & Mid(shortName, 5)
+'    Let getRelativePath = "AP2_CPGM\" & subPath & "\" & filename
+'End Function
+Private Function getRelativePath(ByRef filename As String) As String
+    Dim shortName As String: Let shortName = left(filename, InStrRev(filename, ".") - 1)
+    Dim subPath As String: Let subPath = left(shortName, 4) & "\" & Mid(shortName, 5)
+    Let getRelativePath = "AP2_CPGM\" & subPath & "\" & filename
+End Function
+
+Private Function getFullName(ByRef relativePath As String) As String
+    Dim repo As String: Let repo = ActiveSheet.Range("U1").value
+    Let getFullName = repo & relativePath
+End Function
+
+Private Sub commitDate(ByRef filename As String, ByRef target As String)
+    Dim ws As Worksheet: Set ws = ActiveSheet
+    With ws
+    Dim path As String: Let path = getRelativePath(filename)
+    Dim fullName As String: Let fullName = getFullName(path)
+    If Not checkPathExist(fullName) Then
+        Let ws.Range(target).value = "???"
+        Exit Sub
+    End If
+    Dim wsh As Object: Set wsh = CreateObject("WScript.Shell")
+    Dim repo As String: Let repo = .Range("U1").value
+    Dim GIT As String: Let GIT = .Range("T1").value
+    Dim Script As String: Let Script = "cmd /c cd /d """ & repo & """ && """ & GIT & """ log -1 --no-merges --format=""%ci"" -- """ & path & """"
+    Dim exec As Object: Set exec = wsh.exec(Script)
+    Dim fullDate As String: Let fullDate = exec.StdOut.ReadLine
+    If fullDate <> "" Then
+        Dim dateOnly As String: Let dateOnly = left(fullDate, 10)
+        Let .Range(target).offset(0, -1).value = filename
+        Let .Range(target).value = CDate(dateOnly)
+        Let .Range(target).NumberFormat = "yyyy/mm/dd"
+    End If
+    End With
+End Sub
+
+Private Sub dateFromTestCase()
+    Dim ws As Worksheet: Set ws = ActiveSheet
+    With ws
+    Dim fullName As String: Let fullName = .Range("E6").value
+    Dim sheetName As String: Let sheetName = .Range("V1").value
+    Dim targetCol As Long: Let targetCol = 1 ' B Col
+    Dim sSQL As String
+    Dim i As Byte
+    If Not checkPathExist(fullName) Then
+        For i = 16 To 18
+            Let .Range("E" & i).value = "???"
+        Next i
+        Exit Sub
+    End If
+    If InStr(sheetName, " ") > 0 Then
+        Let sSQL = "SELECT * FROM ['" & sheetName & "$']"
+    Else
+        Let sSQL = "SELECT * FROM [" & sheetName & "$]"
+    End If
+    Dim Connect As Object: Set Connect = CreateObject("ADODB.Connection")
+    Dim Recordset As Object: Set Recordset = CreateObject("ADODB.Recordset")
+    Call Connect.Open("Provider=Microsoft.ACE.OLEDB.12.0;" & _
+             "Data Source=" & fullName & ";" & _
+             "Extended Properties=""Excel 12.0 Xml;HDR=No;IMEX=1"";")
+    Call Recordset.Open(sSQL, Connect, 3, 1)
+    If Not Recordset.EOF Then Call Recordset.MoveLast
+    If Recordset.Fields.Count <= targetCol Then Exit Sub
+    Do While Not Recordset.BOF
+        If InStr(Recordset.Fields(targetCol).value, "LINK END") > 0 Then Exit Do
+        For i = 16 To 18
+            If InStr(Recordset.Fields(targetCol).value, .Range("C" & i).value) > 0 Then
+                Dim linePart() As String: linePart = Split(Application.Trim(Recordset.Fields(targetCol).value), Space(1))
+' Dim j As Long: For j = LBound(linePart) To UBound(linePart): Debug.Print j & " '" & linePart(j) & "'": Next j 'xxx debug
+                Dim yyyy As String: yyyy = IIf(Len(linePart(7)) = 4, linePart(7), Year(Date))
+                Dim mm As String: mm = left$(linePart(5), Len(linePart(5)) - 1)
+                Dim dd As String: dd = linePart(6)
+                Let .Range("E" & i).value = format(DateSerial(yyyy, mm, dd), "yyyy/mm/dd")
+                
+            End If
+        Next i
+        Call Recordset.MovePrevious
+    Loop
+    Call Recordset.Close
+    Call Connect.Close
+    End With
+End Sub
+
+Public Sub checkEncodeAndEOF(ByRef task As String)
+    Dim ws As Worksheet: Set ws = ActiveSheet
+    With ws
+    Dim NKF As String: Let NKF = "D:\share\ASS\Tasks\template\autotest.exe"
+    Dim guessParam As String: Let guessParam = "--guess"
+    Dim fileNameSrc As String: Let fileNameSrc = task & ".src"
+    Dim fileNameMak As String: Let fileNameMak = task & ".mak"
+    Dim fileNameIni As String: Let fileNameIni = task & ".ini"
+    Dim fileNameC As String: Let fileNameC = task & ".c"
+    Dim fullNameSrc As String: Let fullNameSrc = getFullName(getRelativePath(fileNameSrc))
+    Dim fullNameMak As String: Let fullNameMak = getFullName(getRelativePath(fileNameMak))
+    Dim fullNameIni As String: Let fullNameIni = getFullName(getRelativePath(fileNameIni))
+    Dim fullNameC As String: Let fullNameC = getFullName(getRelativePath(fileNameC))
+    Let .Range("C27").value = fileNameSrc
+    Dim wsh As Object: Set wsh = CreateObject("WScript.Shell")
+    Dim Script As String: Let Script = """" & NKF & """ " & guessParam & " """ & _
+        fullNameSrc & """ """ & _
+        fullNameMak & """ """ & _
+        fullNameIni & """ """ & _
+        fullNameC & """"
+    Dim exec As Object: Set exec = wsh.exec(Script)
+    Do While Not exec.StdOut.AtEndOfStream
+        Dim line As String: Let line = exec.StdOut.ReadLine
+        Dim linePart() As String
+        If InStr(line, fileNameSrc) > 0 Then
+            Let linePart = Split(line, ":")
+            Let .Range("D27").value = linePart(2)
+            Let .Range("C27").value = fileNameSrc
+        ElseIf InStr(line, fileNameMak) > 0 Then
+            Let linePart = Split(line, ":")
+            Let .Range("D28").value = linePart(2)
+            Let .Range("C28").value = fileNameMak
+        ElseIf InStr(line, fileNameIni) > 0 Then
+            Let linePart = Split(line, ":")
+            Let .Range("D29").value = linePart(2)
+            Let .Range("C29").value = fileNameIni
+        ElseIf InStr(line, fileNameC) > 0 Then
+            Let linePart = Split(line, ":")
+            Let .Range("D30").value = linePart(2)
+            Let .Range("C30").value = fileNameC
+        End If
+    Loop
+    End With
+End Sub
+
+Private Sub checkMakFile(ByRef task As String)
+    Dim fullNameMak As String: Let fullNameMak = getFullName(getRelativePath(task & ".mak"))
+    Dim fStream As Object: Set fStream = CreateObject("ADODB.Stream")
+    Let fStream.Type = 2
+    Let fStream.Charset = "x-euc-jp"
+    Call fStream.Open
+    Call fStream.LoadFromFile(fullNameMak)
+    Dim fileContent As String: Let fileContent = fStream.ReadText(-1)
+    Call fStream.Close
+    Dim lines() As String: Let lines = Split(Replace(fileContent, vbCrLf, vbLf), vbLf)
+    Dim checkOKTime As Byte: Let checkOKTime = 0
+    Dim i As Long: For i = LBound(lines) To UBound(lines)
+        Dim line As String: Let line = lines(i)
+        If InStr(line, ": " & task & ".m") > 0 Then
+            If InStr(line, ": " & task & ".mak") > 0 Then
+                Let checkOKTime = checkOKTime + 1
+            Else
+                Let checkOKTime = 0
+                Exit For
+            End If
+        ElseIf InStr(line, "rm -f $(EXE) *.lis *.o") > 0 Then
+            If InStr(line, "rm -f $(EXE) *.lis *.o *.c") > 0 Then
+                Let checkOKTime = checkOKTime + 1
+            Else
+                Let checkOKTime = 0
+                Exit For
+            End If
+        ElseIf InStr(line, "make CC=$(CC) -f $(EXE).m") > 0 Then
+            If InStr(line, "make CC=$(CC) -f $(EXE).mak") > 0 Then
+                Let checkOKTime = checkOKTime + 1
+            Else
+                Let checkOKTime = 0
+                Exit For
+            End If
+        End If
+    Next i
+    Dim ws As Worksheet: Set ws = ActiveSheet
+    With ws
+    Dim PASS As String: Let PASS = .Range("H1").value
+    Dim FAIL As String: Let FAIL = .Range("I1").value
+    If checkOKTime = 3 Then
+        Let .Range("F9").value = PASS
+    Else
+        Let .Range("F9").value = FAIL
+    End If
+    End With
+End Sub
+
+' TODO: This can move to common
+Private Function diffCheck(fileName1 As String, fileName2 As String) As Boolean
+    Const BLOCKSIZE As Long = 65536 ' 64KB
+    Dim file1 As Object: Set file1 = CreateObject("ADODB.Stream")
+    Let file1.Type = 1
+    Call file1.Open
+    Call file1.LoadFromFile(fileName1)
+    Dim file2 As Object: Set file2 = CreateObject("ADODB.Stream")
+    Let file2.Type = 1
+    Call file2.Open
+    Call file2.LoadFromFile(fileName2)
+    Do While Not file1.EOS Or Not file2.EOS
+        Dim block1() As Byte: Let block1 = file1.Read(BLOCKSIZE)
+        Dim block2() As Byte: Let block2 = file2.Read(BLOCKSIZE)
+        Dim bytesRead1 As Long: Let bytesRead1 = UBound(block1) - LBound(block1) + 1
+        Dim bytesRead2 As Long: Let bytesRead2 = UBound(block2) - LBound(block2) + 1
+        If bytesRead1 <> bytesRead2 Then
+            Call file1.Close: Call file2.Close
+            Let diffCheck = False
+            Exit Function
+        End If
+        Dim i As Long
+        For i = LBound(block1) To UBound(block1)
+            If block1(i) <> block2(i) Then
+                Call file1.Close: Call file2.Close
+                Let diffCheck = False
+                Exit Function
+            End If
+        Next i
+    Loop
+    Call file1.Close: Call file2.Close
+    Let diffCheck = True
+End Function
+
+Private Sub checkDiffPhase1(ByRef task As String)
+    Dim ws As Worksheet: Set ws = ActiveSheet
+    With ws
+    Dim AUTO As String: Let AUTO = .Range("J2").value
+    If .Range("E32").value <> AUTO Then Exit Sub
+    Dim PASS As String: Let PASS = .Range("H1").value
+    Dim FAIL As String: Let FAIL = .Range("I1").value
+    Dim fileNameSrc As String: Let fileNameSrc = task & ".src"
+    Dim fileNameMak As String: Let fileNameMak = task & ".mak"
+    Dim fileNameIni As String: Let fileNameIni = task & ".ini"
+    Dim fullNameSrc As String: Let fullNameSrc = getFullName(getRelativePath(fileNameSrc))
+    Dim fullNameMak As String: Let fullNameMak = getFullName(getRelativePath(fileNameMak))
+    Dim fullNameIni As String: Let fullNameIni = getFullName(getRelativePath(fileNameIni))
+    Dim fullNameSrcCP As String: Let fullNameSrcCP = Replace(fullNameSrc, "ass_bos2\AP2_CPGM", "BYCP_ASS_DEVELOP_CPGM")
+    Dim fullNameMakCP As String: Let fullNameMakCP = Replace(fullNameMak, "ass_bos2\AP2_CPGM", "BYCP_ASS_DEVELOP_CPGM")
+    Dim fullNameIniCP As String: Let fullNameIniCP = Replace(fullNameIni, "ass_bos2\AP2_CPGM", "BYCP_ASS_DEVELOP_CPGM")
+    Let .Range("C33").value = fileNameSrc
+    Let .Range("E33").value = IIf(diffCheck(fullNameSrc, fullNameSrcCP), PASS, FAIL)
+    Let .Range("C34").value = fileNameMak
+    Let .Range("E34").value = IIf(diffCheck(fullNameMak, fullNameMakCP), PASS, FAIL)
+    Let .Range("C35").value = fileNameIni
+    Let .Range("E35").value = IIf(diffCheck(fullNameIni, fullNameIniCP), PASS, FAIL)
+    End With
+End Sub
+
+Private Function gitCheckout(ByRef GIT As String, ByRef repoPath As String, ByRef key As String) As String
+    Dim wsh As Object: Set wsh = CreateObject("WScript.Shell")
+    Dim Script As String: Let Script = "cmd /c cd /d """ & repoPath & """ && """ & GIT & """ fetch"
+    Call wsh.Run(Script, 0, True)
+    Let Script = "cmd /c cd /d """ & repoPath & """ && """ & GIT & """ branch -r | findstr /i " & key
+    Dim exec As Object: Set exec = wsh.exec(Script)
+    Dim gitLog As String: Let gitLog = Trim(Replace(exec.StdOut.ReadAll, vbCrLf, vbLf))
+    If gitLog = vbNullString Then
+        Let gitCheckout = "0-#-NOT FIND"
+        Exit Function
+    End If
+    Dim lines() As String: Let lines = Split(Trim(gitLog), vbLf)
+    Do While UBound(lines) >= 0 And Trim(lines(UBound(lines))) = ""
+        ReDim Preserve lines(LBound(lines) To UBound(lines) - 1)
+    Loop
+'Dim j As Long: For j = LBound(lines) To UBound(lines): Debug.Print j & " '" & lines(j) & "'": Next j 'xxx debug
+    If UBound(lines) > 0 Then
+        Let gitCheckout = "0-#- > 1"
+        Exit Function
+    End If
+    Dim line As String: Let line = Trim(lines(0))
+    Let Script = "cmd /c cd /d """ & repoPath & """ && """ & GIT & """ checkout " & line
+
+    Set exec = wsh.exec(Script)
+    Do While exec.status = 0: DoEvents: Loop
+' Let gitLog = exec.StdOut.ReadAll & vbCrLf & exec.StdErr.ReadAll: Debug.Print "gitLog"; gitLog
+    If exec.ExitCode <> 0 Then
+        Let gitCheckout = "0-#-CHECKOUT fail"
+    Else
+        Let gitCheckout = "1-#-" & line
+    End If
+End Function
+
+Private Sub gitCheckoutByKey(ByRef task As String)
+    Dim ws As Worksheet: Set ws = ActiveSheet
+    With ws
+    Dim AUTO As String: Let AUTO = .Range("J2").value
+    Dim MANUAL As String: Let MANUAL = .Range("J1").value
+    Dim repo As String: Let repo = .Range("U1").value
+    Dim GIT As String: Let GIT = .Range("T1").value
+    Dim pullResult() As String: Let pullResult = Split(gitCheckout(GIT, repo, task), "-#-")
+    Let .Range("D3").value = IIf(pullResult(0) = "0", MANUAL, AUTO)
+    Let .Range("E3").value = pullResult(1)
+    End With
+End Sub
+
+Public Sub uatTest()
+Application.ScreenUpdating = False
+Application.Calculation = xlCalculationManual
+Application.EnableEvents = False
+    Dim ws As Worksheet: Set ws = ActiveSheet
+    Dim Tst As PJ1_Logic: Set Tst = New PJ1_Logic
+    Call Tst.Init(ws)
+    With ws
+    Let .Range("D1").value = format(Now, "yyyy/mm/dd HH:nn:ss")
+    Dim SKIP As String: Let SKIP = .Range("K1").value
+    Dim AUTO As String: Let AUTO = .Range("J2").value
+    Dim task As String: Let task = .Range("D5").value
+    Dim TASK_LEN As Byte: Let TASK_LEN = 8
+    If Not (ws.name = task And Len(task) = TASK_LEN) Then MsgBox "??? Sheet name: " & ws.name: GoTo CleanUp
+    Dim skipCheckout As Boolean: Let skipCheckout = (.Range("C3").value = SKIP)
+    If Not skipCheckout Then
+        Call gitCheckoutByKey(task)
+        Dim isCheckout As Boolean: Let isCheckout = (InStr(1, .Range("E3").value, task, vbTextCompare) > 0)
+        If Not isCheckout Then MsgBox "??? Branch " & .Range("E3").value: GoTo CleanUp
+    End If
+    Dim skipFileName As Boolean: Let skipFileName = (.Range("C4").value = SKIP)
+    ' If Not skipFileName Then Call checkFileName
+    If Not skipFileName Then Call Tst.CheckFileName
+    Dim skipMakCheck As Boolean: Let skipMakCheck = (.Range("C9").value = SKIP)
+    If Not skipMakCheck Then Call checkMakFile(task)
+    Dim skipDateCheck As Boolean: Let skipDateCheck = (.Range("C15").value = SKIP)
+    If Not skipDateCheck Then
+        Call commitDate(task & ".src", "D16")
+        Call commitDate(task & ".mak", "D17")
+        Call commitDate(task & ".ini", "D18")
+        Call dateFromTestCase
+    End If
+    Dim skipDbClose As Boolean: Let skipDbClose = (.Range("C23").value = SKIP)
+    If Not skipDbClose Then Call findDbClose
+    Dim skipRM1020 As Boolean: Let skipRM1020 = (.Range("C26").value = SKIP)
+    If Not skipRM1020 Then Call checkEncodeAndEOF(task)
+    Dim skipFindPhase1 As Boolean: Let skipFindPhase1 = (.Range("C31").value = SKIP)
+    If Not skipFindPhase1 Then Call findPhase1
+    Dim skipCheckPhase1 As Boolean: Let skipCheckPhase1 = (.Range("C32").value = SKIP)
+    If Not skipCheckPhase1 Then Call checkDiffPhase1(task)
+    End With
+CleanUp:
+Application.ScreenUpdating = True
+Application.Calculation = xlCalculationAutomatic
+Application.EnableEvents = True
+End Sub
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

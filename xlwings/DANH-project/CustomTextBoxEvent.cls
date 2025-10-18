@@ -10,6 +10,7 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Private WithEvents textBoxE As MsForms.textBox
+Attribute textBoxE.VB_VarHelpID = -1
 
 ' MUTATORS
 

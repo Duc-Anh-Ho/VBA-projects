@@ -12,7 +12,7 @@ Option Explicit
 'Declare Variables
 Private system As SystemUpdate
 Private powerShell As Object
-Private fileStream As Object 'Stream Object
+Private FileStream As Object 'Stream Object
 Private userResponse As VbMsgBoxResult
 Private Const CREATE_COMMAND_SCRIPT As String = _
     "PowerShell.exe -NoLogo -WindowStyle Hidden -Command "
@@ -26,7 +26,7 @@ Private Const WAIT_ON_RETURN As Boolean = True
 'Constructor
 Private Sub Class_Initialize()
     Set system = New SystemUpdate
-    Set powerShell = system.createPowerShell
+    Set powerShell = system.createWShell
 End Sub
 'Destructor
 Private Sub Class_Terminate()
@@ -48,7 +48,7 @@ End Property
 Public Property Get executeScript(ByRef scrpit As String) As String
     Dim executionCmd As Object  ' Object = WshExec: Window Shell Execute
     Dim returnTxt As String
-    Set executionCmd = powerShell.Exec(scrpit)
+    Set executionCmd = powerShell.exec(scrpit)
     ' Delay for waiting exucte
     Do While executionCmd.status = PowerShellStt.Running
         Application.Wait (Now + TimeValue("00:00:01")) '<--1s
@@ -66,5 +66,6 @@ Public Property Get executeScript(ByRef scrpit As String) As String
     End Select
     Let executeScript = returnTxt
 End Property
+
 
 

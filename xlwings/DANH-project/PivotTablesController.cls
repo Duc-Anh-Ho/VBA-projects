@@ -15,8 +15,11 @@ Private system As SystemUpdate
 Private fileSystem As Object
 Private userResponse As VbMsgBoxResult
 Private WithEvents appEvent As Application
+Attribute appEvent.VB_VarHelpID = -1
 Private WithEvents wbEvent As Workbook
-Private WithEvents wsEvent As Worksheet
+Attribute wbEvent.VB_VarHelpID = -1
+Private WithEvents WsEvent As Worksheet
+Attribute WsEvent.VB_VarHelpID = -1
 'Initialize Variables
 Private Function hasVariables() As Boolean
 On Error GoTo ErrorHandle
@@ -29,7 +32,7 @@ On Error GoTo ErrorHandle
     End If
     Set appEvent = system.app
     Set wbEvent = system.wb
-    Set wsEvent = system.ws
+    Set WsEvent = system.ws
     Let hasVariables = True
     GoTo ExecuteProcedure
 ErrorHandle:
@@ -45,7 +48,7 @@ End Sub
 Private Sub Class_Terminate()
     Set appEvent = Nothing
     Set wbEvent = Nothing
-    Set wsEvent = Nothing
+    Set WsEvent = Nothing
 End Sub
 
 ' ASSESSORS

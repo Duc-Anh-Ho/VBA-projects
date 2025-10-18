@@ -7,6 +7,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
+' Check README.md for more information
 Option Explicit
 'Declare Variables
 Private shortcutWs As Worksheet
@@ -27,8 +28,8 @@ Private Const OPEN_ROUND_BRACKET As String = "("
 Private Const CLOSE_ROUND_BRACKET As String = ")"
 
 Private Enum COL
-    no = 1
-    procedure = no + 1
+    No = 1
+    procedure = No + 1
     default_NAMEbind = procedure + 1
     custom_NAMEbind = default_NAMEbind + 1
     command = custom_NAMEbind + 1
@@ -52,11 +53,11 @@ Enum KEY_CODE
     Four = vbKey4: Five = vbKey5: Six = vbKey6: Seven = vbKey7
     Eight = vbKey8: Nine = vbKey9
     ' Letters (65~90)
-    A = vbKeyA: B = vbKeyB: C = vbKeyC: D = vbKeyD: e = vbKeyE
-    F = vbKeyF: g = vbKeyG: H = vbKeyH: i = vbKeyI: j = vbKeyJ
-    k = vbKeyK: l = vbKeyL: m = vbKeyM: N = vbKeyN: o = vbKeyO
-    p = vbKeyP: Q = vbKeyQ: r = vbKeyR: S = vbKeyS: T = vbKeyT
-    U = vbKeyU: v = vbKeyV: W = vbKeyW: x = vbKeyX: y = vbKeyY
+    a = vbKeyA: B = vbKeyB: c = vbKeyC: d = vbKeyD: e = vbKeyE
+    f = vbKeyF: g = vbKeyG: H = vbKeyH: i = vbKeyI: j = vbKeyJ
+    K = vbKeyK: l = vbKeyL: m = vbKeyM: N = vbKeyN: o = vbKeyO
+    p = vbKeyP: Q = vbKeyQ: r = vbKeyR: S = vbKeyS: t = vbKeyT
+    U = vbKeyU: v = vbKeyV: w = vbKeyW: x = vbKeyX: y = vbKeyY
     Z = vbKeyZ
     ' Numpad (96~105)
     Numpad0 = vbKeyNumpad0: Numpad1 = vbKeyNumpad1
@@ -424,7 +425,7 @@ End Sub
 Public Property Get getNoSet() As String: Let getNoSet = NO_SET: End Property
 Public Property Get getUnknown() As String: Let getUnknown = UNKNOWN: End Property
 Public Property Get getErr() As String: Let getErr = ERR: End Property
-Public Property Get getNoCol() As Byte: Let getNoCol = COL.no: End Property
+Public Property Get getNoCol() As Byte: Let getNoCol = COL.No: End Property
 Public Property Get getProcedureCol() As Byte: Let getProcedureCol = COL.procedure: End Property
 Public Property Get getDefaultKeybindingCol() As Byte: Let getDefaultKeybindingCol = COL.default_NAMEbind: End Property
 Public Property Get getCustomKeybindingCol() As Byte: Let getCustomKeybindingCol = COL.custom_NAMEbind: End Property
@@ -504,7 +505,7 @@ Public Function convertKeyToName(ByRef keyCode As MsForms.ReturnInteger, ByRef S
         Case KEY_CODE.Shift:  Let key = vbNullString
         Case KEY_CODE.Alt:    Let key = vbNullString
         ' A~Z, F1~F24, 1~9, 1~9(num)
-        Case KEY_CODE.A To KEY_CODE.Z:              Let key = Chr(keyCode)
+        Case KEY_CODE.a To KEY_CODE.Z:              Let key = Chr(keyCode)
         Case KEY_CODE.FOne To KEY_CODE.FFifteen:    Let key = FUNCTION_MARK & (keyCode - KEY_CODE.FOne + 1)
         Case KEY_CODE.ZERO To KEY_CODE.Nine:        Let key = Chr(keyCode)
         Case KEY_CODE.Numpad0:      Let key = NUMPAD0_NAME
@@ -796,4 +797,5 @@ Public Function convertNameToCode(ByVal name As String) As String
     End Select
     Let convertNameToCode = modifier & name
 End Function
+
 

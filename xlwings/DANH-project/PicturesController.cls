@@ -9,6 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 ' Check README.md for more information
 Option Explicit
+Option Compare Binary
 ' Declare Variables
 Private info As InfoConstants
 Private system As SystemUpdate
@@ -67,6 +68,7 @@ Public Property Let letOffset(ByRef newOffset As Byte)
     Let customOffset = newOffset
 End Property
 '1,2,3
+' TODO Change name to lockRatio and the sub LockRatio to applyLockRatio
 Public Property Let letLockRatio(ByRef newLockRatio As Boolean)
     Let isLockRatio = newLockRatio
     'TO-DO: Pop-up Form
@@ -192,10 +194,22 @@ Public Sub lockRatio(ByRef targetObject As Object)
     Select Case TypeName(targetObject)
         Case "Shape"
             Let targetObject.LockAspectRatio = isLockRatio
-            Call targetObject.zOrder(msoBringToFront)
         Case Else
             Let targetObject.ShapeRange.LockAspectRatio = isLockRatio
-            Call targetObject.ShapeRange.zOrder(msoBringToFront)
+    End Select
+End Sub
+
+'
+Public Sub sendTo( _
+    ByRef targetObject As Object _
+    , Optional ByRef orderType As Byte = msoBringToFront _
+)
+    ' TODO CHnage all typename to typeOF for wider handle
+    Select Case TypeName(targetObject)
+        Case "Shape"
+            Call targetObject.zOrder(orderType)
+        Case Else
+            Call targetObject.ShapeRange.zOrder(orderType)
     End Select
 End Sub
 '1,2
@@ -212,14 +226,14 @@ Private Sub setTargetPlace(targetOj As Object, Optional hasConfirm As Boolean = 
         Case Else
             'Optional user response
             If hasConfirm Then
-                userResponse = MsgBox( _
+                Let userResponse = MsgBox( _
                     Prompt:="You've selected: '" & targetOj.name & _
                         "' as type: " & TypeName(targetOj) & vbNewLine & _
                         "Do you want to replace " & targetOj.name & "?", _
                     Buttons:=vbYesNoCancel + vbQuestion, _
                     Title:=info.getAuthor)
             Else
-                userResponse = vbNo
+                Let userResponse = vbNo
             End If
             'yes pressed
             If userResponse = vbYes Then
@@ -285,15 +299,18 @@ Private Sub capturePicture()
     End If
 End Sub
 '2
-Private Sub assignOnAction(ByRef script As String)
+Private Sub assignOnAction(ByRef Script As String)
     Dim sh As Shape
     For Each sh In system.ws.Shapes
-        Let sh.OnAction = script
+        Let sh.OnAction = Script
     Next sh
 End Sub
 '1,2,3
-Private Sub scalePicture(ByVal isLockRatio As Boolean)
-    'Scale up when too small
+Private Sub scalePicture( _
+    ByVal isLockRatio As Boolean _
+    , Optional orderType As Byte = msoBringToFront _
+)
+    ' Scale up when too small
     If targetPlace.height < customOffset * 2 Or _
     targetPlace.width < customOffset * 2 Then
         If TypeName(targetPlace) <> "Range" Then
@@ -301,58 +318,70 @@ Private Sub scalePicture(ByVal isLockRatio As Boolean)
             Let targetPlace.width = targetPlace.width + customOffset * 2
         End If
     End If
-    'Set Lock Rate
+    ' Apply Lock Rate
     Call lockRatio(targetObject)
-    'Algorithm When Lock Rate
+    ' Algorithm When Lock Rate
     If isLockRatio Then
         If targetPlace.height < targetPlace.width Then
-            targetObject.top = targetPlace.top + customOffset
-            targetObject.height = targetPlace.height - customOffset * 2
-            targetObject.left = targetPlace.left + (targetPlace.width - targetObject.width) / 2
+            Let targetObject.top = targetPlace.top + customOffset
+            Let targetObject.height = targetPlace.height - customOffset * 2
+            Let targetObject.left = targetPlace.left + (targetPlace.width - targetObject.width) / 2
         Else
-            targetObject.left = targetPlace.left + customOffset
-            targetObject.height = targetPlace.height - customOffset * 2
-            targetObject.top = targetPlace.top + (targetPlace.height - targetObject.height) / 2
+            Let targetObject.left = targetPlace.left + customOffset
+            Let targetObject.height = targetPlace.height - customOffset * 2
+            Let targetObject.top = targetPlace.top + (targetPlace.height - targetObject.height) / 2
         End If
         If targetObject.height > targetPlace.height Then
-            targetObject.height = targetPlace.height - customOffset * 2
-            targetObject.top = targetPlace.top + customOffset
-            targetObject.left = targetPlace.left + (targetPlace.width - targetObject.width) / 2
+            Let targetObject.height = targetPlace.height - customOffset * 2
+            Let targetObject.top = targetPlace.top + customOffset
+            Let targetObject.left = targetPlace.left + (targetPlace.width - targetObject.width) / 2
         End If
         If targetObject.width > targetPlace.width Then
-            targetObject.width = targetPlace.width - customOffset * 2
-            targetObject.left = targetPlace.left + customOffset
-            targetObject.top = targetPlace.top + (targetPlace.height - targetObject.height) / 2
+            Let targetObject.width = targetPlace.width - customOffset * 2
+            Let targetObject.left = targetPlace.left + customOffset
+            Let targetObject.top = targetPlace.top + (targetPlace.height - targetObject.height) / 2
         End If
     'Algorithm When Not Lock Rate
     Else
-        targetObject.left = targetPlace.left + customOffset
-        targetObject.top = targetPlace.top + customOffset
-        targetObject.width = targetPlace.width - customOffset * 2
-        targetObject.height = targetPlace.height - customOffset * 2
+        Let targetObject.left = targetPlace.left + customOffset
+        Let targetObject.top = targetPlace.top + customOffset
+        Let targetObject.width = targetPlace.width - customOffset * 2
+        Let targetObject.height = targetPlace.height - customOffset * 2
     End If
     'Reset default settings
 '    targetObject.ShapeRange.LockAspectRatio = True
     Let letLockRatio = False
     Call lockRatio(targetObject)
+    ' Apply Order
+    Call sendTo(targetObject, orderType)
     Let system.app.ScreenUpdating = True
 End Sub
 
 'MAIN
-Public Sub snipShareX()
+Public Sub snipShareX(Optional savedPath As String = vbNullString)
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
     Call system.speedOn
     Call setTargetPlace(Selection)
     If targetPlace Is Nothing Then GoTo ExecuteProcedure
-    Dim sxC As ShareXController
-    Set sxC = New ShareXController
+    Dim sxC As ShareXController: Set sxC = New ShareXController
+    Dim fullName As String
+    Application.CutCopyMode = False ' DELETE Old pic
     Let sxC.letWorkflow = "capture-last-region-workflow"
-    Call sxC.start(5000)
+    Call sxC.START(30000)
     ' TODO: REFACTOR HERE
-    Set targetObject = ActiveSheet.Pictures.Paste
+    Let fullName = latestPic(savedPath & "\" & format(Date, "yymmdd"))
+    Application.Wait Now + TimeValue("0:00:02") ' 1 second delay
+    If fullName <> vbNullString Then
+        ActiveSheet.Pictures.Insert (fullName)
+    Else
+        '    Set targetObject = ActiveSheet.Pictures.Paste
+        '    Set targetObject = ActiveSheet.Pictures.Paste()
+        ActiveSheet.Paste
+    End If
+    Set targetObject = ActiveSheet.Pictures(ActiveSheet.Pictures.Count)
     Let letLockRatio = True
-    Call scalePicture(isLockRatio)
+    Call scalePicture(isLockRatio, msoSendToBack)
     Call deleteOldPicture
 GoTo ExecuteProcedure
 ErrorHandle:
@@ -361,6 +390,33 @@ ExecuteProcedure:
     Let Application.ScreenUpdating = True
     Call system.speedOff
 End Sub
+'
+Public Function latestPic( _
+    ByRef folderPath As String, _
+    Optional ByVal stamptimeLength As Byte = 16, _
+    Optional ByVal extensionPattern As String = "\*.png" _
+) As String
+    If folderPath = vbNullString Then Exit Function
+    Dim fullName As String: Let fullName = Dir(folderPath & extensionPattern)
+    Dim latestFile As String
+    Dim stamptimeMax As String
+    Dim stamptime As String
+    Do While fullName <> vbNullString
+        Let stamptime = left(fullName, stamptimeLength)
+        If ( _
+            Len(stamptime) <> stamptimeLength _
+            Or Not IsNumeric(stamptime) _
+        ) Then GoTo NextLoop
+        ' NOTE: compare Number by String must have Option Compare Binary in top
+        If stamptime > stamptimeMax Then
+            Let stamptimeMax = stamptime
+            Let latestFile = fullName
+        End If
+NextLoop:
+        Let fullName = Dir
+    Loop
+    Let latestPic = IIf(latestFile <> vbNullString, folderPath & "\" & latestFile, vbNullString)
+End Function
 '1. Snipping Tool
 Public Sub snip()
 On Error GoTo ErrorHandle
@@ -369,7 +425,7 @@ On Error GoTo ErrorHandle
     Call setTargetPlace(Selection)
     If targetPlace Is Nothing Then GoTo ExecuteProcedure
     Call capturePicture
-    Call scalePicture(isLockRatio)
+    Call scalePicture(isLockRatio, msoBringToFront)
     Call deleteOldPicture
 GoTo ExecuteProcedure
 ErrorHandle:
@@ -404,7 +460,7 @@ On Error GoTo ErrorHandle
     Call setTargetPlace(Selection, hasConfirm:=False)
     If targetPlace Is Nothing Then GoTo ExecuteProcedure
     Call setTargetObject(Application.Caller)
-    Call scalePicture(isLockRatio)
+    Call scalePicture(isLockRatio, msoSendToBack)
     Call deleteOldPicture
 GoTo ExecuteProcedure
 ErrorHandle:
@@ -448,7 +504,7 @@ Public Sub arrangeToMerge()
     If TypeName(Selection) = "GroupObject" Then
         Call setTargetPlace(Selection.TopLeftCell.MergeArea)
         Call setTargetObject(Selection.name)
-        Call scalePicture(isLockRatio)
+        Call scalePicture(isLockRatio, msoBringToFront)
     End If
 GoTo ExecuteProcedure
 ErrorHandle:
@@ -456,3 +512,5 @@ ErrorHandle:
 ExecuteProcedure:
     Call system.speedOff
 End Sub
+
+
