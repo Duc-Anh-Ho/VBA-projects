@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
-Private Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
+' Private Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 
 Private Const SHAREX_EXEC As String = "ShareX.exe"
 Private Const SHAREX_PATH As String = "D:\Program Files\ShareX\" ' TODO: Make configurable with ENV
@@ -62,7 +62,7 @@ Private Sub waitForFinish(Optional ByVal timeoutMs As Integer = DEFAULT_TIMEOUT_
             Let isRunning = True
         Next
         DoEvents
-        Call Sleep(DEFAULT_SLEEP_MS)
+        Call Preprocessor.Sleep(DEFAULT_SLEEP_MS)
         If (Timer - tStart) * 1000 > timeoutMs Then Exit Do
     Loop While isRunning
 End Sub

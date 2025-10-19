@@ -9,10 +9,6 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 ' Check README.md for more information
 Option Explicit
-' --- Dependencies ---
-Private Script As Utils_Scripts
-' --- Object ---
-Private Clipboard As Object
 ' --- Constant ---
 Private Const PROJECT_WINDOW_PREFIX As String = "project - "
 Private Const PROPERTIES_WINDOW_PREFIX As String = "properties - "
@@ -31,23 +27,13 @@ Private Const ACTIVEX_DESIGNER_DOT_EXTENSION As String = ".frx"
 Private Const DOCUMENT_MODULE As String = "document"
 Private Const DOCUMENT_MODULE_EXTENSION As String = "cls"
 Private Const DOCUMENT_MODULE_DOT_EXTENSION As String = ".cls"
-Enum COMPONENT_TYPE
+Private Enum COMPONENT_TYPE
     StandardModule = 1 'vbext_ct_StdModule
     ClassModule = 2 'vbext_ct_ClassModule
     MicrosoftForm = 3 'vbext_ct_MSForm
     ActivexDesigner = 11 'vbext_ct_ActiveXDesigner
     DocumentModule = 100 'vbext_ct_Document
 End Enum
-' --- Constructor ---
-Private Sub Class_Initialize()
-    Set Script = New Utils_Scripts
-    Set Clipboard = Script.Clipboard
-End Sub
-' --- Destructor ---
-Private Sub Class_Terminate()
-    Set Script = Nothing
-    Set Clipboard = Nothing
-End Sub
 ' --- Helper Methods ---
 Private Sub closeWindowByPrefix(ByRef prefix As String)
     Dim window As Object
@@ -60,12 +46,8 @@ Private Sub closeWindowByPrefix(ByRef prefix As String)
         End If
     Next window
 End Sub
-' --- Main ---
-Friend Sub SaveToClipboard(Optional ByRef text As String = vbNullString)
-    Call Clipboard.SetText(text)
-    Call Clipboard.PutInClipboard
-End Sub
 
+' --- Main ---
 Friend Sub CloseProjectWindow()
     Call closeWindowByPrefix(PROJECT_WINDOW_PREFIX)
 End Sub

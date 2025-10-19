@@ -95,11 +95,19 @@ End Sub
 ' 2025-10-18
 ' Helper methods that using in Imediate Window
 
-Public Sub Clip(Optional ByRef text As String = VbNullString)
-    Dim VBE As Utils_VBE
-    Set VBE = New Utils_VBE
-    Call VBE.SaveToClipboard(text)
-End Sub
+Public Function Clip(Optional ByRef text As String = VbNullString)
+    Dim Clipboard As Utils_Clipboard
+    Set Clipboard = New Utils_Clipboard
+    If text <> VbNullString Then Call Clipboard.SaveByCOM(text)
+    Let Clip = Clipboard.LoadByCOM
+End Function
+
+Public Function Clip2(Optional ByRef text As String = vbNullString)
+    Dim Clipboard As Utils_Clipboard
+    Set Clipboard = New Utils_Clipboard
+    If text <> VbNullString Then Call Clipboard.SaveByAPI(text)
+    Let Clip2 = Clipboard.LoadByAPI
+End Function
 
 Public Sub CloseVBEProjectWindow()
     Dim VBE As Utils_VBE

@@ -16,7 +16,7 @@ Private FileStream As Object 'Stream Object
 Private userResponse As VbMsgBoxResult
 Private Const CREATE_COMMAND_SCRIPT As String = _
     "PowerShell.exe -NoLogo -WindowStyle Hidden -Command "
-Enum PowerShellStt
+Private Enum PowerShellStt
     Running = 0
     Successful = 1
     Failed = 2
