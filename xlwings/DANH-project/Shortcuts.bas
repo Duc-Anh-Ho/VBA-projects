@@ -191,7 +191,7 @@ Private Sub nameToContent(Optional ByRef target As Object = Nothing)
         Case TypeOf target Is Excel.PlotArea: Exit Sub
         ' TODO: Handle
         Case Else
-            MsgBox "Unhandled Type Name: " & TypeName(target): Exit Sub
+            MsgBox "Unhandled Type Name: " & typeName(target): Exit Sub
     End Select
     
 ' TODO: Clean code create method
@@ -268,8 +268,8 @@ End Sub
 
 Private Sub showListSheets()
     With Application.CommandBars("Workbook tabs")
-        If .controls(.controls.Count).caption = "More Sheets..." Then
-            .controls(.controls.Count).Execute
+        If .controls(.controls.count).caption = "More Sheets..." Then
+            .controls(.controls.count).Execute
         Else
             .ShowPopup
         End If
@@ -293,12 +293,12 @@ Private Sub autoFill(Optional ByRef fillType As Byte = xlFillDefault)
     )
     Dim area As Range: Set area = Selection.CurrentRegion
     Dim lastRow As Long: Let lastRow = IIf( _
-        Selection(Selection.Count).Row = lastData.Row, _
-        area.Row + area.Rows.Count - 1, _
-        Selection(Selection.Count).Row _
+        Selection(Selection.count).Row = lastData.Row, _
+        area.Row + area.Rows.count - 1, _
+        Selection(Selection.count).Row _
     )
     Dim target As Range: Set target = IIf( _
-        Selection(Selection.Count).Row = lastData.Row, _
+        Selection(Selection.count).Row = lastData.Row, _
         Selection, _
         lastData _
     )
@@ -340,11 +340,11 @@ Private Function mergeRoot(ByRef groupRoot() As Long, ByVal x As Long, ByVal y A
 End Function
 
 Private Function getIntersectedArr(ByVal ws As Worksheet) As Variant
-    Dim maxShape As Long: Let maxShape = ws.Shapes.Count
+    Dim maxShape As Long: Let maxShape = ws.Shapes.count
     Dim i As Long, j As Long, groupRootArr() As Long
     ' Init roots group (self root)
     ReDim groupRootArr(1 To maxShape)
-    For i = 1 To ws.Shapes.Count
+    For i = 1 To ws.Shapes.count
         Let groupRootArr(i) = i
     Next
     ' Merge Intersect into group (merge root)
@@ -365,7 +365,7 @@ End Function
 
 'mode: ID = 0, Index = 1
 Private Function getGroupShapeColl(ByVal ws As Worksheet, Optional ByVal mode As Byte = 0) As Collection
-    Dim maxShape As Long: Let maxShape = ws.Shapes.Count
+    Dim maxShape As Long: Let maxShape = ws.Shapes.count
     Dim shapeGroupIdArr() As Long
     Dim groupListColl As Collection, rootListColl As Collection, currentListColl As Collection
     Dim i As Long, j As Long, groupId As Long
@@ -376,17 +376,17 @@ Private Function getGroupShapeColl(ByVal ws As Worksheet, Optional ByVal mode As
     ' Group by root
     For i = 1 To maxShape
         Let groupId = shapeGroupIdArr(i)
-        For j = 1 To rootListColl.Count
+        For j = 1 To rootListColl.count
             If rootListColl(j) = groupId Then
                 Set currentListColl = groupListColl(j)
-                Call currentListColl.add(IIf(mode = 0, ws.Shapes(i).id, i))
+                Call currentListColl.Add(IIf(mode = 0, ws.Shapes(i).id, i))
                 GoTo NextShape
             End If
         Next j
         Set currentListColl = New Collection
-        Call currentListColl.add(IIf(mode = 0, ws.Shapes(i).id, i))
-        Call rootListColl.add(groupId)
-        Call groupListColl.add(currentListColl)
+        Call currentListColl.Add(IIf(mode = 0, ws.Shapes(i).id, i))
+        Call rootListColl.Add(groupId)
+        Call groupListColl.Add(currentListColl)
 NextShape:
     Next i
     Set getGroupShapeColl = groupListColl
@@ -396,7 +396,7 @@ End Function
 Private Sub TESTgetGroupShape()
     Dim ws As Worksheet: Set ws = ActiveSheet
     Dim g, id, shp, line$: Set g = getGroupShapeColl(ws)
-    Dim i&: For i = 1 To g.Count
+    Dim i&: For i = 1 To g.count
         line = "group" & i & ": { "
         For Each id In g(i)
             For Each shp In ws.Shapes
@@ -415,13 +415,13 @@ Private Sub renameAllShapesByPrefix( _
     Dim idColl As Collection
     Dim sh As Shape
     Dim i As Long, j As Long, shapeId As Long
-    For i = 1 To groupColl.Count
+    For i = 1 To groupColl.count
         Set idColl = groupColl(i)
-        For j = 1 To idColl.Count
+        For j = 1 To idColl.count
             Let shapeId = idColl(j)
             For Each sh In ws.Shapes
                 If sh.id = shapeId Then
-                    Let sh.name = format(sh.id, prefix) & "_" & sh.name ' Add ID prefix
+                    Let sh.name = Format(sh.id, prefix) & "_" & sh.name ' Add ID prefix
                     Exit For
                 End If
             Next sh
@@ -430,7 +430,7 @@ Private Sub renameAllShapesByPrefix( _
 End Sub
 
 Private Sub groupIntersectedShapes(ByVal ws As Worksheet)
-    Dim maxShape As Long: Let maxShape = ws.Shapes.Count
+    Dim maxShape As Long: Let maxShape = ws.Shapes.count
     ' No Shape handle
     If maxShape = 0 Then Exit Sub
     ' Get total number of shapes
@@ -442,11 +442,11 @@ Private Sub groupIntersectedShapes(ByVal ws As Worksheet)
     Set groupColl = getGroupShapeColl(ws, 0) 'mode: ID = 0, Index = 1
     Call renameAllShapesByPrefix(ws, groupColl, "00000")
     ' Loop each group and group shapes
-    For i = 1 To groupColl.Count
+    For i = 1 To groupColl.count
         Set idColl = groupColl(i)
-        If idColl.Count < 2 Then GoTo SkipGroup
-        ReDim nameArr(1 To idColl.Count)
-        For j = 1 To idColl.Count
+        If idColl.count < 2 Then GoTo SkipGroup
+        ReDim nameArr(1 To idColl.count)
+        For j = 1 To idColl.count
             Let shapeId = idColl(j)
             For Each sh In ws.Shapes
                 If sh.id = shapeId Then
@@ -466,9 +466,9 @@ Private Sub groupAllShapes()
     Dim ws As Worksheet
     Dim i As Integer
     If wb Is Nothing Then Exit Sub
-    If wb.Worksheets.Count = 0 Then Exit Sub
+    If wb.Worksheets.count = 0 Then Exit Sub
     Let Application.ScreenUpdating = False
-    For i = wb.Sheets.Count To 1 Step -1
+    For i = wb.Sheets.count To 1 Step -1
         Set ws = wb.Sheets(i)
         If ws.Type = xlWorksheet Then
             Call ws.Activate
@@ -483,10 +483,10 @@ Private Sub formatFileEnd()
     Dim ws As Worksheet
     Dim i As Integer
     If wb Is Nothing Then Exit Sub
-    If wb.Worksheets.Count = 0 Then Exit Sub
+    If wb.Worksheets.count = 0 Then Exit Sub
     If Not isBackupSaved Then Exit Sub
     Let Application.ScreenUpdating = False
-    For i = wb.Sheets.Count To 1 Step -1
+    For i = wb.Sheets.count To 1 Step -1
         Set ws = wb.Sheets(i)
         If ws.Type = xlWorksheet Then
             Call ws.Activate
@@ -542,7 +542,7 @@ Private Function isBackupSaved() As Boolean
     Let fName = .name
     Let ext = Mid(fName, InStrRev(fName, ".") + 1)
     Let fName = left(fName, InStrRev(fName, ".") - 1)
-    Let timestamp = format(Now, "yyyymmdd_hhnnss")
+    Let timestamp = Format(Now, "yyyymmdd_hhnnss")
     Call .SaveCopyAs(.path & "\" & fName & "_bk_" & timestamp & "." & ext)
     End With
     Let isBackupSaved = True
@@ -554,7 +554,7 @@ Private Sub convertGroupToImage(ByVal ws As Worksheet)
     ' Dim placement As Byte: Let placement = xlFreeFloating ' Don't Move And Size With Cell
     Dim placement As Byte: Let placement = xlMoveAndSize ' Move And Size With Cell
     Dim i As Long
-    For i = ws.Shapes.Count To 1 Step -1 ' Reverse to avoid index shift
+    For i = ws.Shapes.count To 1 Step -1 ' Reverse to avoid index shift
         Set sh = ws.Shapes(i)
         Let sh.placement = placement
         If sh.Type = msoGroup Then
@@ -562,10 +562,10 @@ Private Sub convertGroupToImage(ByVal ws As Worksheet)
             Let leftTmp = sh.left
             Let topTmp = sh.top
             ' Convert to image by copy paste as pic
-            Call sh.CopyPicture(Appearance:=xlScreen, format:=xlPicture)
+            Call sh.CopyPicture(Appearance:=xlScreen, Format:=xlPicture)
             Call ws.Paste
             ' Get newest sh and move to saved position
-            Set newSh = ws.Shapes(ws.Shapes.Count)
+            Set newSh = ws.Shapes(ws.Shapes.count)
             Let newSh.left = leftTmp
             Let newSh.top = topTmp
             Let newSh.placement = placement
@@ -816,8 +816,8 @@ Private Sub dateFromTestCase()
              "Data Source=" & fullName & ";" & _
              "Extended Properties=""Excel 12.0 Xml;HDR=No;IMEX=1"";")
     Call Recordset.Open(sSQL, Connect, 3, 1)
-    If Not Recordset.EOF Then Call Recordset.MoveLast
-    If Recordset.Fields.Count <= targetCol Then Exit Sub
+    If Not Recordset.eof Then Call Recordset.MoveLast
+    If Recordset.Fields.count <= targetCol Then Exit Sub
     Do While Not Recordset.BOF
         If InStr(Recordset.Fields(targetCol).value, "LINK END") > 0 Then Exit Do
         For i = 16 To 18
@@ -827,7 +827,7 @@ Private Sub dateFromTestCase()
                 Dim yyyy As String: yyyy = IIf(Len(linePart(7)) = 4, linePart(7), Year(Date))
                 Dim mm As String: mm = left$(linePart(5), Len(linePart(5)) - 1)
                 Dim dd As String: dd = linePart(6)
-                Let .Range("E" & i).value = format(DateSerial(yyyy, mm, dd), "yyyy/mm/dd")
+                Let .Range("E" & i).value = Format(DateSerial(yyyy, mm, dd), "yyyy/mm/dd")
                 
             End If
         Next i
@@ -887,7 +887,7 @@ Private Sub checkMakFile(ByRef task As String)
     Dim fullNameMak As String: Let fullNameMak = getFullName(getRelativePath(task & ".mak"))
     Dim fStream As Object: Set fStream = CreateObject("ADODB.Stream")
     Let fStream.Type = 2
-    Let fStream.Charset = "x-euc-jp"
+    Let fStream.charset = "x-euc-jp"
     Call fStream.Open
     Call fStream.LoadFromFile(fullNameMak)
     Dim fileContent As String: Let fileContent = fStream.ReadText(-1)
@@ -1016,7 +1016,7 @@ Private Function gitCheckout(ByRef GIT As String, ByRef repoPath As String, ByRe
     Set exec = wsh.exec(Script)
     Do While exec.status = 0: DoEvents: Loop
 ' Let gitLog = exec.StdOut.ReadAll & vbCrLf & exec.StdErr.ReadAll: Debug.Print "gitLog"; gitLog
-    If exec.ExitCode <> 0 Then
+    If exec.exitCode <> 0 Then
         Let gitCheckout = "0-#-CHECKOUT fail"
     Else
         Let gitCheckout = "1-#-" & line
@@ -1040,48 +1040,61 @@ Public Sub uatTest()
 Application.ScreenUpdating = False
 Application.Calculation = xlCalculationManual
 Application.EnableEvents = False
-    Dim ws As Worksheet: Set ws = ActiveSheet
-    Dim Tst As PJ1_Logic: Set Tst = New PJ1_Logic
-    Call Tst.Init(ws)
-    With ws
-    Let .Range("D1").value = format(Now, "yyyy/mm/dd HH:nn:ss")
-    Dim SKIP As String: Let SKIP = .Range("K1").value
-    Dim AUTO As String: Let AUTO = .Range("J2").value
-    Dim task As String: Let task = .Range("D5").value
-    Dim TASK_LEN As Byte: Let TASK_LEN = 8
-    If Not (ws.name = task And Len(task) = TASK_LEN) Then MsgBox "??? Sheet name: " & ws.name: GoTo CleanUp
-    Dim skipCheckout As Boolean: Let skipCheckout = (.Range("C3").value = SKIP)
-    If Not skipCheckout Then
-        Call gitCheckoutByKey(task)
-        Dim isCheckout As Boolean: Let isCheckout = (InStr(1, .Range("E3").value, task, vbTextCompare) > 0)
-        If Not isCheckout Then MsgBox "??? Branch " & .Range("E3").value: GoTo CleanUp
-    End If
-    Dim skipFileName As Boolean: Let skipFileName = (.Range("C4").value = SKIP)
-    ' If Not skipFileName Then Call checkFileName
-    If Not skipFileName Then Call Tst.CheckFileName
-    Dim skipMakCheck As Boolean: Let skipMakCheck = (.Range("C9").value = SKIP)
-    If Not skipMakCheck Then Call checkMakFile(task)
-    Dim skipDateCheck As Boolean: Let skipDateCheck = (.Range("C15").value = SKIP)
-    If Not skipDateCheck Then
-        Call commitDate(task & ".src", "D16")
-        Call commitDate(task & ".mak", "D17")
-        Call commitDate(task & ".ini", "D18")
-        Call dateFromTestCase
-    End If
-    Dim skipDbClose As Boolean: Let skipDbClose = (.Range("C23").value = SKIP)
-    If Not skipDbClose Then Call findDbClose
-    Dim skipRM1020 As Boolean: Let skipRM1020 = (.Range("C26").value = SKIP)
-    If Not skipRM1020 Then Call checkEncodeAndEOF(task)
-    Dim skipFindPhase1 As Boolean: Let skipFindPhase1 = (.Range("C31").value = SKIP)
-    If Not skipFindPhase1 Then Call findPhase1
-    Dim skipCheckPhase1 As Boolean: Let skipCheckPhase1 = (.Range("C32").value = SKIP)
-    If Not skipCheckPhase1 Then Call checkDiffPhase1(task)
-    End With
-CleanUp:
+    
+Cleanup:
 Application.ScreenUpdating = True
 Application.Calculation = xlCalculationAutomatic
 Application.EnableEvents = True
 End Sub
+
+Public Sub uatTest2()
+Application.ScreenUpdating = False
+Application.Calculation = xlCalculationManual
+Application.EnableEvents = False
+    Dim ws As Worksheet: Set ws = ActiveSheet
+    Dim Tst As PJ1_Logic: Set Tst = New PJ1_Logic
+    Call Tst.Init(ws)
+    
+    Call Tst.ChecklistExits
+    Call Tst.UTExits
+    Call Tst.CountInUT
+    Call Tst.CountInOutput
+    Call Tst.SfcmaplgExist
+    Call Tst.SfcmerlgExist
+    Call Tst.LogExist
+
+    Call Tst.LogEOF ' lac
+    Call Tst.SfcmaplgEOF ' lac
+    Call Tst.SfcmerlgEOF ' lac
+
+    Call Tst.CheckLogContent
+    Call Tst.LastRuntime
+    Call Tst.GetTestcsh
+    Call Tst.GetTestcshExec
+    Call Tst.GetALELog
+    Call Tst.CheckSfcmaplgOutput
+    Call Tst.CheckSfcmerlgOutput
+
+    Call Tst.CheckSfcmaplgLine
+    Call Tst.CheckSfcmerlgLine
+    Call Tst.CheckSfcmerlgError
+
+    Call Tst.CheckElsePattern ' rat lac
+
+    ' HELPER
+    ' Call Tst.ExportImages
+
+    ' Call Tst.XXXTEST
+
+    With ws
+    End With
+Cleanup:
+Application.ScreenUpdating = True
+Application.Calculation = xlCalculationAutomatic
+Application.EnableEvents = True
+End Sub
+
+
 
 
 

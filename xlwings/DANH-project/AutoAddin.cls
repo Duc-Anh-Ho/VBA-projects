@@ -12,7 +12,7 @@ Option Explicit
 ' --- Dependencies ---
 Private info As InfoConstants
 Private system As SystemUpdate
-Private Script As Utils_Scripts
+Private Scripts As Utils_Scripts
 ' --- Object ---
 Private userResponse As VbMsgBoxResult
 ' --- Member ---
@@ -29,8 +29,8 @@ Private Function hasVariables() As Boolean
 On Error GoTo ErrorHandle
     Set info = New InfoConstants
     Set system = New SystemUpdate
-    Set Script = New Utils_Scripts
-    Set fileSystem = Script.fileSystem
+    Set Scripts = New Utils_Scripts
+    Set fileSystem = Scripts.fileSystem
     'NOTE: Don't need to have workplace for this procedure
     'UserLibraryPath of PC:
     '"C:\Users\Admin\AppData\Roaming\Microsoft\AddIns\"
@@ -53,7 +53,7 @@ End Sub
 Private Sub Class_Terminate()
     Set info = Nothing
     Set system = Nothing
-    Set Script = Nothing
+    Set Scripts = Nothing
     Set fileSystem = Nothing
 End Sub
 
@@ -217,6 +217,8 @@ ErrorHandle:
 ExecuteProcedure:
     Call system.speedOff
 End Sub
+
+
 
 
 

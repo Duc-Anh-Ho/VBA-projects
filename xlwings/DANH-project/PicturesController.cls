@@ -191,7 +191,7 @@ End Property
 'METHODS
 '1,2,3
 Public Sub lockRatio(ByRef targetObject As Object)
-    Select Case TypeName(targetObject)
+    Select Case typeName(targetObject)
         Case "Shape"
             Let targetObject.LockAspectRatio = isLockRatio
         Case Else
@@ -205,7 +205,7 @@ Public Sub sendTo( _
     , Optional ByRef orderType As Byte = msoBringToFront _
 )
     ' TODO CHnage all typename to typeOF for wider handle
-    Select Case TypeName(targetObject)
+    Select Case typeName(targetObject)
         Case "Shape"
             Call targetObject.zOrder(orderType)
         Case Else
@@ -214,12 +214,12 @@ Public Sub sendTo( _
 End Sub
 '1,2
 Private Sub setTargetPlace(targetOj As Object, Optional hasConfirm As Boolean = True)
-    Select Case TypeName(targetOj)
+    Select Case typeName(targetOj)
         Case "Range"
             Set targetPlace = targetOj
         Case "DrawingObjects"
             MsgBox _
-                Prompt:="Sorry! we've not supported " & TypeName(targetOj) & " yet" _
+                Prompt:="Sorry! we've not supported " & typeName(targetOj) & " yet" _
                     & vbNewLine & "Please select another object type !!!!", _
                 Buttons:=vbOKOnly + vbCritical, _
                 Title:=info.getAuthor
@@ -228,7 +228,7 @@ Private Sub setTargetPlace(targetOj As Object, Optional hasConfirm As Boolean = 
             If hasConfirm Then
                 Let userResponse = MsgBox( _
                     Prompt:="You've selected: '" & targetOj.name & _
-                        "' as type: " & TypeName(targetOj) & vbNewLine & _
+                        "' as type: " & typeName(targetOj) & vbNewLine & _
                         "Do you want to replace " & targetOj.name & "?", _
                     Buttons:=vbYesNoCancel + vbQuestion, _
                     Title:=info.getAuthor)
@@ -251,10 +251,10 @@ End Sub
 Private Sub deleteOldPicture()
     If targetPlace Is Nothing Then Exit Sub
     If userResponse = vbYes Then
-        Select Case TypeName(targetPlace)
+        Select Case typeName(targetPlace)
             Case "ChartArea"
                 MsgBox _
-                    Prompt:="The captured picture is inside the " & TypeName(Selection) _
+                    Prompt:="The captured picture is inside the " & typeName(Selection) _
                         & vbNewLine & "Can't delete it automatically", _
                     Buttons:=vbOKOnly + vbExclamation, _
                     Title:=info.getAuthor
@@ -284,7 +284,7 @@ Private Sub capturePicture()
         .ScreenUpdating = False
         .CommandBars.ExecuteMso "ScreenClipping" 'important key
     End With
-    If TypeName(Selection) = "Picture" Then
+    If typeName(Selection) = "Picture" Then
         Set targetObject = Selection
 '        targetObject.Cut
 '    'Paste to A1 as default
@@ -313,7 +313,7 @@ Private Sub scalePicture( _
     ' Scale up when too small
     If targetPlace.height < customOffset * 2 Or _
     targetPlace.width < customOffset * 2 Then
-        If TypeName(targetPlace) <> "Range" Then
+        If typeName(targetPlace) <> "Range" Then
             Let targetPlace.height = targetPlace.height + customOffset * 2
             Let targetPlace.width = targetPlace.width + customOffset * 2
         End If
@@ -370,7 +370,7 @@ On Error GoTo ErrorHandle
     Let sxC.letWorkflow = "capture-last-region-workflow"
     Call sxC.START(30000)
     ' TODO: REFACTOR HERE
-    Let fullName = latestPic(savedPath & "\" & format(Date, "yymmdd"))
+    Let fullName = latestPic(savedPath & "\" & Format(Date, "yymmdd"))
     Application.Wait Now + TimeValue("0:00:02") ' 1 second delay
     If fullName <> vbNullString Then
         ActiveSheet.Pictures.Insert (fullName)
@@ -379,7 +379,7 @@ On Error GoTo ErrorHandle
         '    Set targetObject = ActiveSheet.Pictures.Paste()
         ActiveSheet.Paste
     End If
-    Set targetObject = ActiveSheet.Pictures(ActiveSheet.Pictures.Count)
+    Set targetObject = ActiveSheet.Pictures(ActiveSheet.Pictures.count)
     Let letLockRatio = True
     Call scalePicture(isLockRatio, msoSendToBack)
     Call deleteOldPicture
@@ -501,7 +501,7 @@ Public Sub arrangeToMerge()
     On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
     Call system.speedOn
-    If TypeName(Selection) = "GroupObject" Then
+    If typeName(Selection) = "GroupObject" Then
         Call setTargetPlace(Selection.TopLeftCell.MergeArea)
         Call setTargetObject(Selection.name)
         Call scalePicture(isLockRatio, msoBringToFront)

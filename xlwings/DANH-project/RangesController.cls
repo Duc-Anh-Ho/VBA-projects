@@ -68,7 +68,7 @@ End Sub
 'ASSESSORS
 '0- Check targetRange
 Private Property Get isRange(selectedRange As Variant, Optional hasMessage As Boolean = True) As Boolean
-    If TypeName(selectedRange) = "Range" Then
+    If typeName(selectedRange) = "Range" Then
 '    If TypeName(Selection) = "ChartArea" Then
         Set targetRange = selectedRange
         Let isRange = True
@@ -303,7 +303,7 @@ On Error GoTo ErrorHandle
     
     If isOrderByLength Then
         Dim tmpWs As Worksheet
-        Dim size As Long: Let size = findArea.Rows.Count
+        Dim size As Long: Let size = findArea.Rows.count
         Dim keyArea As Range
         Dim sortArea As Range
         Set tmpWs = ThisWorkbook.Sheets(MULTI_REPLACE_TMP_SHEET_NAME)
@@ -316,7 +316,7 @@ On Error GoTo ErrorHandle
             Let .Range("C1").Resize(size, 1).Formula = "=LEN(A1)"
             With .Sort
                 .SortFields.Clear
-                .SortFields.add _
+                .SortFields.Add _
                     key:=keyArea, _
                     SortOn:=xlSortOnValues, _
                     Order:=xlDescending, _
@@ -330,7 +330,7 @@ On Error GoTo ErrorHandle
         End With
     End If
     
-    For i = 1 To findArea.Count
+    For i = 1 To findArea.count
         If Len(findArea.Cells(i)) > 0 Then
             within.Replace _
                 What:=findArea.Cells(i).value _
@@ -361,20 +361,20 @@ End Function
 'EVENTS
 
 Private Sub appEvent_SheetDeactivate(ByVal sheetObject As Object)
-    If TypeName(sheetObject) = SHEET_TYPE Then
+    If typeName(sheetObject) = SHEET_TYPE Then
         Call pasteHighlightFormat(sheetObject)
     End If
 End Sub
 
 Private Sub appEvent_SheetActivate(ByVal sheetObject As Object)
-    If TypeName(sheetObject) = SHEET_TYPE Then
+    If typeName(sheetObject) = SHEET_TYPE Then
         Call storeHighlightFormat(sheetObject)
         Call highlight(Selection)
     End If
 End Sub
 
 Private Sub appEvent_SheetSelectionChange(ByVal sheetObject As Object, ByVal target As Range)
-    If TypeName(sheetObject) = SHEET_TYPE Then
+    If typeName(sheetObject) = SHEET_TYPE Then
         Call pasteHighlightFormat(sheetObject)
         Call highlight(target)
     End If

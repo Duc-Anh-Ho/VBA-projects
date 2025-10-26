@@ -125,7 +125,7 @@ Public Sub InitFromControl(ByVal formControl As MsForms.control, ByVal hWndForm 
 #End If
     Set m_control = formControl
     m_hWndForm = hWndForm
-    Select Case TypeName(formControl)
+    Select Case typeName(formControl)
         Case "CheckBox":      Set m_CheckBox = formControl
         Case "ComboBox":      Set m_ComboBox = formControl
         Case "CommandButton": Set m_CommandButton = formControl

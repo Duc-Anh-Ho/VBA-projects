@@ -11,6 +11,7 @@ Attribute VB_Exposed = False
 Option Explicit
 ' --- Dependencies ---
 Private Script As Utils_Scripts
+Private Stringify As Utils_Stringify
 ' --- Object ---
 Private AddressDictionary As Object
 Private WithEvents WorksheetEvent As Worksheet
@@ -26,19 +27,16 @@ End Sub
 
 Private Sub Class_Initialize()
     Set Script = New Utils_Scripts
+    Set Stringify = New Utils_Stringify
     Set AddressDictionary = Script.Dictionary
 End Sub
 ' --- Destructor ---
 Private Sub Class_Terminate()
+    Set Script = Nothing
+    Set Stringify = Nothing
     Set AddressDictionary = Nothing
     Set WorksheetEvent = Nothing
-    Set Script = Nothing
 End Sub
-' --- Helper Methods ---
-Private Function stringifySheetName(ByRef targetWorksheet As Worksheet) As String
-    Dim name As String: Let name = targetWorksheet.name
-    Let stringifySheetName = "'" & Replace(name, "'", "''") & "'!"
-End Function
 ' --- Property Accessor / Mutator ---
 Friend Property Set UseSheet(ByRef targetWorksheet As Worksheet)
     Set WorksheetEvent = targetWorksheet
@@ -56,12 +54,12 @@ Friend Property Get Dictionary() As Object
     Set Dictionary = AddressDictionary
 End Property
 ' --- Fuctions / Subroutines ---
-Friend Sub add( _
+Friend Sub Add( _
     ByRef key As String _
     , ByRef value As String _
     , Optional ByRef isNote As Boolean = True _
 )
-    Let AddressDictionary(key) = stringifySheetName(WorksheetEvent) & value
+    Let AddressDictionary(key) = Stringify.sheetName(WorksheetEvent) & value
     With WorksheetEvent
     ' Add Note
     Call .Range(AddressDictionary(key)).ClearComments
@@ -87,9 +85,37 @@ Friend Function GetValue(ByRef key As String) As String
     Let GetValue = WorksheetEvent.Range(AddressDictionary(key)).value
 End Function
 
+Friend Function GetValueArray(ByRef key As String) As String()
+    Dim Array2D As Variant
+    Dim Array1D() As String
+    Let Array2D = WorksheetEvent.Range(AddressDictionary(key)).value
+    ReDim Array1D(1 To UBound(Array2D, 1))
+    Dim i As Long: For i = 1 To UBound(Array2D, 1)
+        Let Array1D(i) = CStr(Array2D(i, 1))
+    Next i
+    Let GetValueArray = Array1D
+End Function
+
+' TODO: Change input to Variant for 1DArr Or 2DArr Or Collection
+Friend Sub SetValueArray(ByRef key As String, ByRef inArray1D() As String)
+    Dim rng As Range
+    Dim Array2D As Variant
+    Set rng = WorksheetEvent.Range(AddressDictionary(key))
+    ReDim Array2D(LBound(inArray1D) To UBound(inArray1D), 1 To 1)
+    If UBound(inArray1D) - LBound(inArray1D) + 1 <> rng.Rows.count Then
+        MsgBox "Error: Array size (" & (UBound(inArray1D) - LBound(inArray1D) + 1) & _
+               ") does not match target range rows (" & rng.Rows.count & ")", vbCritical
+        Stop
+        Exit Sub
+    End If
+    Dim i As Long: For i = LBound(inArray1D) To UBound(inArray1D)
+        Let Array2D(i, 1) = inArray1D(i)
+    Next i
+    Let rng.value = Array2D
+End Sub
+
 Friend Sub AddAllNotes()
-    Dim key As Object
-    For Each key In AddressDictionary.Keys
+    Dim key As Variant: For Each key In AddressDictionary.Keys
         Dim Addr As String: Let Addr = AddressDictionary(key)
         With WorksheetEvent.Range(Addr)
         Call .ClearComments
@@ -103,12 +129,12 @@ Friend Sub AddAllNotes()
 End Sub
 
 Friend Sub ClearAllNotes()
-    Dim key As Object: For Each key In AddressDictionary.Keys
+    Dim key As Variant: For Each key In AddressDictionary.Keys
         Dim Addr As String: Let Addr = AddressDictionary(key)
-        With WorksheetEvent.Range(Addr)
-        Call .ClearComments
-        End With
+        Call WorksheetEvent.Range(Addr).ClearComments
     Next key
 End Sub
+
+
 
 

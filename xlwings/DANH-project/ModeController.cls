@@ -14,7 +14,7 @@ Private info As InfoConstants
 Private system As SystemUpdate
 Private userResponse As VbMsgBoxResult
 Private app As Application
-Private wd As window
+Private wd As WINDOW
 Private wb As Workbook
 Private ws As Worksheet
 

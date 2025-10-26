@@ -95,17 +95,17 @@ End Sub
 ' 2025-10-18
 ' Helper methods that using in Imediate Window
 
-Public Function Clip(Optional ByRef text As String = VbNullString)
+Public Function Clip(Optional ByRef text As String = vbNullString)
     Dim Clipboard As Utils_Clipboard
     Set Clipboard = New Utils_Clipboard
-    If text <> VbNullString Then Call Clipboard.SaveByCOM(text)
+    If text <> vbNullString Then Call Clipboard.SaveByCOM(text)
     Let Clip = Clipboard.LoadByCOM
 End Function
 
 Public Function Clip2(Optional ByRef text As String = vbNullString)
     Dim Clipboard As Utils_Clipboard
     Set Clipboard = New Utils_Clipboard
-    If text <> VbNullString Then Call Clipboard.SaveByAPI(text)
+    If text <> vbNullString Then Call Clipboard.SaveByAPI(text)
     Let Clip2 = Clipboard.LoadByAPI
 End Function
 
@@ -150,3 +150,43 @@ Public Sub Clear()
     Set VBE = New Utils_VBE
     Call VBE.ClearImmediateWindowUnix
 End Sub
+
+Public Sub PrintDictionary(ByRef dict As Object)
+    Dim VBE As Utils_VBE
+    Set VBE = New Utils_VBE
+    Call VBE.PrintParsedDictionary(dict)
+End Sub
+
+Public Sub PrintStringArray(ByRef StrArr As Variant)
+    Dim VBE As Utils_VBE
+    Set VBE = New Utils_VBE
+    Call VBE.PrintParsedStringArray(StrArr)
+End Sub
+
+Public Sub PrintCollection(ByRef coll As Collection)
+    Dim VBE As Utils_VBE
+    Set VBE = New Utils_VBE
+    Call VBE.PrintParsedCollection(coll)
+End Sub
+
+' TODO Move to arrayControler or utuils
+Public Function CollectionToArray(ByRef coll As Collection) As String()
+    Dim arr() As String
+    ReDim arr(1 To coll.count)
+    Dim i As Long: For i = 1 To coll.count
+        Let arr(i) = CStr(coll(i))
+    Next i
+    Let CollectionToArray = arr
+End Function
+
+Public Function ArrayToCollection(ByRef arr() As String) As Collection
+    Dim coll As Collection
+    Dim i As Long
+    Set coll = New Collection
+    For i = LBound(arr) To UBound(arr)
+        Call coll.Add(arr(i))
+    Next i
+    Set ArrayToCollection = coll
+End Function
+
+

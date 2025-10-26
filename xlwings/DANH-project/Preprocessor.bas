@@ -87,7 +87,7 @@ Option Explicit
     ) As Long
     Public Declare Function CloseClipboard Lib "user32" () As Long
     Public Declare Function GetClipboardData Lib "user32" ( _
-        ByVal clipboardDataFormat As Long _ 
+        ByVal clipboardDataFormat As Long _
     ) As Long
     Public Declare Function EmptyClipboard Lib "user32" () As Long
     Public Declare Function SetClipboardData Lib "user32" ( _
@@ -105,9 +105,9 @@ Option Explicit
         Set GetRibbon = objRibbon
         Set objRibbon = Nothing
     End Function
-#ElseIf Win64 Then 
-#ElseIf Win32 Then 
-#ElseIf Win16 Then 
+#ElseIf Win64 Then
+#ElseIf Win32 Then
+#ElseIf Win16 Then
 #End If
 
 ' Trick: Define dummy LongPtr type for backward compatibility (no native LongPtr support)
@@ -130,6 +130,8 @@ Option Explicit
 '        Set GetRibbon = objRibbon
 '        Set objRibbon = Nothing
 'End Function
+
+
 
 
 

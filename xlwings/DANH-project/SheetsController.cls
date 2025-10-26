@@ -143,7 +143,7 @@ Private Sub addSheetsAsRange()
     Dim addSheetCount As Long
     Dim mess As String
     'Check Selected Range
-    If TypeName(Selection) <> "Range" Then
+    If typeName(Selection) <> "Range" Then
         Let userResponse = MsgBox( _
             Prompt:=info.getPrompt & _
                 "You have to select range first for adding sheet(s)!", _
@@ -195,7 +195,7 @@ Private Sub addSheetsAsRange()
         'Check don't exist and not null
         If Not system.hasSheet(cellText) And cellText <> vbNullString Then
             'Add at the end
-            wss.add(After:=wss(wss.Count)).name = cellText
+            wss.Add(After:=wss(wss.count)).name = cellText
         End If
     Next cell
     'Return to origin sheet
@@ -229,7 +229,7 @@ Private Sub insertListSheetsColumn(Optional ByVal onSheet As Worksheet)
         ' Initialize listSheetRange
         Set listSheetRange = Range( _
             Range(TITLE_NO_CELL), _
-            Range(TITLE_NAME_CELL).offset(wss.Count))
+            Range(TITLE_NAME_CELL).offset(wss.count))
         ' Disble copy/cut before insert
         appEvent.CutCopyMode = False
         ' Add No and Name columns
@@ -252,7 +252,7 @@ Private Sub insertListSheetsColumn(Optional ByVal onSheet As Worksheet)
             .EntireColumn.AutoFit
             ' Add data validation
             .Validation.Delete
-            .Validation.add _
+            .Validation.Add _
                 Type:=xlValidateCustom, _
                 AlertStyle:=xlValidAlertStop, _
                 Operator:=xlBetween, _
@@ -283,7 +283,7 @@ Private Sub insertListSheetsColumn(Optional ByVal onSheet As Worksheet)
             .EntireColumn.AutoFit
             ' Add data validation
             .Validation.Delete
-            .Validation.add _
+            .Validation.Add _
                 Type:=xlValidateCustom, _
                 AlertStyle:=xlValidAlertStop, _
                 Operator:=xlBetween, _
@@ -316,7 +316,7 @@ Private Sub insertListSheetsColumn(Optional ByVal onSheet As Worksheet)
                 .value = CStr(ws.index)
                 ' Add data validation
                 .Validation.Delete
-                .Validation.add _
+                .Validation.Add _
                     Type:=xlValidateCustom, _
                     AlertStyle:=xlValidAlertStop, _
                     Operator:=xlBetween, _
@@ -332,7 +332,7 @@ Private Sub insertListSheetsColumn(Optional ByVal onSheet As Worksheet)
             ' Add Name coulmn data
             With onSheet.Range(TITLE_NAME_CELL).offset(ws.index)
                 ' Add Hyperlinks to Name column
-                ws.Hyperlinks.add _
+                ws.Hyperlinks.Add _
                     Anchor:=onSheet.Range(TITLE_NAME_CELL).offset(ws.index), _
                     Address:="", _
                     SubAddress:="'" & ws.name & "'" & "!" & TITLE_NO_CELL, _
@@ -350,7 +350,7 @@ Private Sub insertListSheetsColumn(Optional ByVal onSheet As Worksheet)
                 .value = CStr(ws.name)
                 ' Add data validation
                 .Validation.Delete
-                .Validation.add _
+                .Validation.Add _
                     Type:=xlValidateCustom, _
                     AlertStyle:=xlValidAlertStop, _
                     Operator:=xlBetween, _
@@ -395,7 +395,7 @@ Private Sub insertRenameColumn(Optional ByVal onSheet As Worksheet)
             .HorizontalAlignment = xlCenter
             ' Add data validation
             .Validation.Delete
-            .Validation.add _
+            .Validation.Add _
                 Type:=xlValidateCustom, _
                 AlertStyle:=xlValidAlertStop, _
                 Operator:=xlBetween, _
@@ -412,7 +412,7 @@ Private Sub insertRenameColumn(Optional ByVal onSheet As Worksheet)
         End With
         With onSheet.Range( _
             Range(TITLE_RENAME_CELL).offset(1), _
-            Range(TITLE_RENAME_CELL).offset(wss.Count))
+            Range(TITLE_RENAME_CELL).offset(wss.count))
             ' Add Format
             .ClearFormats
             .Font.bold = LIST_ISBOLD
@@ -424,7 +424,7 @@ Private Sub insertRenameColumn(Optional ByVal onSheet As Worksheet)
             .HorizontalAlignment = xlLeft
             ' Add data validation prevent duplicate input Rename
             .Validation.Delete
-            .Validation.add _
+            .Validation.Add _
                 Type:=xlValidateCustom, _
                     AlertStyle:=xlValidAlertStop, _
                     Operator:=xlBetween, _
@@ -481,12 +481,12 @@ Private Sub renameSheet( _
             Set listSheetRange = Union( _
                 Range( _
                     Range(TITLE_NO_CELL), _
-                    Range(TITLE_NAME_CELL).offset(wss.Count)), _
+                    Range(TITLE_NAME_CELL).offset(wss.count)), _
                 Range(TITLE_RENAME_CELL))
             ' Initialize renameSheetRange
             Set renameSheetRange = Range( _
                 Range(TITLE_RENAME_CELL).offset(1), _
-                Range(TITLE_RENAME_CELL).offset(wss.Count))
+                Range(TITLE_RENAME_CELL).offset(wss.count))
             ' Change to dump name for prevent duplication
             For Each cell In renameSheetRange
                 'Remove special chars in newName
@@ -521,12 +521,12 @@ Private Sub renameSheet( _
             Set listSheetRange = Union( _
                 Range( _
                     Range(TITLE_NO_CELL), _
-                    Range(TITLE_NAME_CELL).offset(wss.Count)), _
+                    Range(TITLE_NAME_CELL).offset(wss.count)), _
                 Range(TITLE_RENAME_CELL))
             ' Initialize renameSheetRange
             Set renameSheetRange = Range( _
                 Range(TITLE_RENAME_CELL).offset(1), _
-                Range(TITLE_RENAME_CELL).offset(wss.Count))
+                Range(TITLE_RENAME_CELL).offset(wss.count))
         End If
     Else
         Let userResponse = MsgBox(Prompt:=info.getPrompt & _
@@ -562,7 +562,7 @@ Private Sub hideAllSheets( _
 End Sub
 'MAIN
 'M1-1
-Public Sub add()
+Public Sub Add()
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
     Call system.speedOn
@@ -626,7 +626,7 @@ End Sub
 Public Sub selectNext()
     If ActiveSheet Is Nothing Then Exit Sub
     If Sheets Is Nothing Then Exit Sub
-    If ActiveSheet.index = Sheets.Count Then
+    If ActiveSheet.index = Sheets.count Then
         Sheets(1).visible = xlSheetVisible
         Sheets(1).Select
     Else
@@ -639,8 +639,8 @@ Public Sub selectPrevious()
     If ActiveSheet Is Nothing Then Exit Sub
     If Sheets Is Nothing Then Exit Sub
     If ActiveSheet.index = 1 Then
-        Sheets(Sheets.Count).visible = xlSheetVisible
-        Sheets(Sheets.Count).Select
+        Sheets(Sheets.count).visible = xlSheetVisible
+        Sheets(Sheets.count).Select
     Else
         ActiveSheet.Previous.visible = xlSheetVisible
         ActiveSheet.Previous.Select
@@ -652,7 +652,7 @@ Private Sub appEvent_SheetActivate(ByVal sheetObject As Object)
 On Error GoTo ErrorHandle
     Call system.speedOn
     '2 levels check previous sheet
-    If (TypeName(sheetObject) = "Worksheet") Then
+    If (typeName(sheetObject) = "Worksheet") Then
         If sheetObject.Type = xlWorksheet Then ' xlWorksheet = -4167
             Call insertListSheetsColumn(sheetObject)
         End If
@@ -668,7 +668,7 @@ Private Sub appEvent_SheetDeactivate(ByVal sheetObject As Object)
 On Error GoTo ErrorHandle
     Call system.speedOn
     '2 levels check previous sheet
-    If (TypeName(sheetObject) = "Worksheet") Then
+    If (typeName(sheetObject) = "Worksheet") Then
         If sheetObject.Type = xlWorksheet Then ' xlWorksheet = -4167
             Call deleteListColumn(sheetObject)
         End If
@@ -688,7 +688,7 @@ End Sub
 Private Sub wsEvent_Change(ByVal target As Range)
     If Intersect(target, listSheetRange) Is Nothing Then Exit Sub
 '    sheetObject.CircleInvalid
-    If target.Cells.Count = 1 Then
+    If target.Cells.count = 1 Then
         If preventchangedFlag = target.text Then Exit Sub
         Let userResponse = MsgBox( _
             Prompt:=info.getPrompt & _
@@ -707,7 +707,7 @@ Private Sub wsEvent_SelectionChange(ByVal target As Range)
         Exit Sub
     Else
 '        sheetObject.CircleInvalid
-        If target.Cells.Count = 1 Then
+        If target.Cells.count = 1 Then
             Let preventchangedFlag = target.text
         Else
             'Prevent delete, insert, sort, format list sheet

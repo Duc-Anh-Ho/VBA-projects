@@ -160,7 +160,7 @@ End Property
 'METHODS
 
 Private Sub createFolders()
-'       MkDir (path) 'old way can't check existed
+    'NOTE: MkDir (path) 'old way can't check existed
     Dim path As Variant
     Let pathArray(VBAfolder.MAIN) = activeFile.path & _
         VBA_FOLDER & _
@@ -172,7 +172,7 @@ Private Sub createFolders()
     'Loop through my path array and create folder
     For Each path In pathArray
         If Not fileSystem.FolderExists(path) Then
-            fileSystem.createFolder path
+            Call fileSystem.CreateFolder(path)
         End If
     Next path
 End Sub
@@ -191,11 +191,11 @@ End Sub
 'Replace VBA file be used for Module/ClassModule/Document
 Private Sub replaceVBAFile(ByVal path As String)
     Dim amountVBAfile As Integer
-    Let amountVBAfile = components.Count
+    Let amountVBAfile = components.count
     'Remove VBA file
     components.remove component
     'Check case can't remove immediately (in use VBA file)
-    If amountVBAfile = components.Count Then
+    If amountVBAfile = components.count Then
         component.name = component.name & info.getAuthor
     End If
     'Add VBA file with path
@@ -246,7 +246,7 @@ On Error GoTo ErrorHandle
     Dim path As Variant
     Let filePaths = getFilePaths
     ' Check if don't select files
-    If TypeName(filePaths) = "Boolean" Then GoTo ExecuteProcedure
+    If typeName(filePaths) = "Boolean" Then GoTo ExecuteProcedure
     'Loop through all paths
     For Each path In filePaths
         Call importVBAFile(path)
@@ -311,25 +311,29 @@ ExecuteProcedure:
 End Sub
 
 'File Name to clipboard
-Public Sub copyFileName(Optional ByRef TypeName As String = "name")
+Public Sub copyFileName(Optional ByRef typeName As String = "name")
 On Error GoTo ErrorHandle
     Dim name As String
-    Let name = system.getFileName(TypeName)
+    Let name = system.getFileName(typeName)
     If name = vbNullString Then
          MsgBox _
                 Prompt:=info.getPrompt & _
-                    "This file doesn't have " & TypeName & _
+                    "This file doesn't have " & typeName & _
                     vbNewLine & _
                     "Please save it first!!", _
                 Buttons:=vbOKOnly + vbExclamation, _
                 Title:=info.getAuthor
         GoTo ExecuteProcedure
     End If
-    Let system.setClipboard = system.getFileName(TypeName)
+    Let system.setClipboard = system.getFileName(typeName)
 ErrorHandle:
     Call system.tackleErrors
 ExecuteProcedure:
 End Sub
+
+
+
+
 
 
 

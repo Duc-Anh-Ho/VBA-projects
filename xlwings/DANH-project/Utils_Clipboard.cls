@@ -12,7 +12,7 @@ Option Explicit
 ' --- Constants ---
 ' REF: https://learn.microsoft.com/en-us/windows/win32/dataxchg/standard-clipboard-formats
 Private Enum CLIPBOARD_FORMATS
-    TEXT = 1                 ' Plain text (ANSI)
+    text = 1                 ' Plain text (ANSI)
     BITMAP = 2               ' Bitmap image handle
     METAFILEPICT = 3         ' Metafile picture format
     SYLK = 4                 ' Symbolic Link (legacy)
@@ -30,8 +30,8 @@ Private Enum CLIPBOARD_FORMATS
     LOCALE = 16              ' Locale identifier
     DIBV5 = 17               ' Device Independent Bitmap v5
 End Enum
-Public Enum GLOBAL_MEMORY
-    FIXED = &H0           ' Memory cannot be moved
+Private Enum GLOBAL_MEMORY
+    Fixed = &H0           ' Memory cannot be moved
     MOVEABLE = &H2        ' Memory block can be moved
     ZEROINIT = &H40       ' Zero-initialize allocated memory
 End Enum
@@ -59,7 +59,7 @@ End Sub
 
 Friend Function LoadByCOM() As String
     Call Clipboard.GetFromClipboard
-    Let LoadByCOM = Clipboard.GetText()
+    Let LoadByCOM = Clipboard.getText()
 End Function
 
 Friend Sub SaveByAPI(Optional ByRef text As String = vbNullString)
@@ -111,3 +111,7 @@ Cleanup:
     Call CloseClipboard
     LoadByAPI = Replace(buffer, vbNullChar, vbNullString)
 End Function
+
+
+
+

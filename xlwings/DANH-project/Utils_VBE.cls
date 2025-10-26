@@ -36,15 +36,15 @@ Private Enum COMPONENT_TYPE
 End Enum
 ' --- Helper Methods ---
 Private Sub closeWindowByPrefix(ByRef prefix As String)
-    Dim window As Object
+    Dim WINDOW As Object
     Dim windowName As String
-    For Each window In Application.VBE.Windows
-        Let windowName = LCase$(left$(window.caption, Len(prefix)))
+    For Each WINDOW In Application.VBE.Windows
+        Let windowName = LCase$(left$(WINDOW.caption, Len(prefix)))
         If windowName = prefix Then
-            Call window.Close
+            Call WINDOW.Close
             Exit For
         End If
-    Next window
+    Next WINDOW
 End Sub
 
 ' --- Main ---
@@ -67,41 +67,41 @@ Friend Sub ListComponentsByTypeName(Optional ByRef typeName As String = vbNullSt
         If typeName <> vbNullString Then
             Select Case VBA.Strings.LCase$(typeName)
                 Case STANDARD_MODULE, STANDARD_MODULE_EXTENSION, STANDARD_MODULE_DOT_EXTENSION
-                    If component.Type = COMPONENT_TYPE.StandardModule Then Debug.Print component.Name
+                    If component.Type = COMPONENT_TYPE.StandardModule Then Debug.Print component.name
                 Case CLASS_MODULE, CLASS_MODULE_EXTENSION, CLASS_MODULE_DOT_EXTENSION
-                    If component.Type = COMPONENT_TYPE.ClassModule Then Debug.Print component.Name
+                    If component.Type = COMPONENT_TYPE.ClassModule Then Debug.Print component.name
                 Case MICROSOFT_FORM, MICROSOFT_FORM_EXTENSION, MICROSOFT_FORM_DOT_EXTENSION
-                    If component.Type = COMPONENT_TYPE.MicrosoftForm Then Debug.Print component.Name
+                    If component.Type = COMPONENT_TYPE.MicrosoftForm Then Debug.Print component.name
                 Case ACTIVEX_DESIGNER, ACTIVEX_DESIGNER_EXTENSION, ACTIVEX_DESIGNER_DOT_EXTENSION
-                    If component.Type = COMPONENT_TYPE.ActivexDesigner Then Debug.Print component.Name
+                    If component.Type = COMPONENT_TYPE.ActivexDesigner Then Debug.Print component.name
                 Case DOCUMENT_MODULE, DOCUMENT_MODULE_EXTENSION, DOCUMENT_MODULE_DOT_EXTENSION
-                    If component.Type = COMPONENT_TYPE.DocumentModule Then Debug.Print component.Name
+                    If component.Type = COMPONENT_TYPE.DocumentModule Then Debug.Print component.name
                 Case Else
                     ' Do nothing for unknown type
             End Select
         Else
             Select Case component.Type
                 Case COMPONENT_TYPE.StandardModule
-                    Debug.Print component.Name & " - " & STANDARD_MODULE
+                    Debug.Print component.name & " - " & STANDARD_MODULE
                 Case COMPONENT_TYPE.ClassModule
-                    Debug.Print component.Name & " - " & CLASS_MODULE
+                    Debug.Print component.name & " - " & CLASS_MODULE
                 Case COMPONENT_TYPE.MicrosoftForm
-                    Debug.Print component.Name & " - " & MICROSOFT_FORM
+                    Debug.Print component.name & " - " & MICROSOFT_FORM
                 Case COMPONENT_TYPE.ActivexDesigner
-                    Debug.Print component.Name & " - " & ACTIVEX_DESIGNER
+                    Debug.Print component.name & " - " & ACTIVEX_DESIGNER
                 Case COMPONENT_TYPE.DocumentModule
-                    Debug.Print component.Name & " - " & DOCUMENT_MODULE
+                    Debug.Print component.name & " - " & DOCUMENT_MODULE
                 Case Else
-                    Debug.Print component.Name & " - Unknown Type"
+                    Debug.Print component.name & " - Unknown Type"
             End Select
-        End If 
+        End If
     Next component
 End Sub
 
 Friend Sub OpenComponentByName(ByRef name As String)
     Dim component As Object
     For Each component In Application.VBE.ActiveVBProject.VBComponents
-        If VBA.Strings.LCase$(component.Name) = VBA.Strings.LCase$(name) Then 
+        If VBA.Strings.LCase$(component.name) = VBA.Strings.LCase$(name) Then
             Call Application.VBE.ActiveVBProject.VBComponents(name).Activate
             Debug.Print name & " opened."
             Exit Sub
@@ -119,9 +119,28 @@ Friend Sub ClearImmediateWindow()
 End Sub
 
 'VBE - DEBUGGER
-Public Sub debugAssert(condition As Boolean)
+Public Sub DebugAssert(condition As Boolean)
 #If debugger Then
     Debug.Assert condition
 #End If
 End Sub
 
+Friend Sub PrintParsedDictionary(ByRef dict As Object)
+    Dim key As Variant
+    For Each key In dict.Keys
+        Debug.Print "Key: " & key & " | Value: " & dict(key)
+    Next key
+End Sub
+
+Friend Sub PrintParsedStringArray(ByRef StrArr As Variant)
+    Dim i As Long: For i = LBound(StrArr) To UBound(StrArr)
+        Debug.Print "Index: " & i & " | Value: " & StrArr(i)
+    Next i
+End Sub
+
+Friend Sub PrintParsedCollection(ByRef col As Collection)
+    Dim i As Long
+    For i = 1 To col.count
+        Debug.Print "Index: " & i & " | Value: " & col(i)
+    Next i
+End Sub

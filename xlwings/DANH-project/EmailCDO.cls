@@ -108,7 +108,7 @@ Private Sub setEmailContent(Optional ByRef attachmentPath As String)
         .Subject = _
             Environ$("computername") & _
             " - " & _
-            format(Now, "YYYY/MM/DD hh:mm:ss")
+            Format(Now, "YYYY/MM/DD hh:mm:ss")
         .TextBody = _
             Environ$("computername") & _
             vbNewLine & _

@@ -106,7 +106,7 @@ Private Sub FindAreaInput_Exit(ByVal Cancel As MsForms.ReturnBoolean)
     On Error Resume Next
     Set findArea = Application.Evaluate(FindAreaInput.text)
     On Error GoTo 0
-    If TypeName(findArea) <> "Range" Then
+    If typeName(findArea) <> "Range" Then
         Let userResponse = MsgBox( _
             Prompt:=info.getPrompt & "Please choose 'Find What:' as Range!", _
             Buttons:=vbOKOnly + vbExclamation, _
@@ -122,7 +122,7 @@ Private Sub ReplaceAreaInput_Exit(ByVal Cancel As MsForms.ReturnBoolean)
     On Error Resume Next
     Set replaceArea = Application.Evaluate(ReplaceAreaInput.text)
     On Error GoTo 0
-    If TypeName(replaceArea) <> "Range" Then
+    If typeName(replaceArea) <> "Range" Then
         Let userResponse = MsgBox( _
             Prompt:=info.getPrompt & "Please choose 'Replace With:' as Range!", _
             Buttons:=vbOKOnly + vbExclamation, _
@@ -140,7 +140,7 @@ Private Sub SelectedAreaInput_Exit(ByVal Cancel As MsForms.ReturnBoolean)
     On Error Resume Next
     Set selectedArea = Application.Evaluate(SelectedAreaInput.text)
     On Error GoTo 0
-    If TypeName(selectedArea) <> "Range" Then
+    If typeName(selectedArea) <> "Range" Then
         Let userResponse = MsgBox( _
             Prompt:=info.getPrompt & "Please choose a selected area as Range!", _
             Buttons:=vbOKOnly + vbExclamation, _
@@ -175,7 +175,7 @@ Private Sub ReplaceAllButton_Click()
             Buttons:=vbOKOnly + vbExclamation, _
             Title:=info.getAuthor)
             SelectedAreaInput.SetFocus
-    ElseIf findArea.Count <> replaceArea.Count Then
+    ElseIf findArea.count <> replaceArea.count Then
         Let userResponse = MsgBox( _
             Prompt:=info.getPrompt _
                 & vbNewLine & "Number of 'Find What' and 'Replace With' does not match." _

@@ -12,7 +12,7 @@ Option Explicit
 'Declare Variables
 Private system As SystemUpdate
 Private powerShell As Object
-Private FileStream As Object 'Stream Object
+Private fileStream As Object 'Stream Object
 Private userResponse As VbMsgBoxResult
 Private Const CREATE_COMMAND_SCRIPT As String = _
     "PowerShell.exe -NoLogo -WindowStyle Hidden -Command "
@@ -44,7 +44,7 @@ Public Property Get runScript(ByRef scrpit As String) As Byte
         WAIT_ON_RETURN)
 End Property
 
-' References: learn.microsoft.com/en-us/office/vba/language/reference/user-interface-help/textstream-object
+' REF: learn.microsoft.com/en-us/office/vba/language/reference/user-interface-help/textstream-object
 Public Property Get executeScript(ByRef scrpit As String) As String
     Dim executionCmd As Object  ' Object = WshExec: Window Shell Execute
     Dim returnTxt As String
@@ -66,6 +66,10 @@ Public Property Get executeScript(ByRef scrpit As String) As String
     End Select
     Let executeScript = returnTxt
 End Property
+
+
+
+
 
 
 

@@ -364,24 +364,24 @@ Private Sub AddForm(ByVal uForm As MsForms.UserForm _
         m_controls.remove keyValue
         m_options.remove keyValue
     Else
-        m_hWndAllForms.add hWndForm, keyValue
+        m_hWndAllForms.Add hWndForm, keyValue
     End If
     '
     If passScrollAtMargins Then so = so Or soPassScrollToParentAtMargins
     If useShiftForPerpendicularScroll Then so = so Or soUseShiftForPerpendicularScroll
     If useCtrlToZoom Then so = so Or soUseCtrlToZoom
-    m_options.add so, keyValue
+    m_options.Add so, keyValue
     '
     Dim subControls As Collection
     Set subControls = New Collection
-    m_controls.add subControls, keyValue
+    m_controls.Add subControls, keyValue
     '
     Dim frmCtrl As MsForms.control
     '
     For Each frmCtrl In uForm.controls
-        subControls.add MouseOverControl.CreateFromControl(frmCtrl, hWndForm)
+        subControls.Add MouseOverControl.CreateFromControl(frmCtrl, hWndForm)
     Next frmCtrl
-    subControls.add MouseOverControl.CreateFromForm(uForm, hWndForm), keyValue
+    subControls.Add MouseOverControl.CreateFromForm(uForm, hWndForm), keyValue
 End Sub
 Private Function MouseOverControl() As MouseOverControl
     Static moc As MouseOverControl
@@ -399,7 +399,7 @@ Private Sub RemoveForm(ByVal hWndForm As LongPtr)
         m_controls.remove keyValue
         m_options.remove keyValue
     End If
-    If m_hWndAllForms.Count = 0 Then UnHookMouse
+    If m_hWndAllForms.count = 0 Then UnHookMouse
 End Sub
 
 '*******************************************************************************
@@ -512,7 +512,7 @@ End Sub
 Private Sub UpdateLastCombo()
     On Error Resume Next
     If m_lastHoveredControl Is Nothing Then GoTo ErrHandle
-    If TypeName(m_lastCombo) <> TypeName(m_lastHoveredControl.getControl) Then GoTo ErrHandle
+    If typeName(m_lastCombo) <> typeName(m_lastHoveredControl.getControl) Then GoTo ErrHandle
     Set m_lastCombo = m_lastHoveredControl.getControl
     On Error GoTo 0
 ErrHandle:
@@ -526,7 +526,7 @@ End Sub
 '*******************************************************************************
 Public Sub ProcessMouseData()
     RemoveDestroyedForms
-    If m_hWndAllForms.Count = 0 Then
+    If m_hWndAllForms.count = 0 Then
         UnHookMouse
         Exit Sub
     End If
@@ -844,7 +844,7 @@ Private Sub TBoxScrollY(ByVal tbox As MsForms.textBox _
         Dim lastY As Long
         Dim i As Long
         '
-        For i = 1 To .LineCount - 1
+        For i = 1 To .lineCount - 1
             lastY = currY
             .CurLine = i
             currY = .CurY
@@ -852,14 +852,14 @@ Private Sub TBoxScrollY(ByVal tbox As MsForms.textBox _
         Next i
         Dim linesPerPage As Long: linesPerPage = i - 1
         '
-        If (linesPerPage = 0) Or (linesPerPage = .LineCount - 1) Then
+        If (linesPerPage = 0) Or (linesPerPage = .lineCount - 1) Then
             tbox.SelStart = selectionStart
             tbox.SelLength = selectionLength
             ScrollY tbox.Parent, scrollAmount
             Exit Sub
         End If
         '
-        .CurLine = .LineCount - 1
+        .CurLine = .lineCount - 1
         Dim lastSelStart As Long: lastSelStart = .SelStart
         .CurLine = 0
         .visible = False
@@ -872,7 +872,7 @@ Private Sub TBoxScrollY(ByVal tbox As MsForms.textBox _
         Dim hmPerLine As Single
         Dim topAdjust As Long
         '
-        .CurLine = .LineCount - 1
+        .CurLine = .lineCount - 1
         .visible = False
         .SelStart = 0
         .SelLength = 0
@@ -880,16 +880,16 @@ Private Sub TBoxScrollY(ByVal tbox As MsForms.textBox _
         .SetFocus
         '
         If bottomY > minY Then
-            hmPerLine = (bottomY - minY) / (.LineCount - 1)
+            hmPerLine = (bottomY - minY) / (.lineCount - 1)
         Else
-            hmPerLine = (minY - .CurY) / (.LineCount - linesPerPage - 1)
-            minY = VBA.Int(bottomY - hmPerLine * (.LineCount - 1))
+            hmPerLine = (minY - .CurY) / (.lineCount - linesPerPage - 1)
+            minY = VBA.Int(bottomY - hmPerLine * (.lineCount - 1))
         End If
         If hmPerLine = 0 Then Exit Sub
-        topAdjust = .CurY - minY + (.LineCount - linesPerPage - 1) * hmPerLine
+        topAdjust = .CurY - minY + (.lineCount - linesPerPage - 1) * hmPerLine
         If Abs(topAdjust) = 1 Then topAdjust = 0 'Rounding error
     End With
-    If startY > tbox.LineCount * hmPerLine Then startY = startY - topAdjust
+    If startY > tbox.lineCount * hmPerLine Then startY = startY - topAdjust
     '
     'Lines to scroll up/down
     Dim deltaLines As Long
@@ -908,8 +908,8 @@ Private Sub TBoxScrollY(ByVal tbox As MsForms.textBox _
     'Clamp the new scroll line
     If newline < 0 Then
         newline = 0
-    ElseIf newline >= tbox.LineCount Then
-        newline = tbox.LineCount - 1
+    ElseIf newline >= tbox.lineCount Then
+        newline = tbox.lineCount - 1
     End If
     tbox.CurLine = newline
     '
@@ -923,7 +923,7 @@ Private Sub TBoxScrollY(ByVal tbox As MsForms.textBox _
     '
     If m_lastSO And soPassScrollToParentAtMargins Then
         currY = tbox.CurY
-        If currY > tbox.LineCount * hmPerLine Then currY = currY - topAdjust
+        If currY > tbox.lineCount * hmPerLine Then currY = currY - topAdjust
         If Abs(currY - startY) < 2 Then ScrollY tbox.Parent, scrollAmount
     End If
 End Sub
@@ -1095,7 +1095,7 @@ Private Function GetControlType(ByVal objControl As Object) As CONTROL_TYPE
         GetControlType = ctNone
         Exit Function
     End If
-    Select Case TypeName(objControl)
+    Select Case typeName(objControl)
         Case "ComboBox"
             GetControlType = ctCombo
         Case "Frame"
@@ -1157,4 +1157,6 @@ Private Function GetWindowUnderCursor() As LongPtr
 End Function
 
 #End If 'End of #If Mac
+
+
 

@@ -61,7 +61,7 @@ Private Enum FORM_POSITION
     left = width / 2
 End Enum
 Private Enum direction
-    up = -1
+    Up = -1
     down = 1
 End Enum
 Private Enum MASK
@@ -265,10 +265,10 @@ End Function
 Private Function canUpdateFormat( _
     ByRef label As MsForms.label _
     , ByRef propName As String _
-    , ByRef format As Long _
+    , ByRef Format As Long _
 ) As Boolean
-    If CallByName(label, propName, VbGet) <> format Then
-        Call CallByName(label, propName, VbLet, format)
+    If CallByName(label, propName, VbGet) <> Format Then
+        Call CallByName(label, propName, VbLet, Format)
         Let canUpdateFormat = True
     Else
         Let canUpdateFormat = False
@@ -457,11 +457,11 @@ Private Sub KeyboardFrameContainer_Exit(ByVal Cancel As MsForms.ReturnBoolean)
     Call hideEditing(isChange:=True)
 End Sub
 
-Private Sub KeyboardFrame_KeyDown(ByVal keyCode As MsForms.ReturnInteger, ByVal Shift As Integer)
-    Select Case keyCode
+Private Sub KeyboardFrame_KeyDown(ByVal KeyCode As MsForms.ReturnInteger, ByVal Shift As Integer)
+    Select Case KeyCode
         Case vbKeyReturn: If Shift = MASK.None Then Call showEditing
         Case vbKeyEscape: If Shift = MASK.None Then Call hidePickingAndEditing(isChange:=False)
-        Case vbKeyUp: If Shift = MASK.None Then Call movePicking(direction.up)
+        Case vbKeyUp: If Shift = MASK.None Then Call movePicking(direction.Up)
         Case vbKeyDown: If Shift = MASK.None Then Call movePicking(direction.down)
     End Select
 End Sub
@@ -570,7 +570,7 @@ Private Sub initRow()
     Dim lineIndex As String
     Dim defaultMark As String
     Dim shortcut As String
-    Call letMaxRow(getShortcutC().getRows().Count)
+    Call letMaxRow(getShortcutC().getRows().count)
     ReDim editedArr(getMaxRow() - 1)
     ReDim applyArr(getMaxRow() - 1)
     Call resetEdited
@@ -735,7 +735,7 @@ Private Sub createRowLabel( _
     , Optional ByRef visible As Boolean = True _
 )
     Dim lineLabel As MsForms.label
-    Set lineLabel = Me.KeyboardFrame.add( _
+    Set lineLabel = Me.KeyboardFrame.Add( _
         bstrProgId:=PROG_ID_LABEL _
         , name:=name _
         , visible:=visible)
@@ -773,7 +773,7 @@ Private Sub createRowTextBox( _
 )
     ' Dim lineTextbox As MSForms.textBox
     Dim lineTextbox As MsForms.control
-    Set lineTextbox = Me.KeyboardFrame.add( _
+    Set lineTextbox = Me.KeyboardFrame.Add( _
         bstrProgId:=PROG_ID_TEXTBOX _
         , name:=name _
         , visible:=visible)
@@ -811,7 +811,7 @@ Private Sub createOverlayLabel( _
     , Optional ByRef visible As Boolean = False _
 )
     Dim overlayLabel As MsForms.label
-    Set overlayLabel = parentCtrl.add( _
+    Set overlayLabel = parentCtrl.Add( _
         bstrProgId:=PROG_ID_LABEL _
         , name:=name _
         , visible:=visible)  'init will hide
@@ -833,11 +833,11 @@ End Sub
 
 Private Sub addEvent(ByRef ctrl As MsForms.control)
     If isLabel(ctrl) Then
-        If isTitle(ctrl) Then getEventColl().add createLabelEvent(ctrl)
-        If isLine(ctrl) Then getEventColl().add createLabelEvent(ctrl)
-        If isOverlay(ctrl) Then getEventColl().add createLabelEvent(ctrl)
+        If isTitle(ctrl) Then getEventColl().Add createLabelEvent(ctrl)
+        If isLine(ctrl) Then getEventColl().Add createLabelEvent(ctrl)
+        If isOverlay(ctrl) Then getEventColl().Add createLabelEvent(ctrl)
     ElseIf isTextBox(ctrl) Then
-        If isLine(ctrl) Then getEventColl().add createTextBoxEvent(ctrl)
+        If isLine(ctrl) Then getEventColl().Add createTextBoxEvent(ctrl)
     End If
 End Sub
 
@@ -910,10 +910,10 @@ End Sub
 
 Public Sub textBoxKeyDown( _
     ByRef textBox As MsForms.textBox _
-    , ByRef keyCode As MsForms.ReturnInteger _
+    , ByRef KeyCode As MsForms.ReturnInteger _
     , ByRef Shift As Integer _
 )
-    Call letEditingShortcut(getShortcutC().convertKeyToName(keyCode, Shift))
+    Call letEditingShortcut(getShortcutC().convertKeyToName(KeyCode, Shift))
     ' Enter press save editing
     If (getEditingShortcut() = getShortcutC().getEnterKey()) Then
         Call hideEditing(isChange:=True)
@@ -928,7 +928,7 @@ Public Sub textBoxKeyDown( _
         Let textBox.text = getEditingShortcut()
     End If
     'Prevent default keyDown
-    Let keyCode = 0
+    Let KeyCode = 0
 End Sub
 
 Public Sub textBoxChange(ByRef textBox As MsForms.textBox)

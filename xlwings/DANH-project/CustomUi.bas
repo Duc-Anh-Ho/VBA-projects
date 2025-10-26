@@ -1340,7 +1340,7 @@ On Error GoTo ErrorHandle
     If loadedRibbon Is Nothing Then
         Debug.Print ("loadedRibbon Is Nothing") 'For watching debug
         ' Reload Ribbon from Pointer (Preprocessor.GetRibbon is Public)
-        Set loadedRibbon = GetRibbon(Workbooks(info.getAddinName).Names(info.getRibbonID))
+        Set loadedRibbon = GetRibbon(Workbooks(info.getAddinName).names(info.getRibbonID))
         ' Reload setting
         Call setDefaultSettings
     End If
@@ -1362,7 +1362,7 @@ On Error GoTo ErrorHandle
     'Store ribbon Object to Public variable
     Set loadedRibbon = ribbon
     'Store pointer to IRibbonUI in a Named Range within add-in file
-    Workbooks(info.getAddinName).Names.add _
+    Workbooks(info.getAddinName).names.Add _
         name:=info.getRibbonID, _
         RefersTo:=ObjPtr(ribbon)
     'Create Custom Event (Ex. Change Sheet,)
@@ -2041,7 +2041,7 @@ On Error GoTo ErrorHandle
     Set sheetC = New SheetsController
     Select Case control.id
         Case addSheetsButton.getID
-            Call sheetC.add
+            Call sheetC.Add
         Case deleteSheetsButton.getID
             Call sheetC.deleteAll
         Case hideSheetsButton.getID
@@ -2362,7 +2362,7 @@ On Error GoTo ErrorHandle
             Call picC.snip
             Set picC = Nothing
         Case arrangeButton.getID
-            If ActiveSheet.Shapes.Count = 0 Then
+            If ActiveSheet.Shapes.count = 0 Then
                 Let userResponse = MsgBox( _
                     Prompt:="This sheet don't exist any object to arrange yet!", _
                     Buttons:=vbOKOnly + vbExclamation, _
@@ -2382,7 +2382,7 @@ On Error GoTo ErrorHandle
             End If
             Call refreshCustomRibbon(loadedRibbon)
         Case autoArrangeButton.getID
-            If ActiveSheet.Shapes.Count = 0 Then
+            If ActiveSheet.Shapes.count = 0 Then
                 Let userResponse = MsgBox( _
                     Prompt:="This sheet don't exist any object to AUTO arrange!", _
                     Buttons:=vbOKOnly + vbExclamation, _
