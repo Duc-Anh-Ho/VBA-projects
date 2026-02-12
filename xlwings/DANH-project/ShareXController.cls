@@ -42,7 +42,7 @@ Private Function isCaptured() As Boolean
     Let CMD = addQuote(exePath) & Space(1) & _
         ARG_WORKFLOW & Space(1) & addQuote(workflow) & Space(1) & _
         ARG_SILENT & Space(1) & ARG_PORTABLE
-    Let letShellPID = shell(CMD, SHELL_MODE)
+    Let letShellPID = Shell(CMD, SHELL_MODE)
     Let isCaptured = (shellPID > 0)
 End Function
 
@@ -66,7 +66,4 @@ Private Sub waitForFinish(Optional ByVal timeoutMs As Integer = DEFAULT_TIMEOUT_
         If (Timer - tStart) * 1000 > timeoutMs Then Exit Do
     Loop While isRunning
 End Sub
-
-
-
 

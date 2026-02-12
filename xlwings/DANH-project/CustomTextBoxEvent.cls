@@ -40,4 +40,3 @@ Private Sub textBoxE_Change()
     Call KeyboardShortcutForm.textBoxChange(getTextBox)
 End Sub
 
-

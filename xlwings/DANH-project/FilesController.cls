@@ -157,6 +157,7 @@ Private Property Get isValidVBAFileExtension(ByVal path As String) As Boolean
                 Let isValidVBAFileExtension = False
         End Select
 End Property
+
 'METHODS
 
 Private Sub createFolders()
@@ -172,7 +173,7 @@ Private Sub createFolders()
     'Loop through my path array and create folder
     For Each path In pathArray
         If Not fileSystem.FolderExists(path) Then
-            Call fileSystem.CreateFolder(path)
+            Call fileSystem.createFolder(path)
         End If
     Next path
 End Sub
@@ -191,11 +192,11 @@ End Sub
 'Replace VBA file be used for Module/ClassModule/Document
 Private Sub replaceVBAFile(ByVal path As String)
     Dim amountVBAfile As Integer
-    Let amountVBAfile = components.count
+    Let amountVBAfile = components.Count
     'Remove VBA file
     components.remove component
     'Check case can't remove immediately (in use VBA file)
-    If amountVBAfile = components.count Then
+    If amountVBAfile = components.Count Then
         component.name = component.name & info.getAuthor
     End If
     'Add VBA file with path
@@ -330,10 +331,4 @@ ErrorHandle:
     Call system.tackleErrors
 ExecuteProcedure:
 End Sub
-
-
-
-
-
-
 

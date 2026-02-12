@@ -370,7 +370,7 @@ On Error GoTo ErrorHandle
     Let sxC.letWorkflow = "capture-last-region-workflow"
     Call sxC.START(30000)
     ' TODO: REFACTOR HERE
-    Let fullName = latestPic(savedPath & "\" & Format(Date, "yymmdd"))
+    Let fullName = latestPic(savedPath & "\" & format(Date, "yymmdd"))
     Application.Wait Now + TimeValue("0:00:02") ' 1 second delay
     If fullName <> vbNullString Then
         ActiveSheet.Pictures.Insert (fullName)
@@ -379,7 +379,7 @@ On Error GoTo ErrorHandle
         '    Set targetObject = ActiveSheet.Pictures.Paste()
         ActiveSheet.Paste
     End If
-    Set targetObject = ActiveSheet.Pictures(ActiveSheet.Pictures.count)
+    Set targetObject = ActiveSheet.Pictures(ActiveSheet.Pictures.Count)
     Let letLockRatio = True
     Call scalePicture(isLockRatio, msoSendToBack)
     Call deleteOldPicture
@@ -512,5 +512,4 @@ ErrorHandle:
 ExecuteProcedure:
     Call system.speedOff
 End Sub
-
 

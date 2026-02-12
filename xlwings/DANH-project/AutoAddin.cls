@@ -30,7 +30,7 @@ On Error GoTo ErrorHandle
     Set info = New InfoConstants
     Set system = New SystemUpdate
     Set Scripts = New Utils_Scripts
-    Set fileSystem = Scripts.fileSystem
+    Set fileSystem = Scripts.FileSystem
     'NOTE: Don't need to have workplace for this procedure
     'UserLibraryPath of PC:
     '"C:\Users\Admin\AppData\Roaming\Microsoft\AddIns\"
@@ -217,12 +217,4 @@ ErrorHandle:
 ExecuteProcedure:
     Call system.speedOff
 End Sub
-
-
-
-
-
-
-
-
 

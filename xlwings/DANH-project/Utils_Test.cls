@@ -13,7 +13,6 @@ Option Explicit
 Private Error As Utils_Error
 ' --- Object ---
 Private WithEvents targetWorksheet As Worksheet
-Attribute targetWorksheet.VB_VarHelpID = -1
 ' --- Constant ---
 Private Const DEFAULT_PASS As String = "PASS"
 Private Const DEFAULT_FAIL As String = "FAIL"
@@ -30,71 +29,94 @@ Private Const MAC_SPLASH As String = "/"
 Private Const GIT_CMD As String = "git "
 ' REF: https://learn.microsoft.com/en-us/office/client-developer/access/desktop-database-reference/locktypeenum
 Private Enum LOCK_TYPE
-    adLockBatchOptimistic = 4
-    adLockOptimistic = 3
-    adLockPessimistic = 2
-    adLockReadOnly = 1
-    adLockUnspecified = -1
+    BatchOptimistic = 4 ' adLockBatchOptimistic
+    Optimistic = 3 ' adLockOptimistic
+    Pessimistic = 2 ' adLockPessimistic
+    ReadOnly = 1 ' adLockReadOnly
+    Unspecified = -1 ' adLockUnspecified
 End Enum
 ' REF: https://learn.microsoft.com/en-us/office/client-developer/access/desktop-database-reference/cursortypeenum
 Private Enum CURSOR_TYPE
-    adOpenDynamic = 2
-    adOpenForwardOnly = 0
-    adOpenKeyset = 1
-    adOpenStatic = 3
-    adOpenUnspecified = -1
+    OpenDynamic = 2 ' adOpenDynamic
+    OpenForwardOnly = 0 ' adOpenForwardOnly
+    OpenKeyset = 1 ' adOpenKeyset
+    OpenStatic = 3 ' adOpenStatic
+    OpenUnspecified = -1 ' adOpenUnspecified
 End Enum
 ' REF: https://www.w3schools.com/asp/prop_conn_state.asp
 Private Enum OBJECT_STATE
-    adStateClosed = 0
-    adStateOpen = 1
-    adStateConnecting = 2
-    adStateExecuting = 4
-    adStateFetching = 8
+    StateClosed = 0 ' adStateClosed
+    StateOpen = 1 ' adStateOpen
+    StateConnecting = 2 ' adStateConnecting
+    StateExecuting = 4 ' adStateExecuting
+    StateFetching = 8 ' adStateFetching
 End Enum
 ' REF: https://learn.microsoft.com/en-us/office/client-developer/access/desktop-database-reference/schemaenum
 Private Enum SCHEMA
-    adSchemaAsserts = 0
-    adSchemaCatalogs = 1
-    adSchemaCharacterSets = 2
-    adSchemaCheckConstraints = 5
-    adSchemaCollations = 3
-    adSchemaColumnPrivileges = 13
-    adSchemaColumns = 4
-    adSchemaColumnsDomainUsage = 11
-    adSchemaConstraintColumnUsage = 6
-    adSchemaConstraintTableUsage = 7
-    adSchemaCubes = 32
-    adSchemaDBInfoKeywords = 30
-    adSchemaDBInfoLiterals = 31
-    adSchemaDimensions = 33
-    adSchemaForeignKeys = 27
-    adSchemaHierarchies = 34
-    adSchemaIndexes = 12
-    adSchemaKeyColumnUsage = 8
-    adSchemaLevels = 35
-    adSchemaMeasures = 36
-    adSchemaMembers = 38
-    adSchemaPrimaryKeys = 28
-    adSchemaProcedureColumns = 29
-    adSchemaProcedureParameters = 26
-    adSchemaProcedures = 16
-    adSchemaProperties = 37
-    adSchemaProviderSpecific = -1
-    adSchemaProviderTypes = 22
-    adSchemaReferentialConstraints = 9
-    adSchemaSchemata = 17
-    adSchemaSQLLanguages = 18
-    adSchemaStatistics = 19
-    adSchemaTableConstraints = 10
-    adSchemaTablePrivileges = 14
-    adSchemaTables = 20
-    adSchemaTranslations = 21
-    adSchemaTrustees = 39
-    adSchemaUsagePrivileges = 15
-    adSchemaViewColumnUsage = 24
-    adSchemaViews = 23
-    adSchemaViewTableUsage = 25
+    Asserts = 0 'adSchemaAsserts
+    Catalogs = 1 'adSchemaCatalogs
+    CharacterSets = 2 'adSchemaCharacterSets
+    CheckConstraints = 5 'adSchemaCheckConstraints
+    Collations = 3 'adSchemaCollations
+    ColumnPrivileges = 13 'adSchemaColumnPrivileges
+    Columns = 4 'adSchemaColumns
+    ColumnsDomainUsage = 11 'adSchemaColumnsDomainUsage
+    ConstraintColumnUsage = 6 'adSchemaConstraintColumnUsage
+    ConstraintTableUsage = 7 'adSchemaConstraintTableUsage
+    Cubes = 32 'adSchemaCubes
+    DBInfoKeywords = 30 'adSchemaDBInfoKeywords
+    DBInfoLiterals = 31 'adSchemaDBInfoLiterals
+    Dimensions = 33 'adSchemaDimensions
+    ForeignKeys = 27 'adSchemaForeignKeys
+    Hierarchies = 34 'adSchemaHierarchies
+    Indexes = 12 'adSchemaIndexes
+    KeyColumnUsage = 8 'adSchemaKeyColumnUsage
+    Levels = 35 'adSchemaLevels
+    Measures = 36 'adSchemaMeasures
+    Members = 38 'adSchemaMembers
+    PrimaryKeys = 28 'adSchemaPrimaryKeys
+    ProcedureColumns = 29 'adSchemaProcedureColumns
+    ProcedureParameters = 26 'adSchemaProcedureParameters
+    Procedures = 16 'adSchemaProcedures
+    Properties = 37 'adSchemaProperties
+    ProviderSpecific = -1 'adSchemaProviderSpecific
+    ProviderTypes = 22 'adSchemaProviderTypes
+    ReferentialConstraints = 9 'adSchemaReferentialConstraints
+    Schemata = 17 'adSchemaSchemata
+    SQLLanguages = 18 'adSchemaSQLLanguages
+    Statistics = 19 'adSchemaStatistics
+    TableConstraints = 10 'adSchemaTableConstraints
+    TablePrivileges = 14 'adSchemaTablePrivileges
+    Tables = 20 'adSchemaTables
+    Translations = 21 'adSchemaTranslations
+    Trustees = 39 'adSchemaTrustees
+    UsagePrivileges = 15 'adSchemaUsagePrivileges
+    ViewColumnUsage = 24 'adSchemaViewColumnUsage
+    Views = 23 'adSchemaViews
+    ViewTableUsage = 25 'adSchemaViewTableUsage
+End Enum
+' REF: https://learn.microsoft.com/en-us/windows/win32/shell/folder-copyhere
+Private Enum FILE_OPRATIONS_FLAGS
+    MULTIDESTFILES = &H1
+    SILENT = &H4
+    RENAMEONCOLLISION = &H8
+    NOCONFIRMATION = &H10
+    WANTMAPPINGHANDLE = &H20
+    ALLOWUNDO = &H40
+    FILESONLY = &H80
+    SIMPLEPROGRESS = &H100
+    NOCONFIRMMKDIR = &H200
+    NOERRORUI = &H400
+    NOCOPYSECURITYATTRIBS = &H800
+    NORECURSION = &H1000
+    NO_CONNECTED_ELEMENTS = &H2000
+    WANTNUKEWARNING = &H4000
+    NORECURSEREPARSE = &H8000
+End Enum
+' REF: https://learn.microsoft.com/en-us/office/client-developer/access/desktop-database-reference/streamtypeenum
+Private Enum STREAM_TYPE
+    Binary = 1 ' adTypeBinary
+    Text = 2 ' adTypeText
 End Enum
 ' --- Member ---
 Private m_pass As String
@@ -160,7 +182,7 @@ Friend Property Get OS() As String
         ElseIf Excel.Application.OperatingSystem Like MAC_REGEX Then
             Let m_os = MACOS
         Else
-            Call Error.FAIL(ECODE.Err_OperationNotSupported, "Utils_Test.OS")
+            Call Error.Fail(ECODE.Err_OperationNotSupported, "Utils_Test.OS")
         End If
     End If
     Let OS = m_os
@@ -189,7 +211,7 @@ Friend Property Get SPLASH() As String
             Case MACOS
                 Let m_splash = MAC_SPLASH
             Case Else
-                Call Error.FAIL(ECODE.Err_OperationNotSupported, "Utils_Test.SPLASH")
+                Call Error.Fail(ECODE.Err_OperationNotSupported, "Utils_Test.SPLASH")
         End Select
     End If
     Let SPLASH = m_splash
@@ -201,35 +223,32 @@ Friend Property Get Where(ByRef execName As String) As String
         Let Where = m_wherePath
         Exit Property
     End If
-    Dim Scripts As Utils_Scripts: Set Scripts = New Utils_Scripts
-    Dim wShell As Object: Set wShell = Scripts.wShell
+    Dim scripts As Utils_Scripts: Set scripts = New Utils_Scripts
+    Dim wShell As Object: Set wShell = scripts.WShell
     Dim command As String
-    Dim execObject As Object
+    Dim execute As Object
     Select Case Me.OS
         Case WINOS
             Let command = WIN_WHERE & execName
-            Set execObject = wShell.exec(command)
-            If Not execObject.StdOut.AtEndOfStream Then
-                Let m_wherePath = execObject.StdOut.ReadLine
-            Else
-                Call Error.FAIL(ECODE.Err_FileNotFound, "Utils_Test.Where")
+            Set execute = wShell.exec(command)
+            If Not execute.StdOut.AtEndOfStream Then Let m_wherePath = execute.StdOut.ReadLine
+            ' Resolve .lnk shortcut to target executable
+            Const LNK_EXTENSION As String = ".lnk"
+            If LCase$(Right$(m_wherePath, 4)) = LNK_EXTENSION  Then
+                Dim shellLink As Object: Set shellLink = wShell.CreateShortcut(m_wherePath)
+                Let m_wherePath = shellLink.TargetPath
             End If
         Case MACOS
             Let command = MAC_WHERE & execName
-            Set execObject = wShell.exec(command)
-            If Not execObject.StdOut.AtEndOfStream Then
-                Let m_wherePath = execObject.StdOut.ReadLine
-            Else
-                Call Error.FAIL(ECODE.Err_FileNotFound, "Utils_Test.Where")
-            End If
-        Case Else
-            Call Error.FAIL(ECODE.Err_FileNotFound, "Utils_Test.Where")
+            Set execute = wShell.exec(command)
+            If Not execute.StdOut.AtEndOfStream Then Let m_wherePath = execute.StdOut.ReadLine
     End Select
 Cleanup:
-    Let Where = m_wherePath
-    Set execObject = Nothing
+    Set execute = Nothing
     Set wShell = Nothing
-    Set Scripts = Nothing
+    Set scripts = Nothing
+    Set shellLink = Nothing
+    Let Where = m_wherePath
 End Property
 
 ' --- Helper Methods ---
@@ -252,12 +271,12 @@ Friend Function IsExistFolder(ByRef folderPath As String) As Boolean
     End If
 End Function
 
-Friend Function IsExistFile(ByRef filename As String) As Boolean
-    If VBA.Strings.Trim$(filename) = vbNullString Then
+Friend Function IsExistFile(ByRef fileName As String) As Boolean
+    If VBA.Strings.Trim$(fileName) = vbNullString Then
         Let IsExistFile = False
-    ElseIf Dir(filename, vbNormal) = vbNullString Then
+    ElseIf Dir(fileName, vbNormal) = vbNullString Then
         Let IsExistFile = False
-    ElseIf (VBA.fileSystem.GetAttr(filename) And vbDirectory) = 0 Then
+    ElseIf (VBA.fileSystem.GetAttr(fileName) And vbDirectory) = 0 Then
         Let IsExistFile = True
     Else
         Let IsExistFile = False
@@ -269,13 +288,13 @@ Friend Function CountFilesInFolder( _
     , Optional ByRef pattern As String = "*.*" _
 ) As Long
     If Not Me.IsExistFolder(folderPath) Then Exit Function
-    Dim filename As String: Let filename = Dir(folderPath & WIN_SPLASH & pattern, vbNormal)
+    Dim fileName As String: Let fileName = Dir(folderPath & WIN_SPLASH & pattern, vbNormal)
     Dim count As Long
-    Do While filename <> ""
-        If (VBA.fileSystem.GetAttr(folderPath & WIN_SPLASH & filename) And vbDirectory) <> vbDirectory Then
+    Do While fileName <> ""
+        If (VBA.fileSystem.GetAttr(folderPath & WIN_SPLASH & fileName) And vbDirectory) <> vbDirectory Then
             Let count = count + 1
         End If
-        Let filename = Dir
+        Let fileName = Dir
     Loop
     Let CountFilesInFolder = count
 End Function
@@ -306,32 +325,32 @@ Friend Function CountInFolder(ByRef folderPath As String) As Long
     Let CountInFolder = count
 End Function
 
-Friend Function GetParentFolder(ByVal filename As String) As String
-    Dim posSlash As Long: Let posSlash = InStrRev(filename, MAC_SPLASH)
-    Dim posBack As Long: Let posBack = InStrRev(filename, WIN_SPLASH)
+Friend Function GetParentFolder(ByVal fileName As String) As String
+    Dim posSlash As Long: Let posSlash = InStrRev(fileName, MAC_SPLASH)
+    Dim posBack As Long: Let posBack = InStrRev(fileName, WIN_SPLASH)
     Dim pos As Long: Let pos = IIf(posSlash > posBack, posSlash, posBack)
-    Do While pos > 0 And (Mid$(filename, pos, 1) = WIN_SPLASH Or Mid$(filename, pos, 1) = MAC_SPLASH)
+    Do While pos > 0 And (Mid$(fileName, pos, 1) = WIN_SPLASH Or Mid$(fileName, pos, 1) = MAC_SPLASH)
         Let pos = pos - 1
     Loop
     If pos > 0 Then
-        Let GetParentFolder = VBA.Strings.left$(filename, pos)
+        Let GetParentFolder = VBA.Strings.left$(fileName, pos)
     Else
         Let GetParentFolder = vbNullString
     End If
 End Function
 
-Friend Function GetShortName(ByRef filename As String) As String
-    If Not Me.IsExistFile(filename) Then
-        Call Error.FAIL(ECODE.Err_FileNotFound, "Utils_Test.GetShortName")
+Friend Function GetShortName(ByRef fileName As String) As String
+    If Not Me.IsExistFile(fileName) Then
+        Call Error.Fail(ECODE.Err_FileNotFound, "Utils_Test.GetShortName")
         Exit Function
     End If
-    Dim posSlash As Long: Let posSlash = InStrRev(filename, MAC_SPLASH)
-    Dim posBack As Long: Let posBack = InStrRev(filename, WIN_SPLASH)
+    Dim posSlash As Long: Let posSlash = InStrRev(fileName, MAC_SPLASH)
+    Dim posBack As Long: Let posBack = InStrRev(fileName, WIN_SPLASH)
     Dim pos As Long: Let pos = IIf(posSlash > posBack, posSlash, posBack)
     If pos > 0 Then
-        Let GetShortName = VBA.Strings.Mid$(filename, pos + 1)
+        Let GetShortName = VBA.Strings.Mid$(fileName, pos + 1)
     Else
-        Let GetShortName = filename
+        Let GetShortName = fileName
     End If
 End Function
 
@@ -355,7 +374,7 @@ End Sub
 
 Friend Sub RenameFile(ByRef oldFileName As String, ByRef newFileName As String)
     If Not Me.IsExistFile(oldFileName) Then
-        Call Error.FAIL(ECODE.Err_FileNotFound, "Utils_Test.RenameFile")
+        Call Error.Fail(ECODE.Err_FileNotFound, "Utils_Test.RenameFile")
         Exit Sub
     End If
     If Me.IsExistFile(newFileName) Then
@@ -367,35 +386,35 @@ End Sub
 ' NOTE: Old method
 Friend Function CopyFileSmall( _
     ByRef sourceFile As String _
-    , ByRef targetFile As String _
+    , ByRef outputFile As String _
 ) As Boolean
     If Not IsExistFile(sourceFile) Then
-        Call Error.FAIL(ECODE.Err_FileNotFound, "Utils_Test.CopyFileSmall")
+        Call Error.Fail(ECODE.Err_FileNotFound, "Utils_Test.CopyFileSmall")
         Exit Function
     End If
-    Dim targetFolder As String: Let targetFolder = Me.GetParentFolder(targetFile)
-    If Not Me.IsExistFolder(targetFolder) Then Call Me.CreateFolder(targetFolder)
-    If Me.IsExistFile(targetFile) Then Call VBA.fileSystem.Kill(targetFile)
-    Call VBA.fileSystem.FileCopy(sourceFile, targetFile)
-    Let CopyFileSmall = Me.IsExistFile(targetFile)
+    Dim outputFolder As String: Let outputFolder = Me.GetParentFolder(outputFile)
+    If Not Me.IsExistFolder(outputFolder) Then Call Me.CreateFolder(outputFolder)
+    If Me.IsExistFile(outputFile) Then Call VBA.fileSystem.Kill(outputFile)
+    Call VBA.fileSystem.FileCopy(sourceFile, outputFile)
+    Let CopyFileSmall = Me.IsExistFile(outputFile)
 End Function
 
-Friend Sub CopyFile(ByRef sourceFile As String, ByRef targetFile As String)
+Friend Sub CopyFile(ByRef sourceFile As String, ByRef outputFile As String)
     Const BLOCKSIZE As Long = 65536 ' 64KB
     If Not IsExistFile(sourceFile) Then
-        Call Error.FAIL(ECODE.Err_FileNotFound, "Utils_Test.CopyFile")
+        Call Error.Fail(ECODE.Err_FileNotFound, "Utils_Test.CopyFile")
         Exit Sub
     End If
-    Dim targetFolder As String: Let targetFolder = Me.GetParentFolder(targetFile)
-    If Not Me.IsExistFolder(targetFolder) Then Call Me.CreateFolder(targetFolder)
-    If Me.IsExistFile(targetFile) Then Call VBA.fileSystem.Kill(targetFile)
+    Dim outputFolder As String: Let outputFolder = Me.GetParentFolder(outputFile)
+    If Not Me.IsExistFolder(outputFolder) Then Call Me.CreateFolder(outputFolder)
+    If Me.IsExistFile(outputFile) Then Call VBA.fileSystem.Kill(outputFile)
     Dim sourceNum As Long: Let sourceNum = FreeFile
     Open sourceFile For Binary Access Read As #sourceNum
     Dim targetNum As Long: Let targetNum = FreeFile
-    Open targetFile For Binary Access Write As #targetNum
+    Open outputFile For Binary Access Write As #targetNum
     Dim bytesRead As Long
     Dim buffer() As Byte
-    Do While Not eof(sourceNum)
+    Do While Not EOF(sourceNum)
         ReDim buffer(1 To BLOCKSIZE)
         Let bytesRead = LOF(sourceNum) - Loc(sourceNum) + 1
         If bytesRead > BLOCKSIZE Then bytesRead = BLOCKSIZE
@@ -406,70 +425,135 @@ Friend Sub CopyFile(ByRef sourceFile As String, ByRef targetFile As String)
     Close #targetNum
 End Sub
 
-Friend Sub CopyFolder(ByRef sourceFolder As String, ByRef targetFolder As String)
-    Stop
+Friend Sub CopyFolder(ByRef sourceFolder As String, ByRef outputFolder As String)
     If Not Me.IsExistFolder(sourceFolder) Then
-        Call Error.FAIL(ECODE.Err_FolderNotFound, "Utils_Test.CopyFolder")
+        Call Error.Fail(ECODE.Err_FolderNotFound, "Utils_Test.CopyFolder")
         Exit Sub
     End If
-    Dim Scripts As Utils_Scripts: Set Scripts = New Utils_Scripts
-    Dim fileSystem As Object: Set fileSystem = Scripts.fileSystem
-    If Me.IsExistFolder(targetFolder) Then Call Me.DeleteFolder(targetFolder)
-    Call fileSystem.CopyFolder(sourceFolder, targetFolder)
+    Dim scripts As Utils_Scripts: Set scripts = New Utils_Scripts
+    Dim fileSystem As Object: Set fileSystem = scripts.fileSystem
+    If Me.IsExistFolder(outputFolder) Then Call Me.DeleteFolder(outputFolder)
+    Call fileSystem.CopyFolder(sourceFolder, outputFolder)
 End Sub
 
 Friend Sub DeleteFolder(ByRef folderPath As String)
     If Not Me.IsExistFolder(folderPath) Then Exit Sub
-    Dim Scripts As Utils_Scripts: Set Scripts = New Utils_Scripts
-    Dim fileSystem As Object: Set fileSystem = Scripts.fileSystem
+    If Right$(folderPath, 1) = "\" Then
+        Let folderPath = Left$(folderPath, Len(folderPath) - 1)
+    End If
+    Dim scripts As Utils_Scripts: Set scripts = New Utils_Scripts
+    Dim fileSystem As Object: Set fileSystem = scripts.fileSystem
     Call fileSystem.DeleteFolder(folderPath, True)
 End Sub
 
-Friend Sub ExtractExcelByZip(ByVal filename As String, ByVal targetFolder As String)
-    If Not Me.IsExistFile(filename) Then
-        Call Error.FAIL(ECODE.Err_FileNotFound, "Utils_Test.ExtractExcelByZip")
+' HELPER FOR ZIPFLDR.DLL (deprecated)
+Friend Function IsZipfldrPresent() As Boolean
+    Dim sysPath As String
+    ' Office 32-bit on 64-bit Windows
+    If VBA.Environ$("PROCESSOR_ARCHITECTURE") = "x86" Then
+        Let sysPath = Environ$("SystemRoot") & "\SysWOW64\zipfldr.dll"
+    Else
+        Let sysPath = Environ$("SystemRoot") & "\System32\zipfldr.dll"
+    End If
+    Let IsZipfldrPresent = (VBA.FileSystem.Dir(sysPath) <> "")
+End Function
+
+' HELPER FOR ZIPFLDR.DLL (deprecated)
+Friend Function IsZipfldrRegistered() As Boolean
+    Dim scripts As Utils_Scripts: Set scripts = New Utils_Scripts
+    Dim wShell As Object: Set wShell = scripts.WShell
+    Dim regPath As String: Let regPath = "HKEY_CLASSES_ROOT\CLSID\{E88DCCE0-B7B3-11d1-A9F0-00AA0060FA31}\InProcServer32"
+    Dim checkCmd As String: Let checkCmd = CMD & "reg query """ & regPath & """ /ve"
+    Dim execute As Object: Set execute = wShell.Exec(checkCmd)
+    Dim result As String
+    Do While Not execute.StdOut.AtEndOfStream
+        result = result & execute.StdOut.ReadLine & vbCrLf
+    Loop
+    Let IsZipfldrRegistered = (InStr(LCase(result), "zipfldr.dll") > 0)
+End Function
+
+' HELPER FOR ZIPFLDR.DLL (deprecated)
+Friend Sub RegisterZipfldr()
+    Dim scripts As Utils_Scripts: Set scripts = New Utils_Scripts
+    Dim wShell As Object: Set wShell = scripts.WShell
+    Dim systemPath As String
+    If VBA.Environ$("PROCESSOR_ARCHITECTURE") = "x86" Then
+        Let systemPath = Environ$("SystemRoot") & "\SysWOW64\zipfldr.dll"
+    Else
+        Let systemPath = Environ$("SystemRoot") & "\System32\zipfldr.dll"
+    End If
+    Dim cmd As String: Let cmd = "regsvr32 /s """ & systemPath & """"
+    Call wShell.Run(cmd, vbHide, True)
+End Sub
+
+Friend Sub ExtractExcelByZip(ByVal excelFileName As String, ByVal outputFolder As String)
+    ' Check Input
+    If Not Me.IsExistFile(excelFileName) Then
+        Call Error.Fail(ECODE.Err_FileNotFound, "Utils_Test.ExtractExcelByZip")
         Exit Sub
     End If
-    Const TIMEOUT As Byte = 30 's
-    If Not Me.IsExistFolder(targetFolder) Then Call Me.CreateFolder(targetFolder)
-    Dim tempFolder As String: tempFolder = targetFolder & "\_temp"
+    ' Create folder if not exist
+    If Not Me.IsExistFolder(outputFolder) Then Call Me.CreateFolder(outputFolder)
+    ' Excel to zip
+    Dim sourceFolder As String: Let sourceFolder = Me.GetParentFolder(excelFileName)
+    Dim tempFolder As String: tempFolder = sourceFolder & "\_temp"
     If Not Me.IsExistFolder(tempFolder) Then Call Me.CreateFolder(tempFolder)
-    Dim tempZip As String: tempZip = tempFolder & "\file.zip"
-    Call Me.CopyFile(filename, tempZip)
-    Dim Scripts As Utils_Scripts: Set Scripts = New Utils_Scripts
-    Dim shell As Object: Set shell = Scripts.AShell
-    Dim zipFolder As Object: Set zipFolder = shell.Namespace(tempZip)
-    Dim destFolder As Object: Set destFolder = shell.Namespace(tempFolder)
-    If Not zipFolder Is Nothing Then
-        Dim item As Object: For Each item In zipFolder.Items
-            Call destFolder.CopyHere(item)
-        Next item
-        Dim t As Double: Let t = Timer
-        Dim expectedCount As Long: Let expectedCount = zipFolder.Items.count
-        Dim actualCount As Long
-        Do
-            actualCount = destFolder.Items.count
-            DoEvents
-            If Timer - t > TIMEOUT Then Exit Do
-        Loop While actualCount < expectedCount
+    Dim tempZip As String: tempZip = tempFolder & "\_temp_file.zip"
+    Call Me.CopyFile(excelFileName, tempZip)
+    ' Handle Zip with PowerShell Expand-Archive 
+    Dim scripts As Utils_Scripts: Set scripts = New Utils_Scripts
+    Dim wShell As Object: Set wShell = scripts.WShell
+    Const POWERSHELL_CONST As String = "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
+    Dim POWERSHELL As String: Let POWERSHELL = Me.Where("powershell")
+    If POWERSHELL = vbNullString Then Let POWERSHELL = POWERSHELL_CONST
+    If Not IsExistFile(POWERSHELL) Then
+        Call Error.Fail(ECODE.Err_FileNotFound, "Utils_Test.ExtractExcelByZip", POWERSHELL)
     End If
-    Call Me.CopyFolder(tempFolder, targetFolder)
+    Dim powershellCommand As String: Let powershellCommand = POWERSHELL _
+        & " -NoProfile -Command ""Expand-Archive" _
+        & " -Path '" & Replace(tempZip, "'", "''") & "'" _
+        & " -DestinationPath '" & Replace(outputFolder, "'", "''") & "'" _
+        & " -Force"""
+    Dim execute As Object: Set execute = wShell.Exec(powershellCommand)
+    Dim output As String
+    Dim t As Double: t = Timer
+    Const TIMEOUT As Double = 30 ' seconds
+    Do
+        DoEvents
+        Do While Not execute.StdOut.AtEndOfStream
+            Let output = output & execute.StdOut.ReadLine & vbCrLf
+        Loop
+        Do While Not execute.StdErr.AtEndOfStream
+            Let output = output & execute.StdErr.ReadLine & vbCrLf
+        Loop
+        ' Limit Timeout
+        If Timer - t > TIMEOUT Then
+            Call Error.Fail(ECODE.Err_Unknown, "Utils_Test.ExtractExcelByZip", "Expand-Archive timed out", output)
+            Exit Sub
+        End If
+    Loop While execute.Status = 0
+    ' Check output
+    If Dir(outputFolder, vbDirectory) = "" Then
+        Call Error.Fail(ECODE.Err_Unknown, "Utils_Test.ExtractExcelByZip", "Expand-Archive failed", output)
+        Exit Sub
+    End If
+    ' Delete Zip
     Call Me.DeleteFolder(tempFolder)
 End Sub
 
-Friend Function diffCheck( _
+Friend Function DiffCheck( _
     ByRef fileName1 As String _
     , ByRef fileName2 As String _
 ) As Boolean
     Const BLOCKSIZE As Long = 65536 ' 64KB
-    Dim Scripts1 As Utils_Scripts: Set Scripts1 = New Utils_Scripts
-    Dim Scripts2 As Utils_Scripts: Set Scripts2 = New Utils_Scripts
-    Dim file1 As Object: Set file1 = Scripts1.fileStream
-    Let file1.Type = 1
+    Dim scripts1 As Utils_Scripts: Set scripts1 = New Utils_Scripts
+    Dim scripts2 As Utils_Scripts: Set scripts2 = New Utils_Scripts
+    Dim file1 As Object: Set file1 = scripts1.fileStream
+    Let file1.Type = STREAM_TYPE.Binary
     Call file1.Open
     Call file1.LoadFromFile(fileName1)
-    Dim file2 As Object: Set file2 = Scripts2.fileStream
-    Let file2.Type = 1
+    Dim file2 As Object: Set file2 = scripts2.fileStream
+    Let file2.Type = STREAM_TYPE.Binary
     Call file2.Open
     Call file2.LoadFromFile(fileName2)
     Do While Not file1.EOS Or Not file2.EOS
@@ -478,49 +562,49 @@ Friend Function diffCheck( _
         Dim bytesRead1 As Long: Let bytesRead1 = UBound(block1) - LBound(block1) + 1
         Dim bytesRead2 As Long: Let bytesRead2 = UBound(block2) - LBound(block2) + 1
         If bytesRead1 <> bytesRead2 Then
-            Let diffCheck = False
+            Let DiffCheck = False
             GoTo Cleanup
         End If
         Dim i As Long: For i = LBound(block1) To UBound(block1)
             If block1(i) <> block2(i) Then
-                Let diffCheck = False
+                Let DiffCheck = False
                 GoTo Cleanup
             End If
         Next i
     Loop
-    Let diffCheck = True
+    Let DiffCheck = True
 Cleanup:
     Call file1.Close
     Call file2.Close
     Set file1 = Nothing
-    Set Scripts1 = Nothing
+    Set scripts1 = Nothing
     Set file2 = Nothing
-    Set Scripts2 = Nothing
+    Set scripts2 = Nothing
 End Function
 
-Friend Function GetEndOfFile(ByRef filename As String) As String
-    Dim Scripts As Utils_Scripts: Set Scripts = New Utils_Scripts
-    Dim shell As Object: Set shell = Scripts.wShell
+Friend Function GetEndOfFile(ByRef fileName As String) As String
+    Dim scripts As Utils_Scripts: Set scripts = New Utils_Scripts
+    Dim shell As Object: Set shell = scripts.WShell
     ' If Not IsExistFile(fileName) Then
     '     Let GetEndOfFile = "File Not Found!"
     '     Goto CleanUp
     ' End If
     Const NKF_CONST As String = "D:\share\ASS\Tasks\template\autotest.exe"
     Const GUESS As String = " --guess "
-    Dim NKF As String: Let NKF = vbNullString 'Me.Where("nkf")
+    Dim NKF As String: Let NKF = Me.Where("nkf")
     If NKF = vbNullString Then Let NKF = NKF_CONST
     If Not IsExistFile(NKF) Then
         Let GetEndOfFile = "NKF Not Found!"
         GoTo Cleanup
     End If
-    Dim command As String: Let command = """" & NKF & """" & GUESS & """" & filename & """"
+    Dim command As String: Let command = """" & NKF & """" & GUESS & """" & fileName & """"
     Dim exec As Object: Set exec = shell.exec(command)
     Dim result As String: Let result = exec.StdOut.ReadAll
     If result = vbNullString Then Let result = "File not found!"
     Let GetEndOfFile = result
 Cleanup:
     Set shell = Nothing
-    Set Scripts = Nothing
+    Set scripts = Nothing
 End Function
 
 ' TODO DANG bi loi encodign file
@@ -530,9 +614,9 @@ Friend Function GetEndOfFiles(ByRef fileNames() As String) As Variant
     Const LIMIT As Byte = 10
     Dim NKF As String: Let NKF = NKF_CONST
     Dim results() As String: ReDim results(LBound(fileNames) To UBound(fileNames))
-    Dim Scripts As Utils_Scripts: Set Scripts = New Utils_Scripts
-    Dim shell As Object: Set shell = Scripts.wShell
-    Dim dict As Object: Set dict = Scripts.Dictionary
+    Dim scripts As Utils_Scripts: Set scripts = New Utils_Scripts
+    Dim shell As Object: Set shell = scripts.WShell
+    Dim dict As Object: Set dict = scripts.Dictionary
     Dim batch() As String: ReDim batch(1 To LIMIT)
     Dim count As Long, i As Long, j As Long
     For i = LBound(fileNames) To UBound(fileNames)
@@ -575,24 +659,24 @@ Friend Function GetEndOfFiles(ByRef fileNames() As String) As Variant
 Cleanup:
     Set dict = Nothing
     Set shell = Nothing
-    Set Scripts = Nothing
+    Set scripts = Nothing
 End Function
 
 Friend Function ReadLastLines( _
-        ByRef filename As String _
+        ByRef fileName As String _
         , ByRef lineCount As Long _
         , Optional charset As String = "utf-8" _
     ) As Variant
     Const BLOCKSIZE As Long = 65536 ' 64KB
-    Dim Scripts As Utils_Scripts: Set Scripts = New Utils_Scripts
-    Dim fileStream As Object: Set fileStream = Scripts.fileStream
-    Let fileStream.Type = 2 ' Text
-    Let fileStream.charset = charset ' Unix override to 'x-euc-jp'
+    Dim scripts As Utils_Scripts: Set scripts = New Utils_Scripts
+    Dim fileStream As Object: Set fileStream = scripts.fileStream
+    Let fileStream.Type = STREAM_TYPE.Text
+    Let fileStream.Charset = charset ' Unix override to 'x-euc-jp'
     Call fileStream.Open
-    Call fileStream.LoadFromFile(filename)
-    Dim fileSize As Long: Let fileSize = fileStream.size
+    Call fileStream.LoadFromFile(fileName)
+    Dim fileSize As Long: Let fileSize = fileStream.Size
     Dim position As Long: Let position = IIf(fileSize - BLOCKSIZE > 0, fileSize - BLOCKSIZE, 0)
-    Let fileStream.position = position
+    Let fileStream.Position = position
     Dim blockText As String: Let blockText = Replace(fileStream.ReadText, vbCrLf, vbLf)
     Call fileStream.Close
     Set fileStream = Nothing
@@ -614,8 +698,8 @@ Friend Function IsSheetExistInExcel( _
 ) As Boolean
     Dim isTempConnection As Boolean: isTempConnection = False
     If connection Is Nothing Then
-        Dim Scripts As Utils_Scripts: Set Scripts = New Utils_Scripts
-        Set connection = Scripts.connection
+        Dim scripts As Utils_Scripts: Set scripts = New Utils_Scripts
+        Set connection = scripts.Connection
         Call connection.Open( _
             "Provider=Microsoft.ACE.OLEDB.12.0;" & _
             "Data Source=" & fullName & ";" & _
@@ -624,9 +708,9 @@ Friend Function IsSheetExistInExcel( _
         Let isTempConnection = True
     End If
     Dim sheetNameLow As String: sheetNameLow = LCase(sheetName & "$")
-    Dim Recordset As Object: Set Recordset = connection.OpenSchema(SCHEMA.adSchemaTables)
-    Do Until Recordset.eof
-        Dim tableName As String: Let tableName = LCase(Recordset.Fields("TABLE_NAME").value)
+    Dim Recordset As Object: Set Recordset = connection.OpenSchema(SCHEMA.Tables)
+    Do Until Recordset.EOF
+        Dim tableName As String: Let tableName = LCase(Recordset.Fields("TABLE_NAME").Value)
         If tableName = sheetNameLow Or tableName = "'" & sheetNameLow & "'" Then
             Let IsSheetExistInExcel = True
             GoTo Cleanup
@@ -636,7 +720,7 @@ Friend Function IsSheetExistInExcel( _
     Let IsSheetExistInExcel = False
 Cleanup:
     If isTempConnection Then
-        If connection.State = OBJECT_STATE.adStateOpen Then connection.Close
+        If connection.State = OBJECT_STATE.StateOpen Then connection.Close
         Set connection = Nothing
     End If
 End Function
@@ -657,9 +741,9 @@ Friend Function SearchInExcelByPattern( _
     Else
         Let sSQL = "SELECT * FROM [" & sheetName & "$]"
     End If
-    Dim Scripts As Utils_Scripts: Set Scripts = New Utils_Scripts
-    Dim connection As Object: Set connection = Scripts.connection
-    Dim Recordset As Object: Set Recordset = Scripts.Recordset
+    Dim scripts As Utils_Scripts: Set scripts = New Utils_Scripts
+    Dim connection As Object: Set connection = scripts.Connection
+    Dim Recordset As Object: Set Recordset = scripts.Recordset
     Call connection.Open( _
         "Provider=Microsoft.ACE.OLEDB.12.0;" & _
         "Data Source=" & fullName & ";" & _
@@ -672,21 +756,21 @@ Friend Function SearchInExcelByPattern( _
     Call Recordset.Open( _
         sSQL _
         , connection _
-        , CURSOR_TYPE.adOpenStatic _
-        , LOCK_TYPE.adLockReadOnly _
+        , CURSOR_TYPE.OpenStatic _
+        , LOCK_TYPE.ReadOnly _
     )
-    If Recordset.BOF And Recordset.eof Then GoTo Cleanup
+    If Recordset.BOF And Recordset.EOF Then GoTo Cleanup
     Dim isStart As Boolean: Let isStart = True
     If startPattern <> vbNullString Then Let isStart = False
     If isRevert Then
         Call Recordset.MoveLast
         Do While Not Recordset.BOF
             With Recordset.Fields(targetCol)
-                If stopPattern <> vbNullString And InStr(.value, stopPattern) > 0 Then Exit Do
+                If stopPattern <> vbNullString And InStr(.Value, stopPattern) > 0 Then Exit Do
                 If Not isStart Then
-                    If InStr(.value, startPattern) > 0 Then Let isStart = True
-                ElseIf InStr(.value, pattern) > 0 Then
-                    Let result = .value
+                    If InStr(.Value, startPattern) > 0 Then Let isStart = True
+                ElseIf InStr(.Value, pattern) > 0 Then
+                    Let result = .Value
                     Exit Do
                 End If
             End With
@@ -694,13 +778,13 @@ Friend Function SearchInExcelByPattern( _
         Loop
     Else
         Call Recordset.MoveFirst
-        Do While Not Recordset.eof
+        Do While Not Recordset.EOF
             With Recordset.Fields(targetCol)
-                If stopPattern <> vbNullString And InStr(.value, stopPattern) > 0 Then Exit Do
+                If stopPattern <> vbNullString And InStr(.Value, stopPattern) > 0 Then Exit Do
                 If Not isStart Then
-                    If InStr(.value, startPattern) > 0 Then Let isStart = True
-                ElseIf InStr(.value, pattern) > 0 Then
-                    Let result = .value
+                    If InStr(.Value, startPattern) > 0 Then Let isStart = True
+                ElseIf InStr(.Value, pattern) > 0 Then
+                    Let result = .Value
                     Exit Do
                 End If
             End With
@@ -709,17 +793,17 @@ Friend Function SearchInExcelByPattern( _
     End If
 Cleanup:
     If Not Recordset Is Nothing Then
-        If Recordset.State = OBJECT_STATE.adStateOpen Then Call Recordset.Close
+        If Recordset.State = OBJECT_STATE.StateOpen Then Call Recordset.Close
         Set Recordset = Nothing
     End If
     If Not connection Is Nothing Then
-        If connection.State = adStateOpen Then Call connection.Close
+        If connection.State = OBJECT_STATE.StateOpen Then Call connection.Close
         Set connection = Nothing
     End If
     Let SearchInExcelByPattern = result
 End Function
 
-'HELPER
+' HELPER
 Friend Function ColumnNameToIndex(colName As String) As Long
     Dim result As Long
     Let colName = VBA.Strings.UCase$(colName)
@@ -733,9 +817,9 @@ Friend Function ExtracByRegex( _
     text As String _
     , pattern As String _
 ) As String
-    Dim Scripts As Utils_Scripts: Set Scripts = New Utils_Scripts
-    Dim regex As Object: Set regex = Scripts.RegexExpression
-    Let regex.pattern = pattern
+    Dim scripts As Utils_Scripts: Set scripts = New Utils_Scripts
+    Dim regex As Object: Set regex = scripts.RegexExpression
+    Let regex.Pattern = pattern
     Let regex.Global = False
     Let regex.IgnoreCase = True
     If regex.Test(text) Then
@@ -747,7 +831,7 @@ Friend Function ExtracByRegex( _
 End Function
 
 Friend Function SearchInFileWithPattern( _
-    ByRef filename As String _
+    ByRef fileName As String _
     , ByRef pattern As String _
     , Optional ByRef lineAmount As Long = 0 _
     , Optional ByRef isRevert As Boolean = False _
@@ -755,13 +839,13 @@ Friend Function SearchInFileWithPattern( _
 ) As Collection
     Const BLOCKSIZE As Long = 65536 ' 64KB
     Dim result As New Collection
-    Dim Scripts As Utils_Scripts: Set Scripts = New Utils_Scripts
-    Dim fileStream As Object: Set fileStream = Scripts.fileStream
-    Let fileStream.Type = 2
-    Let fileStream.charset = charset
+    Dim scripts As Utils_Scripts: Set scripts = New Utils_Scripts
+    Dim fileStream As Object: Set fileStream = scripts.FileStream
+    Let fileStream.Type = STREAM_TYPE.Text
+    Let fileStream.Charset = charset
     Call fileStream.Open
-    Call fileStream.LoadFromFile(filename)
-    Dim fileSize As Long: Let fileSize = fileStream.size
+    Call fileStream.LoadFromFile(fileName)
+    Dim fileSize As Long: Let fileSize = fileStream.Size
     Dim position As Long
     Dim blockText As String
     Dim lines() As String
@@ -772,14 +856,14 @@ Friend Function SearchInFileWithPattern( _
         Let tmpPosition = fileSize
         Do While tmpPosition > 0
             Let position = IIf(tmpPosition - BLOCKSIZE > 0, tmpPosition - BLOCKSIZE, 0)
-            Let fileStream.position = position
+            Let fileStream.Position = position
             Let chunk = fileStream.ReadText(IIf(tmpPosition - position, tmpPosition - position, BLOCKSIZE))
             Let chunk = Replace(chunk, vbCrLf, vbLf)
             Let lines = Split(chunk, vbLf)
             For i = UBound(lines) To LBound(lines) Step -1
                 If InStr(lines(i), pattern) > 0 Then
                     Call result.Add(lines(i))
-                    If lineAmount > 0 And result.count >= lineAmount Then Exit Do
+                    If lineAmount > 0 And result.Count >= lineAmount Then Exit Do
                 End If
             Next i
             Let tmpPosition = position
@@ -791,7 +875,7 @@ Friend Function SearchInFileWithPattern( _
             For i = LBound(lines) To UBound(lines)
                 If InStr(lines(i), pattern) > 0 Then
                     Call result.Add(lines(i))
-                    If lineAmount > 0 And result.count >= lineAmount Then Exit Do
+                    If lineAmount > 0 And result.Count >= lineAmount Then Exit Do
                 End If
             Next i
         Loop
@@ -800,5 +884,4 @@ Friend Function SearchInFileWithPattern( _
     Set fileStream = Nothing
     Set SearchInFileWithPattern = result
 End Function
-
 

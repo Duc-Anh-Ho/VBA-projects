@@ -303,7 +303,7 @@ On Error GoTo ErrorHandle
     
     If isOrderByLength Then
         Dim tmpWs As Worksheet
-        Dim size As Long: Let size = findArea.Rows.count
+        Dim size As Long: Let size = findArea.Rows.Count
         Dim keyArea As Range
         Dim sortArea As Range
         Set tmpWs = ThisWorkbook.Sheets(MULTI_REPLACE_TMP_SHEET_NAME)
@@ -316,7 +316,7 @@ On Error GoTo ErrorHandle
             Let .Range("C1").Resize(size, 1).Formula = "=LEN(A1)"
             With .Sort
                 .SortFields.Clear
-                .SortFields.Add _
+                .SortFields.add _
                     key:=keyArea, _
                     SortOn:=xlSortOnValues, _
                     Order:=xlDescending, _
@@ -330,7 +330,7 @@ On Error GoTo ErrorHandle
         End With
     End If
     
-    For i = 1 To findArea.count
+    For i = 1 To findArea.Count
         If Len(findArea.Cells(i)) > 0 Then
             within.Replace _
                 What:=findArea.Cells(i).value _
@@ -379,8 +379,4 @@ Private Sub appEvent_SheetSelectionChange(ByVal sheetObject As Object, ByVal tar
         Call highlight(target)
     End If
 End Sub
-
-
-
-
 

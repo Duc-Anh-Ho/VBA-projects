@@ -45,7 +45,7 @@ End Sub
 Private Sub appEvent_SheetActivate(ByVal ws As Object)
     ' Refresh Custom UI when Change Sheets / And New sheet
     ' NOTE: SheetActivate Event DO NOT work with special Worksheet Type
-    If appEvent.Workbooks.count > 0 Then
+    If appEvent.Workbooks.Count > 0 Then
         Let CustomUi.hasWorksheet = system.hasWorkPlace(False, "xlWorksheet")
         Let CustomUi.hasWorkChart = system.hasWorkPlace(False, "Chart")
         Let CustomUi.hasWorkDialog = system.hasWorkPlace(False, "DialogSheet")
@@ -62,7 +62,7 @@ End Sub
 
 Private Sub appEvent_WorkbookBeforeClose(ByVal wb As Workbook, Cancel As Boolean)
     'Refresh Custom UI  when close all workbooks
-    If appEvent.Workbooks.count = 1 Then
+    If appEvent.Workbooks.Count = 1 Then
         Let CustomUi.hasWorksheet = False
         Let CustomUi.hasWorkChart = False
         Let CustomUi.hasWorkDialog = False
@@ -72,7 +72,7 @@ End Sub
 
 Private Sub appEvent_WorkbookActivate(ByVal wb As Workbook)
     ' Reset Custom UI when open first workbook
-    If appEvent.Workbooks.count = 1 And isOnlySh Then
+    If appEvent.Workbooks.Count = 1 And isOnlySh Then
         Set CustomUi.loadedRibbon = Nothing
         Call CustomUi.refreshCustomRibbon
     End If
@@ -100,7 +100,7 @@ End Sub
 
 Private Sub appEvent_WorkbookDeactivate(ByVal wb As Workbook)
     'Check case rest sheet is delete from 2 sheet to 1 not open new
-    If appEvent.Workbooks.count = 1 Then
+    If appEvent.Workbooks.Count = 1 Then
         Let isOnlySh = True
     Else
         Let isOnlySh = False
@@ -121,10 +121,4 @@ Private Sub popup(ByVal buttonName As String, ByRef wb As Workbook)
     wb.Activate
     Application.EnableEvents = True
 End Sub
-
-
-
-
-
-
 

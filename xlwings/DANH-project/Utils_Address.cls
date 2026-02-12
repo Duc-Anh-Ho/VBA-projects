@@ -15,7 +15,6 @@ Private Stringify As Utils_Stringify
 ' --- Object ---
 Private AddressDictionary As Object
 Private WithEvents WorksheetEvent As Worksheet
-Attribute WorksheetEvent.VB_VarHelpID = -1
 ' --- Constructor ---
 Friend Sub Init( _
     ByRef targetWorksheet As Worksheet _
@@ -59,7 +58,7 @@ Friend Sub Add( _
     , ByRef value As String _
     , Optional ByRef isNote As Boolean = True _
 )
-    Let AddressDictionary(key) = Stringify.sheetName(WorksheetEvent) & value
+    Let AddressDictionary(key) = Stringify.SheetName(WorksheetEvent) & value
     With WorksheetEvent
     ' Add Note
     Call .Range(AddressDictionary(key)).ClearComments
@@ -92,7 +91,7 @@ Friend Function GetValueArray(ByRef key As String) As String()
     ReDim Array1D(1 To UBound(Array2D, 1))
     Dim i As Long: For i = 1 To UBound(Array2D, 1)
         Let Array1D(i) = CStr(Array2D(i, 1))
-    Next i
+    Next i 
     Let GetValueArray = Array1D
 End Function
 
@@ -102,16 +101,16 @@ Friend Sub SetValueArray(ByRef key As String, ByRef inArray1D() As String)
     Dim Array2D As Variant
     Set rng = WorksheetEvent.Range(AddressDictionary(key))
     ReDim Array2D(LBound(inArray1D) To UBound(inArray1D), 1 To 1)
-    If UBound(inArray1D) - LBound(inArray1D) + 1 <> rng.Rows.count Then
+    If UBound(inArray1D) - LBound(inArray1D) + 1 <> rng.Rows.Count Then
         MsgBox "Error: Array size (" & (UBound(inArray1D) - LBound(inArray1D) + 1) & _
-               ") does not match target range rows (" & rng.Rows.count & ")", vbCritical
+               ") does not match target range rows (" & rng.Rows.Count & ")", vbCritical
         Stop
         Exit Sub
     End If
     Dim i As Long: For i = LBound(inArray1D) To UBound(inArray1D)
         Let Array2D(i, 1) = inArray1D(i)
     Next i
-    Let rng.value = Array2D
+    Let rng.Value = Array2D
 End Sub
 
 Friend Sub AddAllNotes()
@@ -134,7 +133,4 @@ Friend Sub ClearAllNotes()
         Call WorksheetEvent.Range(Addr).ClearComments
     Next key
 End Sub
-
-
-
 

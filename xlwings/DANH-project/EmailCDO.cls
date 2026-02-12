@@ -108,7 +108,7 @@ Private Sub setEmailContent(Optional ByRef attachmentPath As String)
         .Subject = _
             Environ$("computername") & _
             " - " & _
-            Format(Now, "YYYY/MM/DD hh:mm:ss")
+            format(Now, "YYYY/MM/DD hh:mm:ss")
         .TextBody = _
             Environ$("computername") & _
             vbNewLine & _
@@ -151,10 +151,4 @@ ErrorHandle:
 ExecuteProcedure:
         Call system.speedOff
 End Sub
-
-
-
-
-
-
 

@@ -131,8 +131,3 @@ Option Explicit
 '        Set objRibbon = Nothing
 'End Function
 
-
-
-
-
-

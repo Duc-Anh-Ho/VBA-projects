@@ -2,9 +2,9 @@ VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} KeyboardShortcutForm 
    Caption         =   "Settings"
    ClientHeight    =   3165
-   ClientLeft      =   4977
+   ClientLeft      =   4980
    ClientTop       =   1680
-   ClientWidth     =   4564
+   ClientWidth     =   4560
    OleObjectBlob   =   "KeyboardShortcutForm.frx":0000
    StartUpPosition =   1  'CenterOwner
 End
@@ -61,7 +61,7 @@ Private Enum FORM_POSITION
     left = width / 2
 End Enum
 Private Enum direction
-    Up = -1
+    up = -1
     down = 1
 End Enum
 Private Enum MASK
@@ -265,10 +265,10 @@ End Function
 Private Function canUpdateFormat( _
     ByRef label As MsForms.label _
     , ByRef propName As String _
-    , ByRef Format As Long _
+    , ByRef format As Long _
 ) As Boolean
-    If CallByName(label, propName, VbGet) <> Format Then
-        Call CallByName(label, propName, VbLet, Format)
+    If CallByName(label, propName, VbGet) <> format Then
+        Call CallByName(label, propName, VbLet, format)
         Let canUpdateFormat = True
     Else
         Let canUpdateFormat = False
@@ -461,7 +461,7 @@ Private Sub KeyboardFrame_KeyDown(ByVal KeyCode As MsForms.ReturnInteger, ByVal 
     Select Case KeyCode
         Case vbKeyReturn: If Shift = MASK.None Then Call showEditing
         Case vbKeyEscape: If Shift = MASK.None Then Call hidePickingAndEditing(isChange:=False)
-        Case vbKeyUp: If Shift = MASK.None Then Call movePicking(direction.Up)
+        Case vbKeyUp: If Shift = MASK.None Then Call movePicking(direction.up)
         Case vbKeyDown: If Shift = MASK.None Then Call movePicking(direction.down)
     End Select
 End Sub
@@ -570,7 +570,7 @@ Private Sub initRow()
     Dim lineIndex As String
     Dim defaultMark As String
     Dim shortcut As String
-    Call letMaxRow(getShortcutC().getRows().count)
+    Call letMaxRow(getShortcutC().getRows().Count)
     ReDim editedArr(getMaxRow() - 1)
     ReDim applyArr(getMaxRow() - 1)
     Call resetEdited
@@ -735,7 +735,7 @@ Private Sub createRowLabel( _
     , Optional ByRef visible As Boolean = True _
 )
     Dim lineLabel As MsForms.label
-    Set lineLabel = Me.KeyboardFrame.Add( _
+    Set lineLabel = Me.KeyboardFrame.add( _
         bstrProgId:=PROG_ID_LABEL _
         , name:=name _
         , visible:=visible)
@@ -773,7 +773,7 @@ Private Sub createRowTextBox( _
 )
     ' Dim lineTextbox As MSForms.textBox
     Dim lineTextbox As MsForms.control
-    Set lineTextbox = Me.KeyboardFrame.Add( _
+    Set lineTextbox = Me.KeyboardFrame.add( _
         bstrProgId:=PROG_ID_TEXTBOX _
         , name:=name _
         , visible:=visible)
@@ -811,7 +811,7 @@ Private Sub createOverlayLabel( _
     , Optional ByRef visible As Boolean = False _
 )
     Dim overlayLabel As MsForms.label
-    Set overlayLabel = parentCtrl.Add( _
+    Set overlayLabel = parentCtrl.add( _
         bstrProgId:=PROG_ID_LABEL _
         , name:=name _
         , visible:=visible)  'init will hide
@@ -833,11 +833,11 @@ End Sub
 
 Private Sub addEvent(ByRef ctrl As MsForms.control)
     If isLabel(ctrl) Then
-        If isTitle(ctrl) Then getEventColl().Add createLabelEvent(ctrl)
-        If isLine(ctrl) Then getEventColl().Add createLabelEvent(ctrl)
-        If isOverlay(ctrl) Then getEventColl().Add createLabelEvent(ctrl)
+        If isTitle(ctrl) Then getEventColl().add createLabelEvent(ctrl)
+        If isLine(ctrl) Then getEventColl().add createLabelEvent(ctrl)
+        If isOverlay(ctrl) Then getEventColl().add createLabelEvent(ctrl)
     ElseIf isTextBox(ctrl) Then
-        If isLine(ctrl) Then getEventColl().Add createTextBoxEvent(ctrl)
+        If isLine(ctrl) Then getEventColl().add createTextBoxEvent(ctrl)
     End If
 End Sub
 
@@ -1215,5 +1215,4 @@ Private Sub clearUp()
     ' Clear Arrays
     Erase editedArr
 End Sub
-
 

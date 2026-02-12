@@ -699,6 +699,9 @@ Friend Sub CheckSfcmerlgLine()
                         , stopPattern _
                     )
                     If log <> line Then
+                        debug.print taskCode
+                        debug.print log
+                        debug.print line
                         Let isFound = False
                         Exit For
                     End If
@@ -881,9 +884,9 @@ End Sub
 Friend Sub ExportImages()
     Dim dict As Object: Set dict = Scripts.Dictionary
     Dim tasks() As String: Let tasks = Addr.GetValueArray("TASKS")
-    Dim lastPids() As String: Let lastPids = Addr.GetValueArray("LAST_PIDS")
     Dim utPattern As String: Let utPattern = Addr.GetValue("FILE_UT_PATTERN")
     Dim results As Collection: Set results = New Collection
+    Const OUTPUT_DIR As String = "D:\share\ASS\Tasks\template\0Ken\task\IMAGES\"
     Dim i As Long: For i = LBound(tasks) To UBound(tasks)
         Dim taskCode As String: Let taskCode = left$(tasks(i), 8)
         Dim taskName As String: Let taskName = Right$(tasks(i), Len(tasks(i)) - 9)
@@ -900,27 +903,38 @@ Friend Sub ExportImages()
         If Not Test.IsExistPath(utFullName) Then
             Call results.Add("File UT Not Found!")
         Else
-            Dim resultPath As String
-            Dim outputFolder As String: Let outputFolder = "D:\share\ASS\Tasks\template\0Ken\task\IMAGES\" & taskCode
-            ' Let resultPath = Test.ExtractExcelByZip(utFullName, outputFolder)
-            ' If resultPath = vbNullString Then Let resultPath = "Export failed."
-            Call results.Add(resultPath)
+            Dim outputFolder As String: Let outputFolder = OUTPUT_DIR & taskCode
+            Call Test.ExtractExcelByZip(utFullName, outputFolder)
+            Call results.Add(outputFolder)
         End If
     Next i
     Call Addr.SetValueArray("EXPORT_IMAGES_PATH", CollectionToArray(results))
 End Sub
 
-
-Sub XXXTEST()
+Public Sub XXXTEST()
     Dim testFile As String: Let testFile = "D:\share\ASS\Tasks\template\0Ken\task\IMAGES\test.xlsx"
-    Dim outputFile As String: Let outputFile = "D:\share\ASS\Tasks\template\0Ken\task\IMAGES\test.xlsx" & ".zip"
-    Dim testFolder As String: Let testFolder = "D:\share\ASS\Tasks\template\0Ken\task\IMAGES\test.xlsx.zip\xl\media\"
+    ' Dim outputFile As String: Let outputFile = testFile & ".zip"
+    ' Dim testFolder As String: Let testFolder = "C:\Users\Danh1\Desktop\VCC\xl\media\"
     Dim outputFolder As String: Let outputFolder = "D:\share\ASS\Tasks\template\0Ken\task\IMAGES\output"
-    Dim testZip As String: Let testZip = "D:\share\ASS\Tasks\template\0Ken\task\IMAGES\test.xlsx.zip"
+    ' Dim testZip As String: Let testZip = "D:\share\ASS\Tasks\template\0Ken\task\IMAGES\test.xlsx.zip"
 
-    ' Debug.Print Test.CopyFile(testFile, outputFile)
-    ' Call Test.CopyFolder(testFolder, outputFolder)
-    Call Test.ExtractExcelByZip(testZip, outputFolder)
+    ' Call Test.CopyFile(testFile, outputFile)
+    ' Call Test.CopyFolder(testFolder, outputFile)
+    ' Call Test.ExtractExcelByZip(testFile, outputFolder)
+    Dim address As String: Let address = Addr.GetByKey("CONFIG_LIST")
+    Call RangeToFile( _
+        ActiveSheet.Range(address) _
+        , outputFolder & "\config" _
+        , "," _
+        , True _
+        , "x-euc-jp" _
+    )
 
+    ' Call FileToRange( _ 
+    '     outputFolder & "\test" _
+    '     , Selection _
+    '     , "," _
+    '     , "x-euc-jp" _
+    ' )
 End Sub
 

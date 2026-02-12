@@ -20,6 +20,7 @@ Public Enum ECODE
     Err_PathNotFound = 1003
     Err_PermissionDenied = 1004
     Err_OperationNotSupported = 1005
+    Err_MissingLibrary = 1006
 
     ' IO operations
     Err_CopyFailed = 2001
@@ -40,6 +41,7 @@ Private Function GetMessage(ByVal errorCode As ECODE) As String
         Case Err_CopyFailed: Let GetMessage = "Copy operation failed."
         Case Err_InvalidParameter: Let GetMessage = "Invalid parameter provided."
         Case Err_OperationNotSupported: Let GetMessage = "Operation not supported."
+        Case Err_MissingLibrary: Let GetMessage = "DLL file not found."
         Case Else: Let GetMessage = "Unknown error occurred."
     End Select
 End Function
@@ -50,8 +52,8 @@ Friend Sub Raise( _
     , ByVal sourceName As String _
     , ByVal message As String _
 )
-    Call log(LOG_FILE, errorCode, sourceName, message)
-    Call ERR.Raise( _
+    Call Log(LOG_FILE, errorCode, sourceName, message)
+    Call Err.Raise( _
         Number:=errorCode _
         , Source:=sourceName _
         , Description:=message _
@@ -67,28 +69,26 @@ Friend Function ToText( _
         "[Error " & CStr(errorCode) & "] " & sourceName & " | " & message
 End Function
 
-Friend Sub log( _
+Friend Sub Log( _
     ByVal filePath As String _
     , ByVal errorCode As ECODE _
     , ByVal sourceName As String _
     , ByVal message As String _
 )
-    Dim Scripts As Utils_Scripts: Set Scripts = New Utils_Scripts
-    Dim fileSystem As Object: Set fileSystem = Scripts.fileSystem
-    If Not fileSystem.FolderExists(LOG_FOLDER) Then fileSystem.CreateFolder LOG_FOLDER
+    Dim scripts As Utils_Scripts: Set scripts = New Utils_Scripts
+    Dim fileSystem As Object: Set fileSystem = scripts.FileSystem
+    If Not fileSystem.FolderExists(LOG_FOLDER) Then Call fileSystem.CreateFolder(LOG_FOLDER)
     Dim fileNumber As Integer: Let fileNumber = FreeFile
     Open filePath For Append As #fileNumber
     Print #fileNumber, ToText(errorCode, sourceName, message)
     Close #fileNumber
 End Sub
 
-Friend Sub FAIL(ByVal errorCode As ECODE, ParamArray sourceNames() As Variant)
-    Const DOT As String = "."
+Friend Sub Fail(ByVal errorCode As ECODE, ParamArray sourceNames() As Variant)
     Dim fullSource As String
     Dim i As Long: For i = LBound(sourceNames) To UBound(sourceNames)
-        If i > LBound(sourceNames) Then Let fullSource = fullSource & DOT
+        If i > LBound(sourceNames) Then Let fullSource = fullSource & vbCrLf
         Let fullSource = fullSource & CStr(sourceNames(i))
     Next i
     Call Raise(errorCode, fullSource, GetMessage(errorCode))
 End Sub
-

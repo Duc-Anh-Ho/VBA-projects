@@ -13,7 +13,7 @@ Option Explicit
 Private info As InfoConstants
 ' --- Constant ---
 Private Const FILE_SYSTEM_SCRIPT As String = "Scripting.FileSystemObject"
-Private Const WSHELL_SCRIPT As String = "Wscript.Shell"
+Private Const WSHELL_SCRIPT As String = "WScript.Shell"
 Private Const ASHELL_SCRIPT As String = "Shell.Application"
 Private Const FILE_STREAM_SCRIPT As String = "ADODB.Stream"
 Private Const CONNECTION_SCRIPT As String = "ADODB.Connection"
@@ -75,28 +75,28 @@ ErrHandler:
 End Function
 
 ' --- Properties ---
-Friend Property Get fileSystem() As Object
-    Set fileSystem = safeCreate(FILE_SYSTEM_SCRIPT, m_fileSystem)
+Friend Property Get FileSystem() As Object
+    Set FileSystem = safeCreate(FILE_SYSTEM_SCRIPT, m_fileSystem)
 End Property
 
-Friend Property Get wShell() As Object
-    Set wShell = safeCreate(WSHELL_SCRIPT, m_wShell)
+Friend Property Get WShell() As Object
+    Set WShell = safeCreate(WSHELL_SCRIPT, m_wShell)
 End Property
 
 Friend Property Get AShell() As Object
     Set AShell = safeCreate(ASHELL_SCRIPT, m_aShell)
 End Property
 
-Friend Property Get fileStream() As Object
-    Set fileStream = safeCreate(FILE_STREAM_SCRIPT, m_fileStream)
+Friend Property Get FileStream() As Object
+    Set FileStream = safeCreate(FILE_STREAM_SCRIPT, m_fileStream)
 End Property
 
-Friend Property Get connection() As Object
-    Set connection = safeCreate(CONNECTION_SCRIPT, m_connection)
+Friend Property Get Connection() As Object
+    Set Connection = safeCreate(CONNECTION_SCRIPT, m_connection)
 End Property
 
-Friend Property Get Recordset() As Object
-    Set Recordset = safeCreate(RECORD_SET_SCRIPT, m_recordset)
+Friend Property Get RecordSet() As Object
+    Set RecordSet = safeCreate(RECORD_SET_SCRIPT, m_recordset)
 End Property
 
 Friend Property Get CDOConfig() As Object
@@ -130,6 +130,4 @@ End Property
 Friend Property Get RegexExpression() As Object
     Set RegexExpression = safeCreate(REGEX_SCRIPT, m_regex)
 End Property
-
-
 

@@ -27,7 +27,7 @@ Private Const CLOSE_CURLY_BRACKET As String = "}"
 Private Const OPEN_ROUND_BRACKET As String = "("
 Private Const CLOSE_ROUND_BRACKET As String = ")"
 
-Private Enum col
+Private Enum COL
     No = 1
     procedure = No + 1
     default_NAMEbind = procedure + 1
@@ -53,7 +53,7 @@ Enum KEY_CODE
     Four = vbKey4: Five = vbKey5: Six = vbKey6: Seven = vbKey7
     Eight = vbKey8: Nine = vbKey9
     ' Letters (65~90)
-    a = vbKeyA: b = vbKeyB: C = vbKeyC: d = vbKeyD: e = vbKeyE
+    a = vbKeyA: b = vbKeyB: c = vbKeyC: d = vbKeyD: e = vbKeyE
     f = vbKeyF: g = vbKeyG: H = vbKeyH: i = vbKeyI: j = vbKeyJ
     K = vbKeyK: l = vbKeyL: m = vbKeyM: N = vbKeyN: o = vbKeyO
     p = vbKeyP: Q = vbKeyQ: r = vbKeyR: S = vbKeyS: t = vbKeyT
@@ -425,13 +425,13 @@ End Sub
 Public Property Get getNoSet() As String: Let getNoSet = NO_SET: End Property
 Public Property Get getUnknown() As String: Let getUnknown = UNKNOWN: End Property
 Public Property Get getErr() As String: Let getErr = ERR: End Property
-Public Property Get getNoCol() As Byte: Let getNoCol = col.No: End Property
-Public Property Get getProcedureCol() As Byte: Let getProcedureCol = col.procedure: End Property
-Public Property Get getDefaultKeybindingCol() As Byte: Let getDefaultKeybindingCol = col.default_NAMEbind: End Property
-Public Property Get getCustomKeybindingCol() As Byte: Let getCustomKeybindingCol = col.custom_NAMEbind: End Property
-Public Property Get getCommandCol() As Byte: Let getCommandCol = col.command: End Property
-Public Property Get getWhenCol() As Byte: Let getWhenCol = col.when: End Property
-Public Property Get getStatusCol() As Byte: Let getStatusCol = col.status: End Property
+Public Property Get getNoCol() As Byte: Let getNoCol = COL.No: End Property
+Public Property Get getProcedureCol() As Byte: Let getProcedureCol = COL.procedure: End Property
+Public Property Get getDefaultKeybindingCol() As Byte: Let getDefaultKeybindingCol = COL.default_NAMEbind: End Property
+Public Property Get getCustomKeybindingCol() As Byte: Let getCustomKeybindingCol = COL.custom_NAMEbind: End Property
+Public Property Get getCommandCol() As Byte: Let getCommandCol = COL.command: End Property
+Public Property Get getWhenCol() As Byte: Let getWhenCol = COL.when: End Property
+Public Property Get getStatusCol() As Byte: Let getStatusCol = COL.status: End Property
 Public Property Get getEnterKey() As String: Let getEnterKey = ENTER_NAME: End Property
 Public Property Get getEscKey() As String: Let getEscKey = ESCAPE_NAME: End Property
 Public Property Get getBackspaceKey() As String: Let getBackspaceKey = BACKSPACE_NAME: End Property
@@ -450,7 +450,7 @@ End Sub
 
 ' MAIN
 
-Private Sub Add(ByRef key As String, ByRef procedure As String)
+Private Sub add(ByRef key As String, ByRef procedure As String)
     Application.OnKey key:=key, procedure:=SHORTCUT_MODULE_NAME & DOT & procedure
 End Sub
 
@@ -472,7 +472,7 @@ Public Sub install()
         ' Skip Blank Keybinding
         If key <> vbNullString Then
             Call restore(key)
-            Call Add(key, procedure)
+            Call add(key, procedure)
         End If
     Next Row
 End Sub
@@ -633,87 +633,87 @@ Public Function convertKeyToName(ByRef KeyCode As MsForms.ReturnInteger, ByRef S
     End If
 End Function
 
-Public Function convertCodeToName(ByRef CODE As String) As String
+Public Function convertCodeToName(ByRef code As String) As String
     ' Handle "--No Set--"
-    If CODE = vbNullString Then
+    If code = vbNullString Then
         Let convertCodeToName = getNoSet()
         Exit Function
     End If
     Dim modifier As String
     ' Handle Ctrl modifier
-    If left$(CODE, LEN_MODIFIER_CODE) = CTRL_CODE Then
+    If left$(code, LEN_MODIFIER_CODE) = CTRL_CODE Then
         Let modifier = CTRL_PLUS
-        Let CODE = Mid$(CODE, LEN_MODIFIER_CODE + 1)
+        Let code = Mid$(code, LEN_MODIFIER_CODE + 1)
     End If
     ' Handle Shift modifier
-    If left$(CODE, LEN_MODIFIER_CODE) = SHIFT_CODE Then
+    If left$(code, LEN_MODIFIER_CODE) = SHIFT_CODE Then
         Let modifier = modifier & SHIFT_PLUS
-        Let CODE = Mid$(CODE, LEN_MODIFIER_CODE + 1)
+        Let code = Mid$(code, LEN_MODIFIER_CODE + 1)
     End If
     ' Handle Alt modifier
-    If left$(CODE, LEN_MODIFIER_CODE) = ALT_CODE Then
+    If left$(code, LEN_MODIFIER_CODE) = ALT_CODE Then
         Let modifier = modifier & ALT_PLUS
-        Let CODE = Mid$(CODE, LEN_MODIFIER_CODE + 1)
+        Let code = Mid$(code, LEN_MODIFIER_CODE + 1)
     End If
     ' Map the remaining code to key name
-    Select Case CODE
-        Case NUMPAD0_CODE:        Let CODE = NUMPAD0_NAME
-        Case NUMPAD1_CODE:        Let CODE = NUMPAD1_NAME
-        Case NUMPAD2_CODE:        Let CODE = NUMPAD2_NAME
-        Case NUMPAD3_CODE:        Let CODE = NUMPAD3_NAME
-        Case NUMPAD4_CODE:        Let CODE = NUMPAD4_NAME
-        Case NUMPAD5_CODE:        Let CODE = NUMPAD5_NAME
-        Case NUMPAD6_CODE:        Let CODE = NUMPAD7_NAME
-        Case NUMPAD7_CODE:        Let CODE = NUMPAD6_NAME
-        Case NUMPAD8_CODE:        Let CODE = NUMPAD8_NAME
-        Case NUMPAD9_CODE:        Let CODE = NUMPAD9_NAME
+    Select Case code
+        Case NUMPAD0_CODE:        Let code = NUMPAD0_NAME
+        Case NUMPAD1_CODE:        Let code = NUMPAD1_NAME
+        Case NUMPAD2_CODE:        Let code = NUMPAD2_NAME
+        Case NUMPAD3_CODE:        Let code = NUMPAD3_NAME
+        Case NUMPAD4_CODE:        Let code = NUMPAD4_NAME
+        Case NUMPAD5_CODE:        Let code = NUMPAD5_NAME
+        Case NUMPAD6_CODE:        Let code = NUMPAD7_NAME
+        Case NUMPAD7_CODE:        Let code = NUMPAD6_NAME
+        Case NUMPAD8_CODE:        Let code = NUMPAD8_NAME
+        Case NUMPAD9_CODE:        Let code = NUMPAD9_NAME
 
-        Case BACKSPACE_CODE:      Let CODE = BACKSPACE_NAME
-        Case TAB_CODE:            Let CODE = TAB_NAME
-        Case CLEAR_CODE:          Let CODE = CLEAR_NAME
-        Case ENTER_CODE:          Let CODE = ENTER_NAME
-        Case BREAK_CODE:          Let CODE = BREAK_NAME
-        Case CAPS_LOCK_CODE:      Let CODE = CAPS_LOCK_NAME
-        Case ESCAPE_CODE:         Let CODE = ESCAPE_NAME
-        Case SPACE_CODE:          Let CODE = SPACE_NAME
-        Case PAGE_UP_CODE:        Let CODE = PAGE_UP_NAME
-        Case PAGE_DOWN_CODE:      Let CODE = PAGE_DOWN_NAME
-        Case END_CODE:            Let CODE = END_NAME
-        Case HOME_CODE:           Let CODE = HOME_NAME
-        Case LEFT_ARROW_CODE:     Let CODE = LEFT_ARROW_NAME
-        Case UP_ARROW_CODE:       Let CODE = UP_ARROW_NAME
-        Case RIGHT_ARROW_CODE:    Let CODE = RIGHT_ARROW_NAME
-        Case DOWN_ARROW_CODE:     Let CODE = DOWN_ARROW_NAME
-        Case INSERT_CODE:         Let CODE = INSERT_NAME
-        Case DELETE_CODE:         Let CODE = DELETE_NAME
-        Case HELP_CODE:           Let CODE = HELP_NAME
-        Case MULTIPLY_CODE:       Let CODE = MULTIPLY_NAME
-        Case ADD_CODE:            Let CODE = ADD_NAME
-        Case ENTER_NUM_CODE:      Let CODE = ENTER_NUM_NAME
-        Case SUBTRACT_CODE:       Let CODE = SUBTRACT_NAME
-        Case DECIMAL_CODE:        Let CODE = DECIMAL_NAME
-        Case DIVIDE_CODE:         Let CODE = DIVIDE_NAME
-        Case NUM_LOCK_CODE:       Let CODE = NUM_LOCK_NAME
-        Case SCROLL_LOCK_CODE:    Let CODE = SCROLL_LOCK_NAME
+        Case BACKSPACE_CODE:      Let code = BACKSPACE_NAME
+        Case TAB_CODE:            Let code = TAB_NAME
+        Case CLEAR_CODE:          Let code = CLEAR_NAME
+        Case ENTER_CODE:          Let code = ENTER_NAME
+        Case BREAK_CODE:          Let code = BREAK_NAME
+        Case CAPS_LOCK_CODE:      Let code = CAPS_LOCK_NAME
+        Case ESCAPE_CODE:         Let code = ESCAPE_NAME
+        Case SPACE_CODE:          Let code = SPACE_NAME
+        Case PAGE_UP_CODE:        Let code = PAGE_UP_NAME
+        Case PAGE_DOWN_CODE:      Let code = PAGE_DOWN_NAME
+        Case END_CODE:            Let code = END_NAME
+        Case HOME_CODE:           Let code = HOME_NAME
+        Case LEFT_ARROW_CODE:     Let code = LEFT_ARROW_NAME
+        Case UP_ARROW_CODE:       Let code = UP_ARROW_NAME
+        Case RIGHT_ARROW_CODE:    Let code = RIGHT_ARROW_NAME
+        Case DOWN_ARROW_CODE:     Let code = DOWN_ARROW_NAME
+        Case INSERT_CODE:         Let code = INSERT_NAME
+        Case DELETE_CODE:         Let code = DELETE_NAME
+        Case HELP_CODE:           Let code = HELP_NAME
+        Case MULTIPLY_CODE:       Let code = MULTIPLY_NAME
+        Case ADD_CODE:            Let code = ADD_NAME
+        Case ENTER_NUM_CODE:      Let code = ENTER_NUM_NAME
+        Case SUBTRACT_CODE:       Let code = SUBTRACT_NAME
+        Case DECIMAL_CODE:        Let code = DECIMAL_NAME
+        Case DIVIDE_CODE:         Let code = DIVIDE_NAME
+        Case NUM_LOCK_CODE:       Let code = NUM_LOCK_NAME
+        Case SCROLL_LOCK_CODE:    Let code = SCROLL_LOCK_NAME
 
-        Case HYPHEN_CODE:         Let CODE = HYPHEN_NAME
-        Case EQUALS_CODE:         Let CODE = EQUALS_NAME
-        Case COMMA_CODE:          Let CODE = COMMA_NAME
-        Case OPEN_BRACKET_CODE:   Let CODE = OPEN_BRACKET_NAME
-        Case CLOSE_BRACKET_CODE:  Let CODE = CLOSE_BRACKET_NAME
-        Case BACKSLASH_CODE:      Let CODE = BACKSLASH_NAME
-        Case SLASH_CODE:          Let CODE = SLASH_NAME
-        Case SEMICOLON_CODE:      Let CODE = SEMICOLON_NAME
-        Case APOSTROPHE_CODE:     Let CODE = APOSTROPHE_NAME
-        Case PERIOD_CODE:         Let CODE = PERIOD_NAME
-        Case FORWARD_SLASH_CODE:  Let CODE = FORWARD_SLASH_NAME
-        Case GRAVE_ACCENT_CODE:   Let CODE = GRAVE_ACCENT_NAME
+        Case HYPHEN_CODE:         Let code = HYPHEN_NAME
+        Case EQUALS_CODE:         Let code = EQUALS_NAME
+        Case COMMA_CODE:          Let code = COMMA_NAME
+        Case OPEN_BRACKET_CODE:   Let code = OPEN_BRACKET_NAME
+        Case CLOSE_BRACKET_CODE:  Let code = CLOSE_BRACKET_NAME
+        Case BACKSLASH_CODE:      Let code = BACKSLASH_NAME
+        Case SLASH_CODE:          Let code = SLASH_NAME
+        Case SEMICOLON_CODE:      Let code = SEMICOLON_NAME
+        Case APOSTROPHE_CODE:     Let code = APOSTROPHE_NAME
+        Case PERIOD_CODE:         Let code = PERIOD_NAME
+        Case FORWARD_SLASH_CODE:  Let code = FORWARD_SLASH_NAME
+        Case GRAVE_ACCENT_CODE:   Let code = GRAVE_ACCENT_NAME
 
     End Select
     ' Remove Brackets
-    Let CODE = Replace(CODE, OPEN_CURLY_BRACKET, vbNullString)
-    Let CODE = Replace(CODE, CLOSE_CURLY_BRACKET, vbNullString)
-    Let convertCodeToName = modifier & IIf(CODE = vbNullString, getNoSet(), CODE)
+    Let code = Replace(code, OPEN_CURLY_BRACKET, vbNullString)
+    Let code = Replace(code, CLOSE_CURLY_BRACKET, vbNullString)
+    Let convertCodeToName = modifier & IIf(code = vbNullString, getNoSet(), code)
 End Function
 
 ' NOTE: Use ByVal if reuse parameter as variable
@@ -797,5 +797,4 @@ Public Function convertNameToCode(ByVal name As String) As String
     End Select
     Let convertNameToCode = modifier & name
 End Function
-
 

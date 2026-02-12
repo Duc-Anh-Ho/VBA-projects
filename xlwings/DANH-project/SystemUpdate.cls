@@ -45,7 +45,7 @@ Public WithEvents wb As Workbook
 Attribute wb.VB_VarHelpID = -1
 Public WithEvents ws As Worksheet
 Attribute ws.VB_VarHelpID = -1
-Public wd As WINDOW
+Public wd As window
 'Public wss As Worksheets 'TODO: Refactor as global accessor get wss for sheets controller
 'Public wsObs As Sheets 'wsObs could be Charts || DialogSheets || Worksheets (ws regular || ws marcro)
 Public sheetOb As Object 'SheetOb could be Chart || DialogSheet || Worksheet (ws regular || ws marcro)
@@ -652,7 +652,7 @@ Public Property Get getLastRow(ByVal ws As Worksheet, Optional ByVal atColumn As
 On Error GoTo ErrorHandle
     Dim cell As Range
     If CBool(atColumn) Then
-        Set cell = ws.Cells(ws.Rows.count, atColumn).End(xlUp)
+        Set cell = ws.Cells(ws.Rows.Count, atColumn).End(xlUp)
         If cell.value = False Then
             Let getLastRow = 0
         Else
@@ -676,7 +676,7 @@ Public Property Get getLastColumn(ByVal ws As Worksheet, Optional ByVal atRow As
 On Error GoTo ErrorHandle
     Dim cell As Range
     If CBool(atRow) Then
-        Set cell = ws.Cells(atRow, ws.Columns.count).End(xlToLeft)
+        Set cell = ws.Cells(atRow, ws.Columns.Count).End(xlToLeft)
         If cell.value = False Then
             Let getLastColumn = 0
         Else
@@ -896,7 +896,7 @@ End Sub
 Public Sub storeSheetFormat(fromSheet As Worksheet, Optional toSheetName As String = "formatStored")
     'Create format sheet if not exist
     If toSheetName <> "formatStored" Then
-        If Not hasSheet(toSheetName) Then ThisWorkbook.Worksheets.Add.name = toSheetName
+        If Not hasSheet(toSheetName) Then ThisWorkbook.Worksheets.add.name = toSheetName
     End If
     'Copy all from object sheet
     fromSheet.Cells.Copy
@@ -908,7 +908,7 @@ End Sub
 Public Sub pasteSheetFormat(toSheetName As Worksheet, Optional fromSheet As String = "formatStored")
     'Create format sheet if not exist
     If fromSheet <> "formatStored" Then
-        If Not hasSheet(fromSheet) Then ThisWorkbook.Worksheets.Add.name = toSheetName
+        If Not hasSheet(fromSheet) Then ThisWorkbook.Worksheets.add.name = toSheetName
     End If
 '    Copy all from object sheet
     ThisWorkbook.Worksheets(fromSheet).Cells.Copy
@@ -967,20 +967,4 @@ Private Sub errorDisplay()
         HelpFile:=ERR.HelpFile, _
         Context:=ERR.HelpContext)
 End Sub
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

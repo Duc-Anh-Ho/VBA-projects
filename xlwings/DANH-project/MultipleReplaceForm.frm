@@ -2,9 +2,9 @@ VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} MultipleReplaceForm 
    Caption         =   "Multiple Replace"
    ClientHeight    =   2955
-   ClientLeft      =   119
-   ClientTop       =   462
-   ClientWidth     =   7336
+   ClientLeft      =   120
+   ClientTop       =   465
+   ClientWidth     =   7335
    OleObjectBlob   =   "MultipleReplaceForm.frx":0000
    StartUpPosition =   1  'CenterOwner
 End
@@ -175,7 +175,7 @@ Private Sub ReplaceAllButton_Click()
             Buttons:=vbOKOnly + vbExclamation, _
             Title:=info.getAuthor)
             SelectedAreaInput.SetFocus
-    ElseIf findArea.count <> replaceArea.count Then
+    ElseIf findArea.Count <> replaceArea.Count Then
         Let userResponse = MsgBox( _
             Prompt:=info.getPrompt _
                 & vbNewLine & "Number of 'Find What' and 'Replace With' does not match." _
@@ -264,7 +264,4 @@ Private Sub InitTabIndexes(ParamArray controls() As Variant)
         End If
     Next ctrl
 End Sub
-
-
-
 

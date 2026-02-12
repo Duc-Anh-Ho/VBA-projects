@@ -12,7 +12,7 @@ Option Explicit
 'Declare Variables
 Private system As SystemUpdate
 Private powerShell As Object
-Private fileStream As Object 'Stream Object
+Private FileStream As Object 'Stream Object
 Private userResponse As VbMsgBoxResult
 Private Const CREATE_COMMAND_SCRIPT As String = _
     "PowerShell.exe -NoLogo -WindowStyle Hidden -Command "
@@ -66,10 +66,4 @@ Public Property Get executeScript(ByRef scrpit As String) As String
     End Select
     Let executeScript = returnTxt
 End Property
-
-
-
-
-
-
 

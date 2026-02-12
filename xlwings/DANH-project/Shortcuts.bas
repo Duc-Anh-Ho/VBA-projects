@@ -672,13 +672,14 @@ changeSize:
 End Sub
 
 Public Sub Test()
-Dim Test As PJ1_Logic
-Dim Test2 As Utils_Scripts
-Set Test = New PJ1_Logic
-Set Test2 = New Utils_Scripts
-Dim xx As Object: Set xx = Test2.WinSCP
+' Dim Test As PJ1_Logic
+' Dim Test2 As Utils_Scripts
+' Set Test = New PJ1_Logic
+' Set Test2 = New Utils_Scripts
+' Dim xx As Object: Set xx = Test2.WinSCP
 ' Call Test.Init(Excel.Application.ActiveSheet)
 ' Call Test.CheckFileName
+Call uatTest2()
 End Sub
 
 ' xxxxx
@@ -1055,36 +1056,37 @@ Application.EnableEvents = False
     Dim Tst As PJ1_Logic: Set Tst = New PJ1_Logic
     Call Tst.Init(ws)
     
-    Call Tst.ChecklistExits
-    Call Tst.UTExits
-    Call Tst.CountInUT
-    Call Tst.CountInOutput
-    Call Tst.SfcmaplgExist
-    Call Tst.SfcmerlgExist
-    Call Tst.LogExist
+    ' Call Tst.ChecklistExits
+    ' Call Tst.UTExits
+    ' Call Tst.CountInUT
+    ' Call Tst.CountInOutput
+    ' Call Tst.SfcmaplgExist
+    ' Call Tst.SfcmerlgExist
+    ' Call Tst.LogExist
 
-    Call Tst.LogEOF ' lac
-    Call Tst.SfcmaplgEOF ' lac
-    Call Tst.SfcmerlgEOF ' lac
+    ' Call Tst.LogEOF ' lac
+    ' Call Tst.SfcmaplgEOF ' lac
+    ' Call Tst.SfcmerlgEOF ' lac
 
-    Call Tst.CheckLogContent
-    Call Tst.LastRuntime
-    Call Tst.GetTestcsh
-    Call Tst.GetTestcshExec
-    Call Tst.GetALELog
-    Call Tst.CheckSfcmaplgOutput
-    Call Tst.CheckSfcmerlgOutput
+    ' Call Tst.CheckLogContent
+    ' Call Tst.LastRuntime
+    ' Call Tst.GetTestcsh
+    ' Call Tst.GetTestcshExec
+    ' Call Tst.GetALELog
+    ' Call Tst.CheckSfcmaplgOutput
+    ' Call Tst.CheckSfcmerlgOutput
 
-    Call Tst.CheckSfcmaplgLine
-    Call Tst.CheckSfcmerlgLine
-    Call Tst.CheckSfcmerlgError
+    ' Call Tst.CheckSfcmaplgLine
+    ' Call Tst.CheckSfcmerlgLine
+    ' Call Tst.CheckSfcmerlgError
 
-    Call Tst.CheckElsePattern ' rat lac
+    ' Call Tst.CheckElsePattern ' rat lac
 
     ' HELPER
-    ' Call Tst.ExportImages
+    ' (deprecated) Note: Use Node Faster
+    ' Call Tst.ExportImages 
 
-    ' Call Tst.XXXTEST
+    Call Tst.XXXTEST
 
     With ws
     End With
@@ -1093,30 +1095,4 @@ Application.ScreenUpdating = True
 Application.Calculation = xlCalculationAutomatic
 Application.EnableEvents = True
 End Sub
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

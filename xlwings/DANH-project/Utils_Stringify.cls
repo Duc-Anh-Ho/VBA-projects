@@ -13,9 +13,9 @@ Option Explicit
 Private Const OPEN_BRACER As String = "{{"
 Private Const CLOSE_BRACER As String = "}}"
 ' --- Fuctions / Subroutines ---
-Friend Function sheetName(ByRef targetWorksheet As Worksheet) As String
+Friend Function SheetName(ByRef targetWorksheet As Worksheet) As String
     Dim name As String: Let name = targetWorksheet.name
-    Let sheetName = "'" & VBA.Strings.Replace(name, "'", "''") & "'!"
+    Let SheetName = "'" & VBA.Strings.Replace(name, "'", "''") & "'!"
 End Function
 
 Friend Function ReplacePlaceholder(ByRef templateText As String, ByRef dict As Object) As String

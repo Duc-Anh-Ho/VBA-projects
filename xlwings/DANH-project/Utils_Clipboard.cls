@@ -112,6 +112,3 @@ Cleanup:
     LoadByAPI = Replace(buffer, vbNullChar, vbNullString)
 End Function
 
-
-
-
