@@ -11,22 +11,29 @@ Attribute VB_Exposed = False
 Option Explicit
 Option Compare Binary
 ' Declare Variables
-Private info As InfoConstants
-Private system As SystemUpdate
-Private fileSystem As Object
+Private info         As InfoConstants
+Private system       As SystemUpdate
+Private fileSystem   As Object
 Private userResponse As VbMsgBoxResult
 Private customOffset As Byte
-Private targetPlace As Object
+Private targetPlace  As Object
 Private targetObject As Object
-Private isLockRatio As Boolean
-Private Const DEFAULT_LOCK_RATIO As Boolean = True
-Private Const MARKER_COLOR As Long = vbRed
-Private Const FAKE_BORDER_COLOR As Long = vbMagenta
-Private Const MARKER_TEAR_COLOR As Long = vbMagenta
+Private isLockRatio  As Boolean
+Private Const DEFAULT_LOCK_RATIO      As Boolean = True
+Private Const MARKER_COLOR            As Long = vbRed
+Private Const FAKE_BORDER_COLOR       As Long = vbMagenta
+Private Const MARKER_TEAR_COLOR       As Long = vbMagenta
 Private Const MARKER_TRANSPARENT_RATE As Byte = 80
-Private Const MARKER_LINE_WEIGHT As Byte = 5
-Private Const MARKER_TEXT As String = "ARRANGING AREA"
-Private Const MARKER_TEXT_FONT As String = "Helvetica"
+Private Const MARKER_LINE_WEIGHT      As Byte = 5
+Private Const MARKER_TEXT             As String = "ARRANGING AREA"
+Private Const MARKER_TEXT_FONT        As String = "Helvetica"
+'4
+Public Enum TOUCH_MODE
+    OVERLAP = 0
+    INSIDE    = 1
+End Enum
+Private Const NAME_TOKEN as String = "@_@"
+
 ' Initialize Variables
 Private Function hasVariables() As Boolean
 On Error GoTo ErrorHandle
@@ -60,6 +67,15 @@ Public Property Get hasSelectObjectMode() As Boolean
     Let hasSelectObjectMode = CommandBars("Drawing").controls("Select Objects").State
 End Property
 
+'4
+Public Property Get OVERLAP_MODE() As Byte
+    Let OVERLAP_MODE = TOUCH_MODE.OVERLAP
+End Property
+
+Public Property Get INSIDE_MODE() As Byte
+    Let INSIDE_MODE = TOUCH_MODE.INSIDE
+End Property
+
 ' MUTATORS
 
 '1,2,3
@@ -67,6 +83,7 @@ Public Property Let letOffset(ByRef newOffset As Byte)
     If newOffset > 100 Then newOffset = 100
     Let customOffset = newOffset
 End Property
+
 '1,2,3
 ' TODO Change name to lockRatio and the sub LockRatio to applyLockRatio
 Public Property Let letLockRatio(ByRef newLockRatio As Boolean)
@@ -74,6 +91,7 @@ Public Property Let letLockRatio(ByRef newLockRatio As Boolean)
     'TO-DO: Pop-up Form
     'Let isLockRatio = SnippingToolForm.CheckBoxLockRadio.value
 End Property
+
 '2.
 Public Property Let selectObjectMode(ByRef objectMode As Boolean)
     If objectMode And Not CommandBars("Drawing").controls("Select Objects").State Then
@@ -82,6 +100,7 @@ Public Property Let selectObjectMode(ByRef objectMode As Boolean)
         Call CommandBars("Drawing").controls("Select Objects").Execute
     End If
 End Property
+
 '2
 Public Property Let hasFakeBorder(ByRef isFake As Boolean)
     Dim sh As Shape
@@ -108,6 +127,7 @@ Public Property Let hasFakeBorder(ByRef isFake As Boolean)
         Next sh
     End If
 End Property
+
 '2
 Public Property Let hasMarkTargetPlace(ByRef isMarked As Boolean)
     Dim sh As Shape
@@ -145,6 +165,7 @@ Public Property Let hasMarkTargetPlace(ByRef isMarked As Boolean)
         Next sh
     End If
 End Property
+
 '3
 Public Property Let hasMarkTargetObject(ByRef isMarked As Boolean)
     Dim sh As Shape
@@ -188,7 +209,9 @@ Public Property Let hasMarkTargetObject(ByRef isMarked As Boolean)
         Next groupSh
     End If
 End Property
+
 'METHODS
+
 '1,2,3
 Public Sub lockRatio(ByRef targetObject As Object)
     Select Case typeName(targetObject)
@@ -204,7 +227,7 @@ Public Sub sendTo( _
     ByRef targetObject As Object _
     , Optional ByRef orderType As Byte = msoBringToFront _
 )
-    ' TODO CHnage all typename to typeOF for wider handle
+    ' TODO Change all typename to typeOF for wider handle
     Select Case typeName(targetObject)
         Case "Shape"
             Call targetObject.zOrder(orderType)
@@ -212,6 +235,7 @@ Public Sub sendTo( _
             Call targetObject.ShapeRange.zOrder(orderType)
     End Select
 End Sub
+
 '1,2
 Private Sub setTargetPlace(targetOj As Object, Optional hasConfirm As Boolean = True)
     Select Case typeName(targetOj)
@@ -247,6 +271,7 @@ Private Sub setTargetPlace(targetOj As Object, Optional hasConfirm As Boolean = 
             End If
     End Select
 End Sub
+
 '1
 Private Sub deleteOldPicture()
     If targetPlace Is Nothing Then Exit Sub
@@ -265,6 +290,7 @@ Private Sub deleteOldPicture()
         End Select
     End If
 End Sub
+
 '2.
 Private Sub setTargetObject(ByRef objectName As String)
     Dim sh As Shape
@@ -278,6 +304,7 @@ Private Sub setTargetObject(ByRef objectName As String)
             If sh.name = objectName Then Set targetObject = sh
         Next sh
 End Sub
+
 '1.
 Private Sub capturePicture()
     With system.app
@@ -298,6 +325,7 @@ Private Sub capturePicture()
         Call capturePicture 'recursion
     End If
 End Sub
+
 '2
 Private Sub assignOnAction(ByRef Script As String)
     Dim sh As Shape
@@ -305,6 +333,7 @@ Private Sub assignOnAction(ByRef Script As String)
         Let sh.OnAction = Script
     Next sh
 End Sub
+
 '1,2,3
 Private Sub scalePicture( _
     ByVal isLockRatio As Boolean _
@@ -357,7 +386,90 @@ Private Sub scalePicture( _
     Let system.app.ScreenUpdating = True
 End Sub
 
+'4.1
+Private Sub renameShape()
+    Dim sh As Shape
+    For Each sh In system.ws.Shapes
+        ' Skip if already temp name
+        If InStrRev(sh.name, NAME_TOKEN) > 0 Then GoTo NextShape 
+        Let sh.name = sh.name & NAME_TOKEN & Format$(sh.id, "00000")
+NextShape:
+    Next sh
+End Sub
+
+'4.2
+Private Sub restoreNameShape()
+    Dim sh As Shape
+    Dim position As Long
+    For Each sh In system.ws.Shapes
+        ' TODO vbBinaryCompar to enum
+        Let position = InStrRev(sh.name, NAME_TOKEN, , vbBinaryCompare)
+        If position > 0 Then
+            Let sh.name = Left$(sh.name, position - 1)
+        End If
+    Next sh
+End Sub
+
+'4.3
+Private Function isTouch( _
+    ByRef target As Range, _
+    ByRef sh     As Shape, _
+    Optional ByVal mode As TOUCH_MODE = OVERLAP _
+) As Boolean
+    Dim rangeLeft   As Double: rangeLeft   = target.Left
+    Dim rangeTop    As Double: rangeTop    = target.Top
+    Dim rangeRight  As Double: rangeRight  = rangeLeft + target.Width
+    Dim rangeBottom As Double: rangeBottom = rangeTop + target.Height
+
+    Dim shapeLeft   As Double: shapeLeft   = sh.Left
+    Dim shapeTop    As Double: shapeTop    = sh.Top
+    Dim shapeRight  As Double: shapeRight  = shapeLeft + sh.Width
+    Dim shapeBottom As Double: shapeBottom = shapeTop + sh.Height
+
+    Select Case mode
+        Case INSIDE  ' Shape must be fully inside
+            Let isTouch = _
+                shapeLeft >= rangeLeft _
+                And shapeRight <= rangeRight _
+                And shapeTop >= rangeTop _
+                And shapeBottom <= rangeBottom
+        Case OVERLAP ' Shape must be intersect
+            Let isTouch = Not ( _
+                shapeLeft > rangeRight _
+                Or shapeRight < rangeLeft _
+                Or shapeTop > rangeBottom _
+                Or shapeBottom < rangeTop _
+            )
+        Case Else
+        ' TODO Error Handler
+    End Select
+
+End Function
+
+'4.
+Public Function getShapeInRange( _
+    ByRef target As Range, _
+    Optional ByVal mode As TOUCH_MODE = OVERLAP _
+) As String()
+    Dim result() As String
+    ' Let result = Split("", ",") ' Trick create result(0) = "" in VBA
+    ReDim result(0): Let result(0) = ""
+    If TypeName(target) <> "Range" Then GoTo returnResult
+    Dim count as Long
+    Dim sh As Shape: For Each sh In system.ws.Shapes
+        If isTouch(target, sh, mode) Then
+            Let count = count + 1
+            ReDim Preserve result(0 To count - 1)
+            Let result(count - 1) = sh.name
+        End If
+    Next sh
+returnResult:
+    Let getShapeInRange = result
+End Function
+
 'MAIN
+
+'5 
 Public Sub snipShareX(Optional savedPath As String = vbNullString)
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
@@ -390,17 +502,18 @@ ExecuteProcedure:
     Let Application.ScreenUpdating = True
     Call system.speedOff
 End Sub
+
 '
 Public Function latestPic( _
     ByRef folderPath As String, _
-    Optional ByVal stamptimeLength As Byte = 16, _
+    Optional ByVal stamptimeLength  As Byte = 16, _
     Optional ByVal extensionPattern As String = "\*.png" _
 ) As String
     If folderPath = vbNullString Then Exit Function
-    Dim fullName As String: Let fullName = Dir(folderPath & extensionPattern)
-    Dim latestFile As String
+    Dim fullName     As String: Let fullName = Dir(folderPath & extensionPattern)
+    Dim latestFile   As String
     Dim stamptimeMax As String
-    Dim stamptime As String
+    Dim stamptime    As String
     Do While fullName <> vbNullString
         Let stamptime = left(fullName, stamptimeLength)
         If ( _
@@ -417,6 +530,7 @@ NextLoop:
     Loop
     Let latestPic = IIf(latestFile <> vbNullString, folderPath & "\" & latestFile, vbNullString)
 End Function
+
 '1. Snipping Tool
 Public Sub snip()
 On Error GoTo ErrorHandle
@@ -434,6 +548,7 @@ ExecuteProcedure:
     Let Application.ScreenUpdating = True
     Call system.speedOff
 End Sub
+
 '2.1 Assign macro to shape
 Public Sub assign()
 On Error GoTo ErrorHandle
@@ -451,6 +566,7 @@ ErrorHandle:
 ExecuteProcedure:
     Call system.speedOff
 End Sub
+
 '2.2 Arrrage Object
 Public Sub arrange(ByRef objectName As String)
 On Error GoTo ErrorHandle
@@ -468,6 +584,7 @@ ErrorHandle:
 ExecuteProcedure:
     Call system.speedOff
 End Sub
+
 '2.3
 Public Sub clearArrange()
 On Error GoTo ErrorHandle
@@ -483,7 +600,8 @@ ErrorHandle:
 ExecuteProcedure:
     Call system.speedOff
 End Sub
-' 3. Auto Arrange
+
+'3. Auto Arrange
 Public Sub autoArrange(ByRef isOn As Boolean)
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
@@ -496,9 +614,10 @@ ErrorHandle:
 ExecuteProcedure:
     Call system.speedOff
 End Sub
+
 '3.
 Public Sub arrangeToMerge()
-    On Error GoTo ErrorHandle
+On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
     Call system.speedOn
     If typeName(Selection) = "GroupObject" Then
@@ -513,3 +632,23 @@ ExecuteProcedure:
     Call system.speedOff
 End Sub
 
+'4.
+Public Sub selectShapeInRange( _
+    Optional ByVal mode As TOUCH_MODE = OVERLAP _
+)
+On Error GoTo ErrorHandle
+    If Not hasVariables Then GoTo ExecuteProcedure
+    If TypeName(Selection) <> "Range" Then GoTo ExecuteProcedure
+    Call system.speedOn
+    Call renameShape
+    Dim nameArr() As String: Let nameArr = getShapeInRange(Selection, mode)
+    If system.getArrayLength(nameArr) > 0 And nameArr(0) <> "" Then
+        Call system.ws.Shapes.Range(nameArr).Select
+    End If
+    Call restoreNameShape
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call system.tackleErrors
+ExecuteProcedure:
+    Call system.speedOff
+End Sub

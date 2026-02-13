@@ -14,42 +14,39 @@ Option Explicit
 ' --- Constant ---
 Private Const FILE_SYSTEM_SCRIPT As String = "Scripting.FileSystemObject"
 'Reference: ss64.com/vb/shell.html -- 2 diffirence COM classes
-Private Const WSHELL_SCRIPT As String = "Wscript.Shell" '  Windows Script Host Shell object
-'Private Const WSHELL_SCRIPT As String = "Shell.Application" '  Shell Application object
+Private Const WSHELL_SCRIPT      As String = "Wscript.Shell" '  Windows Script Host Shell object
+'Private Const WSHELL_SCRIPT     As String = "Shell.Application" '  Shell Application object
 Private Const FILE_STREAM_SCRIPT As String = "ADODB.Stream"
-Private Const CDO_CONFIG_SCRIPT As String = "CDO.Configuration"
-Private Const CDO_MESS_SCRIPT As String = "CDO.Message"
-Private Const HTML_FILE_SCRIPT As String = "HtmlFile"
-Private Const CLIPBOARD_SCRIPT As String = "New:{1C3B4210-F441-11CE-B9EA-00AA006B1A69}"
-Private Const DICTIONARY_SCRIPT As String = "Scripting.Dictionary"
+Private Const CDO_CONFIG_SCRIPT  As String = "CDO.Configuration"
+Private Const CDO_MESS_SCRIPT    As String = "CDO.Message"
+Private Const HTML_FILE_SCRIPT   As String = "HtmlFile"
+Private Const CLIPBOARD_SCRIPT   As String = "New:{1C3B4210-F441-11CE-B9EA-00AA006B1A69}"
+Private Const DICTIONARY_SCRIPT  As String = "Scripting.Dictionary"
 Private Const EXCEL_TYPE As String = "Microsoft Excel"
-Private Const WD_TYPE As String = "Window"
-Private Const WB_TYPE As String = "Workbook"
-Private Const WS_TYPE As String = "Worksheet"
-Private Const WS_TYPE_DETAIL_SHEET As String = "xlWorksheet"
-Private Const WS_TYPE_DETAIL_CHART As String = "xlChart"
-Private Const WS_TYPE_DETAIL_MACRO As String = "xlExcel4MacroSheet"
+Private Const WD_TYPE   As String = "Window"
+Private Const WB_TYPE   As String = "Workbook"
+Private Const WS_TYPE   As String = "Worksheet"
+Private Const WS_TYPE_DETAIL_SHEET     As String = "xlWorksheet"
+Private Const WS_TYPE_DETAIL_CHART     As String = "xlChart"
+Private Const WS_TYPE_DETAIL_MACRO     As String = "xlExcel4MacroSheet"
 Private Const WS_TYPE_DETAIL_INT_MACRO As String = "xlExcel4IntMacroSheet"
-Private Const CHART_TYPE As String = "Chart"
+Private Const CHART_TYPE  As String = "Chart"
 Private Const DIALOG_TYPE As String = "DialogSheet"
 ' --- Object ---
 Private userResponse As VbMsgBoxResult
-Private systemTimer As Single
+Private systemTimer  As Single
 ' --- Dependencies ---
-Private info As InfoConstants
+Private info   As InfoConstants
 Private Script As Utils_Scripts
 ' ---
 Public WithEvents app As Application
-Attribute app.VB_VarHelpID = -1
-Public WithEvents wb As Workbook
-Attribute wb.VB_VarHelpID = -1
-Public WithEvents ws As Worksheet
-Attribute ws.VB_VarHelpID = -1
-Public wd As window
-'Public wss As Worksheets 'TODO: Refactor as global accessor get wss for sheets controller
-'Public wsObs As Sheets 'wsObs could be Charts || DialogSheets || Worksheets (ws regular || ws marcro)
-Public sheetOb As Object 'SheetOb could be Chart || DialogSheet || Worksheet (ws regular || ws marcro)
-Public chartSh As Chart
+Public WithEvents wb  As Workbook
+Public WithEvents ws  As Worksheet
+Public wd     As window
+'Public wss    As Worksheets 'TODO: Refactor as global accessor get wss for sheets controller
+'Public wsObs  As Sheets 'wsObs could be Charts || DialogSheets || Worksheets (ws regular || ws marcro)
+Public sheetOb  As Object 'SheetOb could be Chart || DialogSheet || Worksheet (ws regular || ws marcro)
+Public chartSh  As Chart
 Public dialogSh As DialogSheet
 
 'Initialize Variables
@@ -696,11 +693,14 @@ ErrorHandle:
 ExecuteProcedure:
 End Property
 'ARRAY
-Public Property Get getArrayLength(ByRef arr As Variant, Optional ByVal dimension As Long = -1) As Long
+Public Property Get getArrayLength( _
+   ByRef arr As Variant, _
+   Optional ByVal dimension As Long = -1 _
+) As Long
 On Error GoTo ErrorHandle
         If IsEmpty(arr) Then
             Let getArrayLength = 0
-        Else
+        Else 
             If dimension = -1 Then
                 Let getArrayLength = UBound(arr) - LBound(arr) + 1
             Else
@@ -714,7 +714,7 @@ ExecuteProcedure:
 End Property
 'ARRAY
 Public Property Get getArrayDimension(ByRef arr As Variant) As Long
-    On Error GoTo OverDimensionErr
+On Error GoTo OverDimensionErr
     Dim i As Long
     Dim tmp As Long
     Let i = 0

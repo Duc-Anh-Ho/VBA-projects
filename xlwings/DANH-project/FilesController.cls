@@ -24,46 +24,46 @@ Private Const FILE_FILLTER As String = _
     "Class files, *.cls," & _
     "Text files, *.txt," & _
     "All files, *.*"
-Private Const BROWSER_INDEX As Integer = 1 ' Default All VB files
-Private Const BROWSER_TITLE As String = "Import to VBA"
-Private Const VBA_FOLDER As String = "\VBA-files-"
-Private Const MODULE_FOLDER As String = "\Modules\"
-Private Const CLASS_FOLDER As String = "\Classes\"
-Private Const FORM_FOLDER As String = "\Forms\"
-Private Const ELSE_FOLDER As String = "\Else\"
-Private Const MODULE_EXTENSION As String = ".bas"
-Private Const CLASS_EXTENSION As String = ".cls"
-Private Const FORM_EXTENSION As String = ".frm"
+Private Const BROWSER_INDEX         As Integer = 1 ' Default All VB files
+Private Const BROWSER_TITLE         As String = "Import to VBA"
+Private Const VBA_FOLDER            As String = "\VBA-files-"
+Private Const MODULE_FOLDER         As String = "\Modules\"
+Private Const CLASS_FOLDER          As String = "\Classes\"
+Private Const FORM_FOLDER           As String = "\Forms\"
+Private Const ELSE_FOLDER           As String = "\Else\"
+Private Const MODULE_EXTENSION      As String = ".bas"
+Private Const CLASS_EXTENSION       As String = ".cls"
+Private Const FORM_EXTENSION        As String = ".frm"
 Private Const BINARY_FORM_EXTENSION As String = ".frx"
-Private Const TEXT_EXTENSION As String = ".txt"
-Private activeFile As Object
+Private Const TEXT_EXTENSION        As String = ".txt"
+Private activeFile        As Object
 Private pathArray(0 To 4) As String
-Private fileSystem As Object
-Private components As Object
-Private component As Object
-Private codeModule As Object
+Private fileSystem        As Object
+Private components        As Object
+Private component         As Object
+Private codeModule        As Object
 Private Enum VBAfile ' Codes for  type of VBAfile
-    Module = 1 'vbext_ct_StdModule
+    Module      = 1 'vbext_ct_StdModule
     ClassModule = 2 'vbext_ct_ClassModule
-    form = 3 'vbext_ct_MSForm
-    ActiveX = 11 'vbext_ct_ActiveXDesigner
-    Document = 100 'vbext_ct_Document
+    form        = 3 'vbext_ct_MSForm
+    ActiveX     = 11 'vbext_ct_ActiveXDesigner
+    Document    = 100 'vbext_ct_Document
 End Enum
 Private Enum VBAfolder ' Codes for path array
-    MAIN = 0 'VBA-files
+    MAIN   = 0 'VBA-files
     Module = 1
-    Class = 2
-    form = 3
-    Els = 4
+    Class  = 2
+    form   = 3
+    Els    = 4
 End Enum
 Private Enum UserReponse 'Codes for msgBox selection
-    Ok = 1
+    Ok     = 1
     Cancel = 2
-    Abort = 3
-    Retry = 4
+    Abort  = 3
+    Retry  = 4
     Ignore = 5
-    Yes = 6
-    No = 7
+    Yes    = 6
+    No     = 7
 End Enum
 'Initialize Variables
 Private Function hasVariables() As Boolean
@@ -104,7 +104,7 @@ Private Sub Class_Terminate()
     Set activeFile = Nothing
     Set components = Nothing
     Set fileSystem = Nothing
-    Set component = Nothing
+    Set component  = Nothing
     Set codeModule = Nothing
 End Sub
 

@@ -10,18 +10,18 @@ Attribute VB_Exposed = False
 ' Check README.md for more information
 Option Explicit
 ' --- Dependencies ---
-Private info As InfoConstants
-Private system As SystemUpdate
+Private info    As InfoConstants
+Private system  As SystemUpdate
 Private Scripts As Utils_Scripts
 ' --- Object ---
 Private userResponse As VbMsgBoxResult
 ' --- Member ---
-Private fileSystem As Object
-Private addinPath As String
+Private fileSystem     As Object
+Private addinPath      As String
 Private addinShortName As String
-Private addinName As String
-Private addinFullName As String
-Private IsAddinWb As Boolean
+Private addinName      As String
+Private addinFullName  As String
+Private IsAddinWb      As Boolean
 Private isAddinExisted As Boolean
 
 'Initialize Variables
@@ -51,9 +51,9 @@ End Sub
 
 'Destructor
 Private Sub Class_Terminate()
-    Set info = Nothing
-    Set system = Nothing
-    Set Scripts = Nothing
+    Set info       = Nothing
+    Set system     = Nothing
+    Set Scripts    = Nothing
     Set fileSystem = Nothing
 End Sub
 
@@ -68,9 +68,9 @@ End Function
 
 Private Function checkisAddinExisted(ByRef addinFullName As String)
     If Len(Dir(addinFullName)) = 0 Then
-        isAddinExisted = False
+        Let isAddinExisted = False
     ElseIf Len(Dir(addinFullName)) <> 0 Then
-        isAddinExisted = True
+        Let isAddinExisted = True
     End If
 End Function
 

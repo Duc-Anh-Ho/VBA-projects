@@ -679,7 +679,8 @@ Public Sub Test()
 ' Dim xx As Object: Set xx = Test2.WinSCP
 ' Call Test.Init(Excel.Application.ActiveSheet)
 ' Call Test.CheckFileName
-Call uatTest2()
+' Call uatTest2()
+Call findShapeIntersectRange
 End Sub
 
 ' xxxxx
@@ -1096,3 +1097,14 @@ Application.Calculation = xlCalculationAutomatic
 Application.EnableEvents = True
 End Sub
 
+Private Sub findShapeIntersectRange()
+    Dim picC As PicturesController
+    Set picC = New PicturesController
+    Call picC.selectShapeInRange(picC.OVERLAP_MODE)
+End Sub
+
+Private Sub findShapeInRange()
+    Dim picC As PicturesController
+    Set picC = New PicturesController
+    Call picC.selectShapeInRange(picC.INSIDE_MODE)
+End Sub

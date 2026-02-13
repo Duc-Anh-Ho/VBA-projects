@@ -28,26 +28,26 @@ Private Const OPEN_ROUND_BRACKET As String = "("
 Private Const CLOSE_ROUND_BRACKET As String = ")"
 
 Private Enum COL
-    No = 1
-    procedure = No + 1
+    No               = 1
+    procedure        = No + 1
     default_NAMEbind = procedure + 1
-    custom_NAMEbind = default_NAMEbind + 1
-    command = custom_NAMEbind + 1
-    when = command + 1
-    status = when + 1
+    custom_NAMEbind  = default_NAMEbind + 1
+    command          = custom_NAMEbind + 1
+    when             = command + 1
+    status           = when + 1
 End Enum
 
 Private Enum MASK
-    None = 0
+    None     = 0
     shiftKey = 1
-    ctrlKey = 2
-    altKey = 4
+    ctrlKey  = 2
+    altKey   = 4
 End Enum
 
 Enum KEY_CODE
     Shift = vbKeyShift   ' 16
-    ctrl = vbKeyControl  ' 17
-    Alt = vbKeyMenu      ' 18
+    ctrl  = vbKeyControl ' 17
+    Alt   = vbKeyMenu    ' 18
     ' Numbers (48~57 - D0~D9)
     ZERO = vbKey0: One = vbKey1: Two = vbKey2: Three = vbKey3
     Four = vbKey4: Five = vbKey5: Six = vbKey6: Seven = vbKey7
@@ -73,46 +73,46 @@ Enum KEY_CODE
     FThirteen = vbKeyF13: FFourteen = vbKeyF14: FFifteen = vbKeyF15
     FSixteen = vbKeyF16
     ' Available keys
-    Backspace = vbKeyBack             ' 8
-    TabKey = vbKeyTab                 ' 9
-    ClearKey = vbKeyClear             ' 12
-    EnterKey = vbKeyReturn            ' 13
-    Break = vbKeyPause                ' 19
-    CapsLock = vbKeyCapital           ' 20
-    Escape = vbKeyEscape              ' 27
-    SpaceKey = vbKeySpace             ' 32
-    PageUp = vbKeyPageUp              ' 33
-    PageDown = vbKeyPageDown          ' 34
-    EndKey = vbKeyEnd                 ' 35
-    Home = vbKeyHome                  ' 36
-    LeftArrow = vbKeyLeft             ' 37
-    UpArrow = vbKeyUp                 ' 38
-    RightArrow = vbKeyRight           ' 39
-    DownArrow = vbKeyDown             ' 40
-    Insert = vbKeyInsert              ' 45
-    Delete = vbKeyDelete              ' 46
-    Help = vbKeyHelp                  ' 47
-    Multiply = vbKeyMultiply          ' 106
-    AddKey = vbKeyAdd                 ' 107
-    EnterNum = vbKeySeparator         ' 108
-    Subtract = vbKeySubtract          ' 109
-    DecimalKey = vbKeyDecimal         ' 110
-    Divide = vbKeyDivide              ' 111
-    NumLock = vbKeyNumlock            ' 144
+    Backspace = vbKeyBack     ' 8
+    TabKey = vbKeyTab         ' 9
+    ClearKey = vbKeyClear     ' 12
+    EnterKey = vbKeyReturn    ' 13
+    Break = vbKeyPause        ' 19
+    CapsLock = vbKeyCapital   ' 20
+    Escape = vbKeyEscape      ' 27
+    SpaceKey = vbKeySpace     ' 32
+    PageUp = vbKeyPageUp      ' 33
+    PageDown = vbKeyPageDown  ' 34
+    EndKey = vbKeyEnd         ' 35
+    Home = vbKeyHome          ' 36
+    LeftArrow = vbKeyLeft     ' 37
+    UpArrow = vbKeyUp         ' 38
+    RightArrow = vbKeyRight   ' 39
+    DownArrow = vbKeyDown     ' 40
+    Insert = vbKeyInsert      ' 45
+    Delete = vbKeyDelete      ' 46
+    Help = vbKeyHelp          ' 47
+    Multiply = vbKeyMultiply  ' 106
+    AddKey = vbKeyAdd         ' 107
+    EnterNum = vbKeySeparator ' 108
+    Subtract = vbKeySubtract  ' 109
+    DecimalKey = vbKeyDecimal ' 110
+    Divide = vbKeyDivide      ' 111
+    NumLock = vbKeyNumlock    ' 144
     ScrollLock = 145
 
-    Semicolon = 186
-    Equals = 187
-    Comma = 188
-    Hyphen = 189
-    Period = 190
+    Semicolon    = 186
+    Equals       = 187
+    Comma        = 188
+    Hyphen       = 189
+    Period       = 190
     ForwardSlash = 191
-    GraveAccent = 192        ' Tilde
-    OpenBracket = 219
-    Backslash = 220          ' Pipe
+    GraveAccent  = 192 ' Tilde
+    OpenBracket  = 219
+    Backslash    = 220 ' Pipe
     CloseBracket = 221
-    Apostrophe = 222         ' Quote
-    Slash = 226
+    Apostrophe   = 222 ' Quote
+    Slash        = 226
 
     ' Non-test
 
@@ -123,91 +123,91 @@ Enum KEY_CODE
     None = 0
 
     ' Mouse with VBA constants (1~6)
-    LeftMouse = vbKeyLButton         ' 1
-    RightMouse = vbKeyRButton        ' 2
-    CancelKey = vbKeyCancel          ' 3
-    MiddleMouse = vbKeyMButton       ' 4
+    LeftMouse   = vbKeyLButton ' 1
+    RightMouse  = vbKeyRButton ' 2
+    CancelKey   = vbKeyCancel  ' 3
+    MiddleMouse = vbKeyMButton ' 4
     XButton1 = 5
     XButton2 = 6
 
     ' Other keys
-    LineFeed = 10
-    KanaMode = 21     ' = HangulMode
-    JunjaMode = 23
-    FinalMode = 24
-    KanjiMode = 25    ' = HanjaMode
-    IMEConvert = 28
+    LineFeed      = 10
+    KanaMode      = 21 ' = HangulMode
+    JunjaMode     = 23
+    FinalMode     = 24
+    KanjiMode     = 25 ' = HanjaMode
+    IMEConvert    = 28
     IMENonconvert = 29
-    IMEAccept = 30    ' = IMEAceept
+    IMEAccept     = 30 ' = IMEAceept
     IMEModeChange = 31
-    SelectKey = vbKeySelect          ' 41
-    PrintKey = vbKeyPrint            ' 42
-    Execute = vbKeyExecute           ' 43
-    PrintScreen = vbKeySnapshot      ' 44
+    SelectKey     = vbKeySelect   ' 41
+    PrintKey      = vbKeyPrint    ' 42
+    Execute       = vbKeyExecute  ' 43
+    PrintScreen   = vbKeySnapshot ' 44
 
     ' Windows keys
-    LeftWin = 91
+    LeftWin  = 91
     RightWin = 92
-    MenuKey = 93      ' Can conflict with build-in
+    MenuKey  = 93 ' Can conflict with build-in
 
     ' Other special keys
-    Sleep = 95
-    LeftShift = 160
-    RightShift = 161
-    LeftControl = 162
+    Sleep        = 95
+    LeftShift    = 160
+    RightShift   = 161
+    LeftControl  = 162
     RightControl = 163
-    LeftMenu = 164
-    RightMenu = 165
+    LeftMenu     = 164
+    RightMenu    = 165
 
     ' Browser keys
-    BrowserBack = 166
-    BrowserForward = 167
-    BrowserRefresh = 168
-    BrowserStop = 169
-    BrowserSearch = 170
+    BrowserBack      = 166
+    BrowserForward   = 167
+    BrowserRefresh   = 168
+    BrowserStop      = 169
+    BrowserSearch    = 170
     BrowserFavorites = 171
-    BrowserHome = 172
+    BrowserHome      = 172
 
     ' Media keys
     VolumeMute = 173
     VolumeDown = 174
-    VolumeUp = 175
-    NextTrack = 176
-    PrevTrack = 177
-    StopMedia = 178
-    PlayPause = 179
+    VolumeUp   = 175
+    NextTrack  = 176
+    PrevTrack  = 177
+    StopMedia  = 178
+    PlayPause  = 179
 
     ' Application keys
-    StartMail = 180
+    StartMail   = 180
     SelectMedia = 181
-    StartApp1 = 182
-    StartApp2 = 183
+    StartApp1   = 182
+    StartApp2   = 183
 
     ' Other characters and special keys
-    Power = 223
-    Wake = 227
+    Power      = 223
+    Wake       = 227
     ProcessKey = 229
-    Packet = 231
-    Reset = 233
-    Jump = 234
-    PlayStop = 235
-    Eject = 236
-    Attn = 246
-    Crsel = 247
-    Exsel = 248
-    EraseEof = 249
-    Play = 250
-    Zoom = 251
-    NoName = 252
-    Pa1 = 253
-    ClearEnd = 254
+    Packet     = 231
+    Reset      = 233
+    Jump       = 234
+    PlayStop   = 235
+    Eject      = 236
+    Attn       = 246
+    Crsel      = 247
+    Exsel      = 248
+    EraseEof   = 249
+    Play       = 250
+    Zoom       = 251
+    NoName     = 252
+    Pa1        = 253
+    ClearEnd   = 254
 End Enum
 
 ' CODE constant
 Private Const LEN_MODIFIER_CODE As Byte = 1
-Private Const CTRL_CODE As String = "^"
-Private Const SHIFT_CODE As String = "+"
-Private Const ALT_CODE As String = "%"
+Private Const CTRL_CODE         As String = "^"
+Private Const SHIFT_CODE        As String = "+"
+Private Const ALT_CODE          As String = "%"
 
 Private Const BACKSPACE_CODE        As String = "{BS}" ' {BACKSPACE}
 Private Const TAB_CODE              As String = "{TAB}"

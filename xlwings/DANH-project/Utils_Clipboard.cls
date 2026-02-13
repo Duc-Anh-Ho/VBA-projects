@@ -12,28 +12,28 @@ Option Explicit
 ' --- Constants ---
 ' REF: https://learn.microsoft.com/en-us/windows/win32/dataxchg/standard-clipboard-formats
 Private Enum CLIPBOARD_FORMATS
-    text = 1                 ' Plain text (ANSI)
-    BITMAP = 2               ' Bitmap image handle
-    METAFILEPICT = 3         ' Metafile picture format
-    SYLK = 4                 ' Symbolic Link (legacy)
-    DIF = 5                  ' Data Interchange Format
-    TIFF = 6                 ' Tagged Image File Format
-    OEMTEXT = 7              ' Text using OEM character set
-    DIB = 8                  ' Device Independent Bitmap
-    PALETTE = 9              ' Color palette
-    PENDATA = 10             ' Pen data
-    RIFF = 11                ' RIFF audio data
-    WAVE = 12                ' WAVE audio data
-    UNICODETEXT = 13         ' Text (Unicode UTF-16)
-    ENHMETAFILE = 14         ' Enhanced metafile
-    HDROP = 15               ' File list (used by drag/drop)
-    LOCALE = 16              ' Locale identifier
-    DIBV5 = 17               ' Device Independent Bitmap v5
+    TEXT = 1         ' Plain text (ANSI)
+    BITMAP = 2       ' Bitmap image handle
+    METAFILEPICT = 3 ' Metafile picture format
+    SYLK = 4         ' Symbolic Link (legacy)
+    DIF = 5          ' Data Interchange Format
+    TIFF = 6         ' Tagged Image File Format
+    OEMTEXT = 7      ' Text using OEM character set
+    DIB = 8          ' Device Independent Bitmap
+    PALETTE = 9      ' Color palette
+    PENDATA = 10     ' Pen data
+    RIFF = 11        ' RIFF audio data
+    WAVE = 12        ' WAVE audio data
+    UNICODETEXT = 13 ' Text (Unicode UTF-16)
+    ENHMETAFILE = 14 ' Enhanced metafile
+    HDROP = 15       ' File list (used by drag/drop)
+    LOCALE = 16      ' Locale identifier
+    DIBV5 = 17       ' Device Independent Bitmap v5
 End Enum
 Private Enum GLOBAL_MEMORY
-    Fixed = &H0           ' Memory cannot be moved
-    MOVEABLE = &H2        ' Memory block can be moved
-    ZEROINIT = &H40       ' Zero-initialize allocated memory
+    FIXED = &H0     ' Memory cannot be moved
+    MOVEABLE = &H2  ' Memory block can be moved
+    ZEROINIT = &H40 ' Zero-initialize allocated memory
 End Enum
 ' --- Dependencies ---
 Private Script As Utils_Scripts
