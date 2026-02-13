@@ -587,13 +587,26 @@ Private Sub formatFileStart()
         End If
     Next ws
 End Sub
-    
+
 Private Sub captureShareX()
     Dim picC As PicturesController
     Set picC = New PicturesController
-    Call picC.snipShareX
+    Call picC.snipShareX("capture-last-region-workflow")
 '    Call picC.snipShareX("D:\screenshots")
 End Sub
+
+Private Sub captureShareX_1()
+    Dim picC As PicturesController
+    Set picC = New PicturesController
+    Call picC.snipShareX("capture-pre-config-region-workflow-1")
+End Sub
+
+Private Sub captureShareX_2()
+    Dim picC As PicturesController
+    Set picC = New PicturesController
+    Call picC.snipShareX("capture-pre-config-region-workflow-2")
+End Sub
+
 
 Public Sub decreaseWidth(Optional ByRef offset As Byte = 2)
     Dim obj As Object: Set obj = Selection

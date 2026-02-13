@@ -470,7 +470,10 @@ End Function
 'MAIN
 
 '5 
-Public Sub snipShareX(Optional savedPath As String = vbNullString)
+Public Sub snipShareX( _
+    ByRef workFlow As String, _
+    Optional savedPath As String = vbNullString _
+)
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
     Call system.speedOn
@@ -479,11 +482,11 @@ On Error GoTo ErrorHandle
     Dim sxC As ShareXController: Set sxC = New ShareXController
     Dim fullName As String
     Application.CutCopyMode = False ' DELETE Old pic
-    Let sxC.letWorkflow = "capture-last-region-workflow"
+    Let sxC.letWorkflow = workFlow
     Call sxC.START(30000)
     ' TODO: REFACTOR HERE
     Let fullName = latestPic(savedPath & "\" & format(Date, "yymmdd"))
-    Application.Wait Now + TimeValue("0:00:02") ' 1 second delay
+    Application.Wait Now + TimeValue("0:00:02") ' 2 second delay
     If fullName <> vbNullString Then
         ActiveSheet.Pictures.Insert (fullName)
     Else

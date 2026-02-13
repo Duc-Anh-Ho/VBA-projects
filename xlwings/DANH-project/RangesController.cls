@@ -20,11 +20,8 @@ Private isBold As Boolean
 Private blurRate As Byte
 Private addSize As Byte
 Private WithEvents appEvent As Application
-Attribute appEvent.VB_VarHelpID = -1
 Private WithEvents wbEvent As Workbook
-Attribute wbEvent.VB_VarHelpID = -1
 Private WithEvents WsEvent As Worksheet
-Attribute WsEvent.VB_VarHelpID = -1
 'Private Const INPUT_BOX_RANGE_TYPE As Byte = 8
 Private Const START_CHAR As Byte = 1
 Private Const SHEET_TYPE As String = "Worksheet"
