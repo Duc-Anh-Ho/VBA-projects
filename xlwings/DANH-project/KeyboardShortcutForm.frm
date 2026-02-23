@@ -17,96 +17,96 @@ Attribute VB_Exposed = False
 Option Explicit
 ' Declare Variables
 ' NOTE: 'Find indexes by replace so use String as variable is better
-Private userResponse As VbMsgBoxResult
-Private info As InfoConstants
-Private shortcutTb As ListObject
-Private eventColl As Collection
-Private hoverLabel As MsForms.label
-Private hoverIndex As String
-Private editingLabel As MsForms.label
-Private editingTextBox As MsForms.textBox
-Private editingIndex As String
+Private userResponse    As VbMsgBoxResult
+Private info            As InfoConstants
+Private shortcutTb      As ListObject
+Private eventColl       As Collection
+Private hoverLabel      As MsForms.label
+Private hoverIndex      As String
+Private editingLabel    As MsForms.label
+Private editingTextBox  As MsForms.textBox
+Private editingIndex    As String
 Private editingShortcut As String
-Private editedArr() As String ' TODO: Create custom array CRUD
-Private applyArr() As String
-Private pickingLabel As MsForms.label
-Private pickingIndex As String
-Private shortcutC As ShortcutController
-Private maxRow As Long
+Private editedArr()     As String ' TODO: Create custom array CRUD
+Private applyArr()      As String
+Private pickingLabel    As MsForms.label
+Private pickingIndex    As String
+Private shortcutC       As ShortcutController
+Private maxRow          As Long
 Private Enum COLOR
-    title_hover = 16378841 'RGB(229, 243, 255)
-    line_hover = 16774117 'RGB(217, 235, 249)
-    line_hover_edited = 51450 'RGB(250, 200, 0)
-    line_picking = 16772040 'RGB(200, 235, 255)
+    title_hover         = 16378841 'RGB(229, 243, 255)
+    line_hover          = 16774117 'RGB(217, 235, 249)
+    line_hover_edited   = 51450 'RGB(250, 200, 0)
+    line_picking        = 16772040 'RGB(200, 235, 255)
     line_picking_edited = 51450 'RGB(250, 200, 0)
-    line_border = 14935011 'RGB(227, 227, 227)
-    line_edited = 61690 'RGB(250, 240, 0)
-    line_duplicated = 987135 'RGB(255,15,15)
+    line_border         = 14935011 'RGB(227, 227, 227)
+    line_edited         = 61690 'RGB(250, 240, 0)
+    line_duplicated     = 987135 'RGB(255,15,15)
     ' Default Variables
-    highlight = vbHighlight
-    window_text = vbWindowText
-    button_shadow = vbButtonShadow
+    highlight         = vbHighlight
+    window_text       = vbWindowText
+    button_shadow     = vbButtonShadow
     window_background = vbWindowBackground
-    menu_text = vbMenuText
-    menu_bar = vbMenuBar
+    menu_text         = vbMenuText
+    menu_bar          = vbMenuBar
 End Enum
 Private Enum FORM_POSITION
-    MANUAL = 0
-    center_owner = 1
-    center_screen = 2
+    MANUAL          = 0
+    center_owner    = 1
+    center_screen   = 2
     windows_default = 3
     height = 410
-    width = 550
-    top = height / 2
-    left = width / 2
+    width  = 550
+    top    = height / 2
+    left   = width / 2
 End Enum
 Private Enum direction
-    up = -1
+    up   = -1
     down = 1
 End Enum
 Private Enum MASK
-    None = 0
+    None     = 0
     shiftKey = 1
-    ctrlKey = 2
-    altKey = 4
+    ctrlKey  = 2
+    altKey   = 4
 End Enum
-Private Const DEFAULT = "<Default>"
-Private Const MODIFIED = "<Modified>"
+Private Const DEFAULT    = "<Default>"
+Private Const MODIFIED   = "<Modified>"
 Private Const DUPLICATED = "<Duplicated>"
 ' TODO: MAKE instruction constants class
-Private Const INSTRUCTION_PICKING = "Please pick a line to edit."
-Private Const INSTRUCTION_EDITING = "Click Edit button or double click a line to modify."
-Private Const INSTRUCTION_MODIFY = "Press desired key combination and then press ENTER."
-Private Const FILTER_PLACEHOLDER As String = "<Type to filter text>"
-Private Const TITLE_TAG As String = "title_"
-Private Const LINE_TAG As String = "line_"
-Private Const OVERLAY_TAG As String = "overlay_"
-Private Const OVERLAY_FORM As String = "outer"
-Private Const OVERLAY_PAGE As String = "inner"
-Private Const KEYBINDING_LABEL As String = "KeyBindingLabel_"
-Private Const COMMAND_LABEL As String = "CommandLabel_"
+Private Const INSTRUCTION_PICKING As String = "Please pick a line to edit."
+Private Const INSTRUCTION_EDITING As String = "Click Edit button or double click a line to modify."
+Private Const INSTRUCTION_MODIFY  As String = "Press desired key combination and then press ENTER."
+Private Const FILTER_PLACEHOLDER  As String = "<Type to filter text>"
+Private Const TITLE_TAG          As String = "title_"
+Private Const LINE_TAG           As String = "line_"
+Private Const OVERLAY_TAG        As String = "overlay_"
+Private Const OVERLAY_FORM       As String = "outer"
+Private Const OVERLAY_PAGE       As String = "inner"
+Private Const KEYBINDING_LABEL   As String = "KeyBindingLabel_"
+Private Const COMMAND_LABEL      As String = "CommandLabel_"
 Private Const KEYBINDING_TEXTBOX As String = "KeyBindingTextBox_"
-Private Const WHEN_LABEL As String = "WhenLabel_"
-Private Const STATUS_LABEL As String = "StatusLabel_"
+Private Const WHEN_LABEL         As String = "WhenLabel_"
+Private Const STATUS_LABEL       As String = "StatusLabel_"
 Private Const LINE_1 As String = "Line1_"
 Private Const LINE_2 As String = "Line2_"
 Private Const LINE_3 As String = "Line3_"
 Private Const LINE_4 As String = "Line4_"
-Private Const LINE_HEIGHT As Byte = 13.5
+Private Const LINE_HEIGHT    As Byte = 13.5
 Private Const LINE_FONT_SIZE As Byte = 8.5
-Private Const MAX_LINE As Byte = 15
-Private Const PROG_ID_LABEL As String = "Forms.Label.1"
+Private Const MAX_LINE       As Byte = 15
+Private Const PROG_ID_LABEL   As String = "Forms.Label.1"
 Private Const PROG_ID_TEXTBOX As String = "Forms.Textbox.1"
-Private Const ASTERISK As String = "*"
-Private Const ZERO As String = "0"
-Private Const BACKGROUND As String = "BackColor"
-Private Const FORE As String = "ForeColor"
-Private Const italic As String = "FontItalic"
-Private Const bold As String = "FontBold"
-Private Const EDIT_CAPTION As String = "Edit"
+Private Const ASTERISK        As String = "*"
+Private Const ZERO            As String = "0"
+Private Const BACKGROUND      As String = "BackColor"
+Private Const FORE            As String = "ForeColor"
+Private Const italic          As String = "FontItalic"
+Private Const bold            As String = "FontBold"
+Private Const EDIT_CAPTION    As String = "Edit"
 ' Loop iterators
 Private ctrl As MsForms.control
-Private Row As ListRow
+Private Row  As ListRow
 
 ' NOTE: Used to use Mutators/Accessors as Public for fix bug when cls form as instance but not working
 
@@ -565,11 +565,11 @@ Private Sub initButton()
 End Sub
 
 Private Sub initRow()
-    Dim keybinding As String
+    Dim keybinding        As String
     Dim keybindingDefault As String
-    Dim lineIndex As String
-    Dim defaultMark As String
-    Dim shortcut As String
+    Dim lineIndex         As String
+    Dim defaultMark       As String
+    Dim shortcut          As String
     Call letMaxRow(getShortcutC().getRows().Count)
     ReDim editedArr(getMaxRow() - 1)
     ReDim applyArr(getMaxRow() - 1)
@@ -629,14 +629,14 @@ Private Sub createScrollBar(ByRef totalLines As Long)
 End Sub
 
 Private Sub createRow( _
-    ByRef index As Long _
-    , ByRef command As String _
-    , ByRef shortcut As String _
-    , ByRef when As String _
-    , ByRef status As String _
+    ByRef index    As Long _
+  , ByRef command  As String _
+  , ByRef shortcut As String _
+  , ByRef when     As String _
+  , ByRef status   As String _
 )
     Call createRowLabel( _
-        name:=COMMAND_LABEL & index _
+          name:=COMMAND_LABEL & index _
         , index:=index _
         , caption:=command _
         , width:=CommandLabel_0.width _
@@ -646,7 +646,7 @@ Private Sub createRow( _
     )
     ' TextBox need create first for it can be back of label
     Call createRowTextBox( _
-        name:=KEYBINDING_TEXTBOX & index _
+          name:=KEYBINDING_TEXTBOX & index _
         , index:=index _
         , width:=KeybindingTextBox_0.width _
         , height:=KeybindingTextBox_0.height _
@@ -657,7 +657,7 @@ Private Sub createRow( _
         , visible:=False _
     )
     Call createRowLabel( _
-        name:=KEYBINDING_LABEL & index _
+          name:=KEYBINDING_LABEL & index _
         , index:=index _
         , caption:=shortcut _
         , width:=KeyBindingLabel_0.width _
@@ -666,7 +666,7 @@ Private Sub createRow( _
         , left:=KeyBindingLabel_0.left _
     )
     Call createRowLabel( _
-        name:=WHEN_LABEL & index _
+          name:=WHEN_LABEL & index _
         , index:=index _
         , caption:=when _
         , width:=WhenLabel_0.width _
@@ -675,7 +675,7 @@ Private Sub createRow( _
         , left:=WhenLabel_0.left _
     )
     Call createRowLabel( _
-        name:=STATUS_LABEL & index _
+          name:=STATUS_LABEL & index _
         , index:=index _
         , caption:=status _
         , width:=StatusLabel_0.width _
@@ -684,7 +684,7 @@ Private Sub createRow( _
         , left:=StatusLabel_0.left _
     )
     Call createRowLabel( _
-        name:=LINE_1 & index _
+          name:=LINE_1 & index _
         , index:=index _
         , width:=Line1_0.width _
         , height:=Line1_0.height _
@@ -693,7 +693,7 @@ Private Sub createRow( _
         , hasBorder:=fmBorderStyleSingle _
     )
     Call createRowLabel( _
-        name:=LINE_2 & index _
+          name:=LINE_2 & index _
         , index:=index _
         , width:=Line2_0.width _
         , height:=Line2_0.height _
@@ -702,7 +702,7 @@ Private Sub createRow( _
         , hasBorder:=fmBorderStyleSingle _
     )
     Call createRowLabel( _
-        name:=LINE_3 & index _
+          name:=LINE_3 & index _
         , index:=index _
         , width:=Line3_0.width _
         , height:=Line3_0.height _
@@ -711,7 +711,7 @@ Private Sub createRow( _
         , hasBorder:=fmBorderStyleSingle _
     )
     Call createRowLabel( _
-        name:=LINE_4 & index _
+          name:=LINE_4 & index _
         , index:=index _
         , width:=Line4_0.width _
         , height:=Line4_0.height _
@@ -722,17 +722,17 @@ Private Sub createRow( _
 End Sub
 
 Private Sub createRowLabel( _
-    ByRef name As String _
-    , ByRef index As Long _
-    , ByRef width As Single _
-    , ByRef height As Single _
-    , ByRef top As Single _
-    , ByRef left As Single _
-    , Optional ByRef caption As String = vbNullString _
-    , Optional ByRef backColor As String = COLOR.window_background _
-    , Optional ByRef foreColor As String = COLOR.window_text _
-    , Optional ByRef hasBorder As Byte = fmBorderStyleNone _
-    , Optional ByRef visible As Boolean = True _
+    ByRef name   As String _
+  , ByRef index  As Long _
+  , ByRef width  As Single _
+  , ByRef height As Single _
+  , ByRef top    As Single _
+  , ByRef left   As Single _
+  , Optional ByRef caption   As String = vbNullString _
+  , Optional ByRef backColor As String = COLOR.window_background _
+  , Optional ByRef foreColor As String = COLOR.window_text _
+  , Optional ByRef hasBorder As Byte = fmBorderStyleNone _
+  , Optional ByRef visible   As Boolean = True _
 )
     Dim lineLabel As MsForms.label
     Set lineLabel = Me.KeyboardFrame.add( _
@@ -740,36 +740,36 @@ Private Sub createRowLabel( _
         , name:=name _
         , visible:=visible)
     With lineLabel
-    .caption = Space(1) & caption
-    .Tag = LINE_TAG & index
-    .height = height
-    .width = width
-    .top = top + (index - 1) * LINE_HEIGHT 'Top - 1 for the title
-    .left = left
-    .backColor = backColor
-    .foreColor = foreColor
-    .BorderStyle = hasBorder
-    .bordercolor = COLOR.line_border
-    .Font.size = LINE_FONT_SIZE
-    .visible = visible
+    Let .caption = Space(1) & caption
+    Let .Tag = LINE_TAG & index
+    Let .height = height
+    Let .width = width
+    Let .top = top + (index - 1) * LINE_HEIGHT 'Top - 1 for the title
+    Let .left = left
+    Let .backColor = backColor
+    Let .foreColor = foreColor
+    Let .BorderStyle = hasBorder
+    Let .bordercolor = COLOR.line_border
+    Let .Font.size = LINE_FONT_SIZE
+    Let .visible = visible
     End With
     Set lineLabel = Nothing
 End Sub
 
 Private Sub createRowTextBox( _
-    ByRef name As String _
-    , ByRef index As Long _
-    , ByRef width As Single _
+      ByRef name   As String _
+    , ByRef index  As Long _
+    , ByRef width  As Single _
     , ByRef height As Single _
-    , ByRef top As Single _
-    , ByRef left As Single _
+    , ByRef top    As Single _
+    , ByRef left   As Single _
     , Optional ByRef backColor As String = COLOR.window_background _
     , Optional ByRef foreColor As String = COLOR.window_text _
     , Optional ByRef hasBorder As Byte = fmBorderStyleNone _
-    , Optional ByRef effect As Byte = fmSpecialEffectFlat _
-    , Optional ByRef visible As Boolean = True _
-    , Optional ByRef italic As Boolean = False _
-    , Optional ByRef bold As Boolean = False _
+    , Optional ByRef effect    As Byte = fmSpecialEffectFlat _
+    , Optional ByRef visible   As Boolean = True _
+    , Optional ByRef italic    As Boolean = False _
+    , Optional ByRef bold      As Boolean = False _
 )
     ' Dim lineTextbox As MSForms.textBox
     Dim lineTextbox As MsForms.control
@@ -797,18 +797,18 @@ Private Sub createRowTextBox( _
 End Sub
 
 Private Sub createOverlayLabel( _
-    ByRef parentCtrl As MsForms.controls _
-    , ByRef width As Single _
-    , ByRef height As Single _
-    , ByRef top As Single _
-    , ByRef left As Single _
-    , ByRef name As String _
-    , Optional ByRef caption As String = vbNullString _
+      ByRef parentCtrl As MsForms.controls _
+    , ByRef width      As Single _
+    , ByRef height     As Single _
+    , ByRef top        As Single _
+    , ByRef left       As Single _
+    , ByRef name       As String _
+    , Optional ByRef caption   As String = vbNullString _
     , Optional ByRef backColor As String = COLOR.highlight _
     , Optional ByRef backStyle As String = fmBackStyleTransparent _
     , Optional ByRef hasBorder As Byte = fmBorderStyleNone _
-    , Optional ByRef zOrder As Byte = 0 _
-    , Optional ByRef visible As Boolean = False _
+    , Optional ByRef zOrder    As Byte = 0 _
+    , Optional ByRef visible   As Boolean = False _
 )
     Dim overlayLabel As MsForms.label
     Set overlayLabel = parentCtrl.add( _
@@ -816,17 +816,17 @@ Private Sub createOverlayLabel( _
         , name:=name _
         , visible:=visible)  'init will hide
     With overlayLabel
-        .caption = caption
-        .Tag = OVERLAY_TAG & name
-        .width = width
-        .height = height
-        .top = top
-        .left = left
-        .backColor = backColor
-        .backStyle = backStyle
-        .BorderStyle = hasBorder
-        .visible = visible
-        .zOrder zOrder ' 0: Bring to front
+    Let .caption = caption
+    Let .Tag = OVERLAY_TAG & name
+    Let .width = width
+    Let .height = height
+    Let .top = top
+    Let .left = left
+    Let .backColor = backColor
+    Let .backStyle = backStyle
+    Let .BorderStyle = hasBorder
+    Let .visible = visible
+    Let .zOrder zOrder ' 0: Bring to front
     End With
     Set overlayLabel = Nothing
 End Sub
@@ -1088,7 +1088,7 @@ End Sub
 Private Sub resetEdited()
     Dim i As Long
     For i = LBound(editedArr) To UBound(editedArr)
-        editedArr(i) = DEFAULT
+        Let editedArr(i) = DEFAULT
     Next i
 End Sub
 
@@ -1215,4 +1215,3 @@ Private Sub clearUp()
     ' Clear Arrays
     Erase editedArr
 End Sub
-

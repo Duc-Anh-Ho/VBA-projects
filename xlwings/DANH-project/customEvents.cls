@@ -19,7 +19,7 @@ Private WithEvents wbEvent  As Workbook
 Private WithEvents WsEvent  As Worksheet
 Private isOnlySh   As Boolean
 Private previousWb As Workbook
-'Private nextWb    As Workbook
+'Private nextWb     As Workbook
 
 'Constructor
 Private Sub Class_Initialize()
