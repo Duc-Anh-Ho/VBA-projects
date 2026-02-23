@@ -10,36 +10,33 @@ Attribute VB_Exposed = False
 ' Check README.md for more information
 Option Explicit
 'Declare Variables
-Private info As InfoConstants
-Private system As SystemUpdate
-Private fileSystem As Object
+Private info         As InfoConstants
+Private system       As SystemUpdate
+Private fileSystem   As Object
 Private userResponse As VbMsgBoxResult
 Private WithEvents appEvent As Application
-Attribute appEvent.VB_VarHelpID = -1
-Private WithEvents wbEvent As Workbook
-Attribute wbEvent.VB_VarHelpID = -1
-Private WithEvents WsEvent As Worksheet
-Attribute WsEvent.VB_VarHelpID = -1
-Private isOnlySh As Boolean
+Private WithEvents wbEvent  As Workbook
+Private WithEvents WsEvent  As Worksheet
+Private isOnlySh   As Boolean
 Private previousWb As Workbook
+'Private nextWb    As Workbook
 
-'Private nextWb As Workbook
 'Constructor
 Private Sub Class_Initialize()
-    Set system = New SystemUpdate
-    Set info = New InfoConstants
+    Set system   = New SystemUpdate
+    Set info     = New InfoConstants
     Set appEvent = Excel.Application
-    Set wbEvent = appEvent.ThisWorkbook
-    Set WsEvent = wbEvent.ActiveSheet
+    Set wbEvent  = appEvent.ThisWorkbook
+    Set WsEvent  = wbEvent.ActiveSheet
     Let isOnlySh = True
 End Sub
 'Destructor
 Private Sub Class_Terminate()
-    Set info = Nothing
-    Set system = Nothing
+    Set info     = Nothing
+    Set system   = Nothing
     Set appEvent = Nothing
-    Set wbEvent = Nothing
-    Set WsEvent = Nothing
+    Set wbEvent  = Nothing
+    Set WsEvent  = Nothing
 End Sub
 
 Private Sub appEvent_SheetActivate(ByVal ws As Object)
@@ -63,8 +60,8 @@ End Sub
 Private Sub appEvent_WorkbookBeforeClose(ByVal wb As Workbook, Cancel As Boolean)
     'Refresh Custom UI  when close all workbooks
     If appEvent.Workbooks.Count = 1 Then
-        Let CustomUi.hasWorksheet = False
-        Let CustomUi.hasWorkChart = False
+        Let CustomUi.hasWorksheet  = False
+        Let CustomUi.hasWorkChart  = False
         Let CustomUi.hasWorkDialog = False
         Call CustomUi.refreshCustomRibbon(CustomUi.loadedRibbon)
     End If
@@ -117,8 +114,8 @@ Private Sub popup(ByVal buttonName As String, ByRef wb As Workbook)
         Buttons:=vbOKOnly + vbExclamation, _
         Title:=info.getAddinShortName)
     ' Disable Event prevent Stack Overflow
-    Application.EnableEvents = False
-    wb.Activate
-    Application.EnableEvents = True
+    Let Application.EnableEvents = False
+    Call wb.Activate
+    Let Application.EnableEvents = True
 End Sub
 

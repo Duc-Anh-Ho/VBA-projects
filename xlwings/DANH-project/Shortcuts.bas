@@ -73,6 +73,13 @@ Private Sub sheetSelectP()
     Set sheetC = Nothing
 End Sub
 
+Private Sub sheetFocusRename()
+    Dim sheetC As SheetsController
+    Set sheetC = New SheetsController
+    Call sheetC.focusRename
+    Set sheetC = Nothing
+End Sub
+
 Private Sub shapeMoveAndSize()
     Dim formatC As FormatController
     Set formatC = New FormatController
@@ -693,7 +700,8 @@ Public Sub Test()
 ' Call Test.Init(Excel.Application.ActiveSheet)
 ' Call Test.CheckFileName
 ' Call uatTest2()
-Call findShapeIntersectRange
+' Call findShapeIntersectRange
+Call sheetFocusRename
 End Sub
 
 ' xxxxx

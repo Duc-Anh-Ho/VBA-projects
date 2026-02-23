@@ -1,5 +1,6 @@
 # Temporary path
 xlwings vba edit --file "C:\Users\Administrator\AppData\Roaming\Microsoft\AddIns\Danh-Tools.xlam"
+xlwings vba edit -f "C:\Users\Administrator\AppData\Roaming\Microsoft\AddIns\Danh-Tools.xlam"
 
 # Danh-Tools for Excel
 

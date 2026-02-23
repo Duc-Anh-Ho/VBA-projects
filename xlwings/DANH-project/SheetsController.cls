@@ -10,56 +10,53 @@ Attribute VB_Exposed = False
 ' Check README.md for more information
 Option Explicit
 'Declare Variables
-Private info As InfoConstants
-Private system As SystemUpdate
-Private fileSystem As Object
+Private info         As InfoConstants
+Private system       As SystemUpdate
+Private fileSystem   As Object
 Private userResponse As VbMsgBoxResult
-Private Const TITLE_NO As String = "~No.~"
-Private Const TITLE_NAME As String = "~SHEET NAMES~"
-Private Const TITLE_RENAME As String = "~RENAME~"
-Private Const TITLE_NO_CELL As String = "A1"
-Private Const TITLE_NAME_CELL As String = "B1"
+Private Const TITLE_NO          As String = "~No.~"
+Private Const TITLE_NAME        As String = "~SHEET NAMES~"
+Private Const TITLE_RENAME      As String = "~RENAME~"
+Private Const TITLE_NO_CELL     As String = "A1"
+Private Const TITLE_NAME_CELL   As String = "B1"
 Private Const TITLE_RENAME_CELL As String = "C1"
 Private Const SELECTED_SHEET_COLOR As Long = 3390975 'RGB(255, 189, 51)
-Private Const LIST_ISBOLD As Boolean = True
-Private Const LIST_FONT_SIZE As Byte = 14
-Private Const LIST_FONT_NAME As String = "Calibri"
-Private Const LIST_FORMAT_TEXT As String = "@"
+Private Const LIST_ISBOLD       As Boolean = True
+Private Const LIST_FONT_SIZE    As Byte = 14
+Private Const LIST_FONT_NAME    As String = "Calibri"
+Private Const LIST_FORMAT_TEXT  As String = "@"
 Private Const LIST_HEADER_COLOR As Long = 12566463 'Gray 25%
 Private Const LIST_BORDER_COLOR As Long = -65281 'Pink
 Private Const LIST_BORDER_STYLE As Long = xlDouble
 Private Const MAX_SHEETNAME_LENGTH As Byte = 30
-Private addSheetRange As Range
-Private listSheetRange As Range
-Private renameSheetRange As Range
+Private addSheetRange      As Range
+Private listSheetRange     As Range
+Private renameSheetRange   As Range
 Private preventchangedFlag As String
-Private cell As Object
-Private wss As Sheets
+Private cell        As Object
+Private wss         As Sheets
 Private selectedWss As Sheets
-Private ws As Object
-Private WithEvents WsEvent As Worksheet
-Attribute WsEvent.VB_VarHelpID = -1
+Private ws          As Object
+Private WithEvents WsEvent  As Worksheet
 Private WithEvents appEvent As Application
-Attribute appEvent.VB_VarHelpID = -1
-Private WithEvents wbEvent As Workbook
-Attribute wbEvent.VB_VarHelpID = -1
+Private WithEvents wbEvent  As Workbook
 
 'Initialize Variables
 Private Function hasVariables() As Boolean
 On Error GoTo ErrorHandle
-    Set info = New InfoConstants
-    Set system = New SystemUpdate
+    Set info       = New InfoConstants
+    Set system     = New SystemUpdate
     Set fileSystem = system.createFileSystem
     If Not system.hasWorkPlace(hasMsg:=True, workPlaceType:="xlWorksheet") Then
         Let hasVariables = False
         GoTo ExecuteProcedure
     End If
     Set appEvent = system.app
-    Set wbEvent = system.wb
-'    Set wss = system.wb.Worksheets
-    Set wss = system.wb.Sheets
-    Set WsEvent = system.ws
-    Set selectedWss = system.app.Windows(wbEvent.name).SelectedSheets
+    Set wbEvent  = system.wb
+'    Set wss      = system.wb.Worksheets
+    Set wss      = system.wb.Sheets
+    Set WsEvent  = system.ws
+    Set selectedWss  = system.app.Windows(wbEvent.name).SelectedSheets
     Let hasVariables = True
     GoTo ExecuteProcedure
 ErrorHandle:
@@ -76,8 +73,8 @@ Private Sub Class_Terminate()
     ' Set info = Nothing
     ' Set system = Nothing
     Set appEvent = Nothing
-    Set wbEvent = Nothing
-    Set WsEvent = Nothing
+    Set wbEvent  = Nothing
+    Set WsEvent  = Nothing
 End Sub
 
 'ASSESSORS
@@ -645,6 +642,21 @@ Public Sub selectPrevious()
         ActiveSheet.Previous.visible = xlSheetVisible
         ActiveSheet.Previous.Select
     End If
+End Sub
+
+'M4
+'Focus rename active sheet (like Alt + H + O + R)
+    Public Sub focusRename(Optional ByVal onSheet As Worksheet)
+On Error GoTo ErrorHandle
+    If Not hasVariables Then GoTo ExecuteProcedure
+    If onSheet Is Nothing Then Set onSheet = WsEvent
+    Call system.speedOn
+    Call appEvent.CommandBars.ExecuteMso ("SheetRename")
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call system.tackleErrors
+ExecuteProcedure:
+    Call system.speedOff
 End Sub
 
 'EVENTS

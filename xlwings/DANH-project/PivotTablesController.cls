@@ -10,29 +10,26 @@ Attribute VB_Exposed = False
 ' Check README.md for more information
 Option Explicit
 'Declare Variables
-Private info As InfoConstants
-Private system As SystemUpdate
-Private fileSystem As Object
+Private info         As InfoConstants
+Private system       As SystemUpdate
+Private fileSystem   As Object
 Private userResponse As VbMsgBoxResult
 Private WithEvents appEvent As Application
-Attribute appEvent.VB_VarHelpID = -1
-Private WithEvents wbEvent As Workbook
-Attribute wbEvent.VB_VarHelpID = -1
-Private WithEvents WsEvent As Worksheet
-Attribute WsEvent.VB_VarHelpID = -1
+Private WithEvents wbEvent  As Workbook
+Private WithEvents WsEvent  As Worksheet
 'Initialize Variables
 Private Function hasVariables() As Boolean
 On Error GoTo ErrorHandle
-    Set info = New InfoConstants
-    Set system = New SystemUpdate
+    Set info       = New InfoConstants
+    Set system     = New SystemUpdate
     Set fileSystem = system.createFileSystem
     If Not system.hasWorkPlace(hasMsg:=True, workPlaceType:="xlWorksheet") Then
         Let hasVariables = False
         GoTo ExecuteProcedure
     End If
     Set appEvent = system.app
-    Set wbEvent = system.wb
-    Set WsEvent = system.ws
+    Set wbEvent  = system.wb
+    Set WsEvent  = system.ws
     Let hasVariables = True
     GoTo ExecuteProcedure
 ErrorHandle:
@@ -47,8 +44,8 @@ End Sub
 ' DESTRUCTOR
 Private Sub Class_Terminate()
     Set appEvent = Nothing
-    Set wbEvent = Nothing
-    Set WsEvent = Nothing
+    Set wbEvent  = Nothing
+    Set WsEvent  = Nothing
 End Sub
 
 ' ASSESSORS
@@ -64,7 +61,7 @@ On Error GoTo ErrorHandle
     Call system.speedOn
     Dim pivotTableItem As PivotCache
     For Each pivotTableItem In system.wb.PivotCaches
-        pivotTableItem.Refresh
+        Call pivotTableItem.Refresh
     Next pivotTableItem
 GoTo ExecuteProcedure
 ErrorHandle:
@@ -78,6 +75,3 @@ End Sub
 Private Sub appEvent_SheetChange(ByVal sheetObject As Object, ByVal target As Range)
     Call refreshAllPivotTableCaches
 End Sub
-
-
-
