@@ -7,9 +7,9 @@ scope: project
 updated-at: 2026-05-30
 ---
 
-Rule: keep ALL Claude Code (and other agent) config and memory files inside the
-project directory (.claude/ or .agents/), never in the user folder (~/.claude,
-%USERPROFILE%\.claude).
+Rule: keep ALL Claude Code, Codex, and other agent config and memory files inside
+the project directory (.claude/, .codex/, or .agents/), never in the user folder
+(~/.claude, %USERPROFILE%\.claude, ~/.codex, %USERPROFILE%\.codex).
 
 Why: the user wants the project to be the single source of truth - portable across
 machines, version-controlled, no hidden state in user-level paths. Same reasoning as
@@ -17,10 +17,14 @@ memory-storage.md (memories go in .agents/memory/), generalized to all config.
 
 How to apply:
 - New config files (settings, hooks, scripts, rules, tools manifest) go under
-  .claude/ or .agents/ in the project, never under user-level paths.
+  .claude/, .codex/, or .agents/ in the project, never under user-level paths.
+- New memory files or durable memory records go under .agents/memory/, never under
+  %USERPROFILE%\.codex\memories\ or %USERPROFILE%\.codex\memories_*.sqlite.
 - Path fields inside config (for example autoMemoryDirectory) point to project paths.
 - When a Claude Code feature appears to require a user-level file, search the docs for
   a project-scoped alternative BEFORE accepting user scope. Verify, do not guess.
+- When Codex creates user-level memory/cache records, merge project-relevant content
+  into .agents/memory/, verify the project copy, then clear user-level memory content.
 
 Known exceptions (Claude Code does not support project scope):
 - ~/.claude/keybindings.json - strictly user-scoped per code.claude.com docs. There is

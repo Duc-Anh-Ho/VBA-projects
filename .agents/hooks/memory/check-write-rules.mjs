@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * @file ./.agents/hooks/memory/check-write-rules.mjs
- * @description Memory write-rules merged hook. Dispatches on event shape: PreToolUse Edit/Write (blocks any write whose target is the user-local Claude memory directory, and asks for confirmation with keyword-overlap scoring before creating a brand-new memory file under .agents/memory) and UserPromptSubmit (warns when settings.local.json autoMemoryDirectory is missing or points outside the project memory directory). Defensive: any internal error fails-open (no-op).
+ * @description Memory write-rules merged hook. Dispatches on event shape: PreToolUse Edit/Write (blocks any write whose target is the user-local Claude/Codex memory directory, and asks for confirmation with keyword-overlap scoring before creating a brand-new memory file under .agents/memory) and UserPromptSubmit (warns when settings.local.json autoMemoryDirectory is missing or points outside the project memory directory). Defensive: any internal error fails-open (no-op).
  * @scope project
  * @updated-at 2026-05-30
  */
@@ -22,7 +22,7 @@ const SETTINGS_PATH     = ".claude/settings.local.json";
 const EXPECTED_FRAGMENT = ".agents/memory";
 const PROJECT_ROOT      = (process.env.CLAUDE_PROJECT_DIR || process.cwd()).replace(/\\/g, "/");
 const PROJECT_MEMORY    = `${PROJECT_ROOT}/.agents/memory`;
-const USER_LOCAL_RE     = /[\\/]\.claude[\\/]projects[\\/][^\\/]+[\\/]memory[\\/]/i;
+const USER_LOCAL_RE     = /[\\/]\.(?:claude[\\/]projects[\\/][^\\/]+[\\/]memory|claude[\\/]memory|codex[\\/]memories)(?:[\\/]|$)|[\\/]\.codex[\\/]memories_[^\\/]+\.sqlite(?:-[a-z]+)?$/i;
 const PROJECT_MEMORY_RE = /\.agents\/memory\/[^/]+\//i;
 
 const STOPWORDS = new Set(
@@ -109,7 +109,7 @@ if (isPreToolUse) {
           hookEventName            : EVT_PRE
         , permissionDecision       : "deny"
         , permissionDecisionReason :
-            `Memory write blocked: '${filePath}' is in the user-local Claude memory dir. ` +
+            `Memory write blocked: '${filePath}' is in a user-local Claude/Codex memory location. ` +
             `Project policy: all memory files MUST go to '${PROJECT_MEMORY}/' (see features/memory-storage.md). ` +
             `Re-issue the Write/Edit with file_path under .agents/memory/<user|project|features|behaviors>/ and update .agents/memory/MEMORY.md.`
       }

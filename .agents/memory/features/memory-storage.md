@@ -10,17 +10,20 @@ updated-at: 2026-05-30
 Storage path:
 
 Always store memories in the project directory:
-  D:\repos\VBA-projects\.agents\memory\
+  S:\repos\VBA-projects\.agents\memory\
 
 Never write memories to any other level:
 - User level: %UserProfile%\.claude\CLAUDE.md or %UserProfile%\.claude\memory\
 - App cache level: %UserProfile%\.claude\projects\<id>\memory\
+- Codex user level: %UserProfile%\.codex\memories\, %UserProfile%\.codex\memories_*.sqlite, or any Codex memory cache outside the repo
 - Any path outside the project repo
 
 Why: only project-level memory is git-tracked and syncs across machines. Other levels
 are silently out of sync and invisible during code review. The hook
 check-write-rules.mjs blocks writes to the user-local memory dir, and
 autoMemoryDirectory in settings.local.json redirects new memories here.
+
+Leak prevention rule: no agent may create, update, or preserve durable project memory outside `.agents/memory/`. If Codex or Claude creates memory under `%UserProfile%\.codex\...` or `%UserProfile%\.claude\...`, merge project-relevant content into `.agents/memory/`, verify the project copy, then clear the user-level memory content.
 
 Creation protocol (announce the check result ALWAYS, even when no overlap):
 

@@ -1,0 +1,27 @@
+approval_policy = "never"
+sandbox_mode = "workspace-write"
+model_instructions_file = "instructions.md"
+project_doc_max_bytes = 32768
+project_doc_fallback_filenames = []
+file_opener = "vscode"
+web_search = "cached"
+
+[sandbox_workspace_write]
+writable_roots = ["C:\\nvm4w\\nodejs"]
+network_access = false
+exclude_tmpdir_env_var = false
+exclude_slash_tmp = false
+
+[shell_environment_policy]
+inherit = "core"
+ignore_default_excludes = false
+exclude = []
+set = {}
+include_only = []
+experimental_use_profile = false
+
+[history]
+persistence = "save-all"
+
+[features]
+hooks = true

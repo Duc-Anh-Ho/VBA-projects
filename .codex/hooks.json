@@ -1,0 +1,52 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^(Edit|Write)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:\\nvm4w\\nodejs\\node.exe .agents/hooks/memory/check-write-rules.mjs",
+            "statusMessage": "Checking memory path",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:\\nvm4w\\nodejs\\node.exe .agents/hooks/tools/block-unlisted-tool.mjs",
+            "statusMessage": "Checking tools manifest",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "C:\\nvm4w\\nodejs\\node.exe .agents/hooks/commit/inject-checklist.mjs",
+            "statusMessage": "Commit checklist",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "C:\\nvm4w\\nodejs\\node.exe .agents/hooks/commit/block-message-format.mjs",
+            "statusMessage": "Checking commit format",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "C:\\nvm4w\\nodejs\\node.exe .agents/hooks/commit/block-no-verify.mjs",
+            "statusMessage": "Checking no-verify bypass",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "C:\\nvm4w\\nodejs\\node.exe .agents/hooks/commit/block-git-add-bypass.mjs",
+            "statusMessage": "Checking git add policy",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
