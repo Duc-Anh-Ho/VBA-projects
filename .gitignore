@@ -5,3 +5,8 @@ logs
 Danh-Tools-Installation.xlsm
 # Ignore all temporary Office files
 ~$*
+
+# Agent tooling - machine-local, do not commit
+.claude/settings.local.json
+.agents/tools.local.json
+.claude/cache/
