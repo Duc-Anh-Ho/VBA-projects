@@ -12,6 +12,7 @@ Option Explicit
 Private newAddin As AutoAddin
 Private rangeC As RangesController
 Private nextRunTime As Date
+Private shortcutC As ShortcutController
 'EVENTS
 'Auto Launch
 Private Sub Workbook_Open()
@@ -22,17 +23,21 @@ Private Sub Workbook_Open()
 '        Call Developer.autoSendWifi
 '    End If
     ''''''''''''''''''''
-    'Auto install DANH AddIn (Move to onLoad Ribbon)
     Set newAddin = New AutoAddin
+    Set shortcutC = New ShortcutController
+    'Auto install DANH AddIn (Move to onLoad Ribbon)
     Call newAddin.install
     Set newAddin = Nothing
     'Auto install custom shortcuts
-    Call Shortcuts.install
+    Call shortcutC.install
+    Set shortcutC = Nothing
 End Sub
 '
 Private Sub Workbook_BeforeClose(Cancel As Boolean)
+    Set shortcutC = New ShortcutController
     'Auto uninstall custom shortcuts
-    Call Shortcuts.unInstall
+    Call shortcutC.unInstall
+    Set shortcutC = Nothing
 End Sub
 'CUSTOM EVENTS
 'Picture Controller

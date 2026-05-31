@@ -20,6 +20,7 @@ Private Const CDO_CONFIG_SCRIPT As String = "CDO.Configuration"
 Private Const CDO_MESS_SCRIPT As String = "CDO.Message"
 Private Const HTML_FILE_SCRIPT As String = "HtmlFile"
 Private Const CLIPBOARD_SCRIPT As String = "New:{1C3B4210-F441-11CE-B9EA-00AA006B1A69}"
+Private Const DICTIONARY_SCRIPT As String = "Scripting.Dictionary"
 Private Const EXCEL_TYPE As String = "Microsoft Excel"
 Private Const WD_TYPE As String = "Window"
 Private Const WB_TYPE As String = "Workbook"
@@ -118,12 +119,11 @@ On Error GoTo ErrorHandle
                         Set app = Application
                         Let resultStr = EXCEL_TYPE
                     Case Else
-                        ' Set app = Application
                         Let resultStr = Application.name & "_Un-handle"
                         GoTo ExecuteProcedure
                 End Select
             End If
-            'LV-1.5
+            'LV-1.1
             If Not app.ActiveWindow Is Nothing Then
                 GoTo ExecuteProcedure
             Else
@@ -132,7 +132,6 @@ On Error GoTo ErrorHandle
                         Set wd = app.ActiveWindow
                         Let resultStr = resultStr & "_" & WD_TYPE
                     Case Else
-                        ' Set app = Application
                         Let resultStr = resultStr & "_" & typeName(app.ActiveWindow) & "_Un-handle"
                         GoTo ExecuteProcedure
                 End Select
@@ -144,10 +143,11 @@ On Error GoTo ErrorHandle
             Else
                 Select Case typeName(app.ActiveWorkbook)
                     Case WB_TYPE
+                        Set wd = app.ActiveWindow
+                        Set wd = app.ActiveWindow
                         Set wb = app.ActiveWorkbook
                         Let resultStr = resultStr & "_" & WB_TYPE
                     Case Else
-                        ' Set wb = app.ActiveWorkbook
                         Let resultStr = resultStr & "_" & typeName(app.ActiveWorkbook) & "_Un-Handle"
                         GoTo ExecuteProcedure
                 End Select
@@ -222,8 +222,9 @@ On Error GoTo ErrorHandle
                 Let mess = "Don't exist any workbook yet, please open one!"
                 GoTo ExecuteProcedure
             Else
-                Let app = Application
-                Let wb = app.ActiveWorkbook
+                Set app = Application
+                Set wd = app.ActiveWindow
+                Set wb = app.ActiveWorkbook
                 GoTo ExecuteProcedure
             End If
         Case WS_TYPE ' LV-3
@@ -245,6 +246,7 @@ On Error GoTo ErrorHandle
                 GoTo ExecuteProcedure
             Else
                 Set app = Application
+                Set wd = app.ActiveWindow
                 Set wb = app.ActiveWorkbook
                 Set sheetOb = wb.ActiveSheet
                 'Set ws following sheetOb
@@ -276,6 +278,7 @@ On Error GoTo ErrorHandle
                 GoTo ExecuteProcedure
             Else
                 Set app = Application
+                Set wd = app.ActiveWindow
                 Set wb = app.ActiveWorkbook
                 Set sheetOb = Nothing
                 Set chartSh = wb.ActiveSheet
@@ -301,6 +304,7 @@ On Error GoTo ErrorHandle
                 GoTo ExecuteProcedure
             Else
                 Set app = Application
+                Set wd = app.ActiveWindow
                 Set wb = app.ActiveWorkbook
                 Set sheetOb = Nothing
                 Set chartSh = Nothing
@@ -333,6 +337,7 @@ On Error GoTo ErrorHandle
                 GoTo ExecuteProcedure
             Else
                 Set app = Application
+                Set wd = app.ActiveWindow
                 Set wb = app.ActiveWorkbook
                 Set sheetOb = wb.ActiveSheet
                 Set ws = sheetOb
@@ -366,6 +371,7 @@ On Error GoTo ErrorHandle
                 GoTo ExecuteProcedure
             Else
                 Set app = Application
+                Set wd = app.ActiveWindow
                 Set wb = app.ActiveWorkbook
                 Set sheetOb = wb.ActiveSheet
                 Set ws = Nothing
@@ -399,6 +405,7 @@ On Error GoTo ErrorHandle
                 GoTo ExecuteProcedure
             Else
                 Set app = Application
+                Set wd = app.ActiveWindow
                 Set wb = app.ActiveWorkbook
                 Set sheetOb = wb.ActiveSheet
                 Set ws = Nothing
@@ -432,6 +439,7 @@ On Error GoTo ErrorHandle
                 GoTo ExecuteProcedure
             Else
                 Set app = Application
+                Set wd = app.ActiveWindow
                 Set wb = app.ActiveWorkbook
                 Set sheetOb = wb.ActiveSheet
                 Set ws = Nothing
@@ -534,6 +542,10 @@ End Property
 Public Property Get createClipboard() As Object
     Set createClipboard = CreateObject(CLIPBOARD_SCRIPT)
 End Property
+'DICTIONARY
+Public Property Get createDictionary() As Object
+    Set createClipboard = CreateObject(DICTIONARY_SCRIPT)
+End Property
 'TIMER
 Public Property Get getTimerMilestone() As String
 On Error GoTo ErrorHandle
@@ -625,20 +637,22 @@ End Property
 'POSITION
 Public Property Get getLastRow(ByVal ws As Worksheet, Optional ByVal atColumn As Long) As Long
 On Error GoTo ErrorHandle
-    With ws
-        If atColumn = False Then
-            Let getLastRow = .Cells.Find( _
-                "*", _
-                SearchOrder:=xlByRows, _
-                SearchDirection:=xlPrevious).row
+    Dim cell As Range
+    If CBool(atColumn) Then
+        Set cell = ws.Cells(ws.Rows.Count, atColumn).End(xlUp)
+        If cell.Value = False Then
+            Let getLastRow = 0
         Else
-            If .Cells(.Rows.Count, atColumn).End(xlUp).value = False Then
-                    getLastRow = 0
-            Else
-                    Let getLastRow = .Cells(.Rows.Count, atColumn).End(xlUp).row
-            End If
+            Let getLastRow = cell.row
         End If
-    End With
+    Else
+        Set cell = ws.Cells.Find("*", SearchOrder:=xlByRows, SearchDirection:=xlPrevious)
+        If cell Is Nothing Then
+            Let getLastRow = 0
+        Else
+            Let getLastRow = cell.row
+        End If
+    End If
 GoTo ExecuteProcedure
 ErrorHandle:
     Call tackleErrors
@@ -647,20 +661,22 @@ End Property
 'POSITION
 Public Property Get getLastColumn(ByVal ws As Worksheet, Optional ByVal atRow As Long) As Long
 On Error GoTo ErrorHandle
-    With ws
-        If atRow = False Then
-            Let getLastColumn = ws.Cells.Find( _
-                "*", _
-                SearchOrder:=xlByColumns, _
-                SearchDirection:=xlPrevious).Column
+    Dim cell As Range
+    If CBool(atRow) Then
+        Set cell = ws.Cells(atRow, ws.Columns.Count).End(xlToLeft)
+        If cell.Value = False Then
+            Let getLastColumn = 0
         Else
-            If .Cells(atRow, .Columns.Count).End(xlToLeft).value = False Then
-                getLastColumn = 0
-            Else
-                Let getLastColumn = .Cells(atRow, .Columns.Count).End(xlToLeft).Column
-            End If
+            Let getLastColumn = cell.Column
         End If
-    End With
+    Else
+        Set cell = ws.Cells.Find("*", SearchOrder:=xlByColumns, SearchDirection:=xlPrevious)
+        If cell Is Nothing Then
+            Let getLastColumn = 0
+        Else
+            Let getLastColumn = cell.Column
+        End If
+    End If
 GoTo ExecuteProcedure
 ErrorHandle:
     Call tackleErrors

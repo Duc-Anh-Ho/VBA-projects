@@ -26,7 +26,7 @@ On Error GoTo ErrorHandle
         GoTo ExecuteProcedure
     End If
     Let hasVariables = True
-    Set targetObject = Selection
+    Set targetObject = selection
     GoTo ExecuteProcedure
 ErrorHandle:
     Call system.tackleErrors

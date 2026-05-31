@@ -1,0 +1,657 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "PicturesController"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = False
+Attribute VB_Exposed = False
+' Check README.md for more information
+Option Explicit
+Option Compare Binary
+' Declare Variables
+Private info         As InfoConstants
+Private system       As SystemUpdate
+Private fileSystem   As Object
+Private userResponse As VbMsgBoxResult
+Private customOffset As Byte
+Private targetPlace  As Object
+Private targetObject As Object
+Private isLockRatio  As Boolean
+Private Const DEFAULT_LOCK_RATIO      As Boolean = True
+Private Const MARKER_COLOR            As Long = vbRed
+Private Const FAKE_BORDER_COLOR       As Long = vbMagenta
+Private Const MARKER_TEAR_COLOR       As Long = vbMagenta
+Private Const MARKER_TRANSPARENT_RATE As Byte = 80
+Private Const MARKER_LINE_WEIGHT      As Byte = 5
+Private Const MARKER_TEXT             As String = "ARRANGING AREA"
+Private Const MARKER_TEXT_FONT        As String = "Helvetica"
+'4
+Public Enum TOUCH_MODE
+    OVERLAP = 0
+    INSIDE    = 1
+End Enum
+Private Const NAME_TOKEN as String = "@_@"
+
+' Initialize Variables
+Private Function hasVariables() As Boolean
+On Error GoTo ErrorHandle
+    Set info = New InfoConstants
+    Set system = New SystemUpdate
+    Set fileSystem = system.createFileSystem
+    If Not system.hasWorkPlace(hasMsg:=True, workPlaceType:="xlWorksheet") Then
+        Let hasVariables = False
+        GoTo ExecuteProcedure
+    End If
+    Let hasVariables = True
+    GoTo ExecuteProcedure
+ErrorHandle:
+    Call system.tackleErrors
+ExecuteProcedure:
+End Function
+
+'CONSTRUCTOR
+Private Sub Class_Initialize()
+    '
+End Sub
+'DESTRUCTOR
+Private Sub Class_Terminate()
+    '
+End Sub
+
+' ASSESSORS
+
+'1,2,3
+Public Property Get hasSelectObjectMode() As Boolean
+    Let hasSelectObjectMode = CommandBars("Drawing").controls("Select Objects").State
+End Property
+
+'4
+Public Property Get OVERLAP_MODE() As Byte
+    Let OVERLAP_MODE = TOUCH_MODE.OVERLAP
+End Property
+
+Public Property Get INSIDE_MODE() As Byte
+    Let INSIDE_MODE = TOUCH_MODE.INSIDE
+End Property
+
+' MUTATORS
+
+'1,2,3
+Public Property Let letOffset(ByRef newOffset As Byte)
+    If newOffset > 100 Then newOffset = 100
+    Let customOffset = newOffset
+End Property
+
+'1,2,3
+' TODO Change name to lockRatio and the sub LockRatio to applyLockRatio
+Public Property Let letLockRatio(ByRef newLockRatio As Boolean)
+    Let isLockRatio = newLockRatio
+    'TO-DO: Pop-up Form
+    'Let isLockRatio = SnippingToolForm.CheckBoxLockRadio.value
+End Property
+
+'2.
+Public Property Let selectObjectMode(ByRef objectMode As Boolean)
+    If objectMode And Not CommandBars("Drawing").controls("Select Objects").State Then
+        Call CommandBars("Drawing").controls("Select Objects").Execute
+    ElseIf Not objectMode And CommandBars("Drawing").controls("Select Objects").State Then
+        Call CommandBars("Drawing").controls("Select Objects").Execute
+    End If
+End Property
+
+'2
+Public Property Let hasFakeBorder(ByRef isFake As Boolean)
+    Dim sh As Shape
+    Dim fakeBorderName As String
+    Let fakeBorderName = info.getAuthor & "_fakeBorder_"
+    If isFake Then
+        For Each sh In system.ws.Shapes
+            With system.ws.Shapes.AddShape( _
+                Type:=msoShapeRectangle, _
+                left:=sh.left - MARKER_LINE_WEIGHT / 2, _
+                top:=sh.top - MARKER_LINE_WEIGHT / 2, _
+                width:=sh.width + MARKER_LINE_WEIGHT, _
+                height:=sh.height + MARKER_LINE_WEIGHT)
+                .name = fakeBorderName & .name
+                .Fill.visible = msoTrue
+                .Fill.foreColor.RGB = FAKE_BORDER_COLOR
+                .line.visible = msoFalse
+                .zOrder msoSendToBack
+            End With
+        Next sh
+    Else
+        For Each sh In system.ws.Shapes
+            If sh.name Like (fakeBorderName & "*") Then Call sh.Delete
+        Next sh
+    End If
+End Property
+
+'2
+Public Property Let hasMarkTargetPlace(ByRef isMarked As Boolean)
+    Dim sh As Shape
+    Dim markUpName As String
+    Let markUpName = info.getAuthor & "_marker"
+    If isMarked Then
+        With system.ws.Shapes.AddShape( _
+            Type:=msoShapeRectangle, _
+            left:=targetPlace.left, _
+            top:=targetPlace.top, _
+            width:=targetPlace.width, _
+            height:=targetPlace.height)
+            .name = markUpName
+            .Fill.visible = msoTrue
+            .Fill.foreColor.RGB = MARKER_COLOR
+            .Fill.Transparency = MARKER_TRANSPARENT_RATE / 100
+            .Fill.Solid
+            .line.visible = msoTrue
+            .line.foreColor.RGB = MARKER_COLOR
+            .line.Weight = MARKER_LINE_WEIGHT
+            .line.DashStyle = msoLineSysDot
+            .TextFrame.Characters.text = MARKER_TEXT
+            .TextFrame.Characters.Font.name = MARKER_TEXT_FONT
+            .TextFrame.Characters.Font.bold = msoTrue
+            .TextFrame.Characters.Font.italic = msoFalse
+            .TextFrame.Characters.Font.size = .height / 5
+            .TextFrame.Characters.Font.ColorIndex = vbBlack
+            .TextFrame2.HorizontalAnchor = msoAnchorCenter
+            .TextFrame2.VerticalAnchor = msoAnchorMiddle
+            .TextFrame2.TextRange.ParagraphFormat.Alignment = msoAlignCenter
+        End With
+    Else
+        For Each sh In system.ws.Shapes
+            If sh.name = markUpName Then Call sh.Delete
+        Next sh
+    End If
+End Property
+
+'3
+Public Property Let hasMarkTargetObject(ByRef isMarked As Boolean)
+    Dim sh As Shape
+    Dim groupSh As Shape
+    Dim tearSh As Shape
+    Dim tearName As String
+    Dim groupName As String
+    Let tearName = info.getAuthor & "_tear_"
+    Let groupName = info.getAuthor & "_group_"
+    If isMarked Then
+        For Each sh In system.ws.Shapes
+            Set tearSh = system.ws.Shapes.AddShape( _
+                Type:=msoShapeTear, _
+                left:=sh.left, _
+                top:=sh.top, _
+                width:=sh.width / 20, _
+                height:=sh.width / 20)
+            With tearSh
+                .line.visible = msoFalse
+                .Fill.foreColor.RGB = MARKER_TEAR_COLOR
+                .Adjustments.item(1) = 1.85
+                .IncrementRotation 270
+                .name = tearName & .name 're-name for marker_delete
+            End With
+            'Group and rename tear with target object
+            Set groupSh = system.ws.Shapes.Range(Array(tearSh.name, sh.name)).group
+            Let groupSh.name = groupName & groupSh.name
+        Next sh
+    Else
+        'Loop all shapes in sheet
+        For Each groupSh In system.ws.Shapes
+            'Check if shape is tear group
+            If _
+                groupSh.Type = msoGroup _
+                And groupSh.name Like (groupName & "*") Then
+                'Loop all shapes in group
+                For Each sh In groupSh.GroupItems
+                    If sh.name Like (tearName & "*") Then Call sh.Delete
+                Next sh
+            End If
+        Next groupSh
+    End If
+End Property
+
+'METHODS
+
+'1,2,3
+Public Sub lockRatio(ByRef targetObject As Object)
+    Select Case typeName(targetObject)
+        Case "Shape"
+            Let targetObject.LockAspectRatio = isLockRatio
+        Case Else
+            Let targetObject.ShapeRange.LockAspectRatio = isLockRatio
+    End Select
+End Sub
+
+'
+Public Sub sendTo( _
+    ByRef targetObject As Object _
+    , Optional ByRef orderType As Byte = msoBringToFront _
+)
+    ' TODO Change all typename to typeOF for wider handle
+    Select Case typeName(targetObject)
+        Case "Shape"
+            Call targetObject.zOrder(orderType)
+        Case Else
+            Call targetObject.ShapeRange.zOrder(orderType)
+    End Select
+End Sub
+
+'1,2
+Private Sub setTargetPlace(targetOj As Object, Optional hasConfirm As Boolean = True)
+    Select Case typeName(targetOj)
+        Case "Range"
+            Set targetPlace = targetOj
+        Case "DrawingObjects"
+            MsgBox _
+                Prompt:="Sorry! we've not supported " & typeName(targetOj) & " yet" _
+                    & vbNewLine & "Please select another object type !!!!", _
+                Buttons:=vbOKOnly + vbCritical, _
+                Title:=info.getAuthor
+        Case Else
+            'Optional user response
+            If hasConfirm Then
+                Let userResponse = MsgBox( _
+                    Prompt:="You've selected: '" & targetOj.name & _
+                        "' as type: " & typeName(targetOj) & vbNewLine & _
+                        "Do you want to replace " & targetOj.name & "?", _
+                    Buttons:=vbYesNoCancel + vbQuestion, _
+                    Title:=info.getAuthor)
+            Else
+                Let userResponse = vbNo
+            End If
+            'yes pressed
+            If userResponse = vbYes Then
+                Set targetPlace = targetOj
+            'no pressed
+            ElseIf userResponse = vbNo Then
+                Set targetPlace = targetOj
+            'X or cancel Pressed
+            Else
+                Set targetPlace = Nothing
+            End If
+    End Select
+End Sub
+
+'1
+Private Sub deleteOldPicture()
+    If targetPlace Is Nothing Then Exit Sub
+    If userResponse = vbYes Then
+        Select Case typeName(targetPlace)
+            Case "ChartArea"
+                MsgBox _
+                    Prompt:="The captured picture is inside the " & typeName(Selection) _
+                        & vbNewLine & "Can't delete it automatically", _
+                    Buttons:=vbOKOnly + vbExclamation, _
+                    Title:=info.getAuthor
+            Case "Range"
+                'Do notthing
+            Case Else
+                Call targetPlace.Delete
+        End Select
+    End If
+End Sub
+
+'2.
+Private Sub setTargetObject(ByRef objectName As String)
+    Dim sh As Shape
+    Dim shGItem As Shape
+        For Each sh In system.ws.Shapes
+            If sh.Type = msoGroup Then
+                For Each shGItem In sh.GroupItems
+                    If shGItem.name = objectName Then Set targetObject = sh
+                Next shGItem
+            End If
+            If sh.name = objectName Then Set targetObject = sh
+        Next sh
+End Sub
+
+'1.
+Private Sub capturePicture()
+    With system.app
+        .ScreenUpdating = False
+        .CommandBars.ExecuteMso "ScreenClipping" 'important key
+    End With
+    If typeName(Selection) = "Picture" Then
+        Set targetObject = Selection
+'        targetObject.Cut
+'    'Paste to A1 as default
+'    targetObject = ws.Paste Destination:=ws.Range("A1")
+    Else
+        MsgBox _
+            Prompt:=info.getPrompt & "Failed to capture!!!" _
+                & vbNewLine & "Please wait a sec and capture again after clicking OK !!!", _
+            Buttons:=vbOKOnly + vbExclamation, _
+            Title:=info.getAuthor
+        Call capturePicture 'recursion
+    End If
+End Sub
+
+'2
+Private Sub assignOnAction(ByRef Script As String)
+    Dim sh As Shape
+    For Each sh In system.ws.Shapes
+        Let sh.OnAction = Script
+    Next sh
+End Sub
+
+'1,2,3
+Private Sub scalePicture( _
+    ByVal isLockRatio As Boolean _
+    , Optional orderType As Byte = msoBringToFront _
+)
+    ' Scale up when too small
+    If targetPlace.height < customOffset * 2 Or _
+    targetPlace.width < customOffset * 2 Then
+        If typeName(targetPlace) <> "Range" Then
+            Let targetPlace.height = targetPlace.height + customOffset * 2
+            Let targetPlace.width = targetPlace.width + customOffset * 2
+        End If
+    End If
+    ' Apply Lock Rate
+    Call lockRatio(targetObject)
+    ' Algorithm When Lock Rate
+    If isLockRatio Then
+        If targetPlace.height < targetPlace.width Then
+            Let targetObject.top = targetPlace.top + customOffset
+            Let targetObject.height = targetPlace.height - customOffset * 2
+            Let targetObject.left = targetPlace.left + (targetPlace.width - targetObject.width) / 2
+        Else
+            Let targetObject.left = targetPlace.left + customOffset
+            Let targetObject.height = targetPlace.height - customOffset * 2
+            Let targetObject.top = targetPlace.top + (targetPlace.height - targetObject.height) / 2
+        End If
+        If targetObject.height > targetPlace.height Then
+            Let targetObject.height = targetPlace.height - customOffset * 2
+            Let targetObject.top = targetPlace.top + customOffset
+            Let targetObject.left = targetPlace.left + (targetPlace.width - targetObject.width) / 2
+        End If
+        If targetObject.width > targetPlace.width Then
+            Let targetObject.width = targetPlace.width - customOffset * 2
+            Let targetObject.left = targetPlace.left + customOffset
+            Let targetObject.top = targetPlace.top + (targetPlace.height - targetObject.height) / 2
+        End If
+    'Algorithm When Not Lock Rate
+    Else
+        Let targetObject.left = targetPlace.left + customOffset
+        Let targetObject.top = targetPlace.top + customOffset
+        Let targetObject.width = targetPlace.width - customOffset * 2
+        Let targetObject.height = targetPlace.height - customOffset * 2
+    End If
+    'Reset default settings
+'    targetObject.ShapeRange.LockAspectRatio = True
+    Let letLockRatio = False
+    Call lockRatio(targetObject)
+    ' Apply Order
+    Call sendTo(targetObject, orderType)
+    Let system.app.ScreenUpdating = True
+End Sub
+
+'4.1
+Private Sub renameShape()
+    Dim sh As Shape
+    For Each sh In system.ws.Shapes
+        ' Skip if already temp name
+        If InStrRev(sh.name, NAME_TOKEN) > 0 Then GoTo NextShape 
+        Let sh.name = sh.name & NAME_TOKEN & Format$(sh.id, "00000")
+NextShape:
+    Next sh
+End Sub
+
+'4.2
+Private Sub restoreNameShape()
+    Dim sh As Shape
+    Dim position As Long
+    For Each sh In system.ws.Shapes
+        ' TODO vbBinaryCompar to enum
+        Let position = InStrRev(sh.name, NAME_TOKEN, , vbBinaryCompare)
+        If position > 0 Then
+            Let sh.name = Left$(sh.name, position - 1)
+        End If
+    Next sh
+End Sub
+
+'4.3
+Private Function isTouch( _
+    ByRef target As Range, _
+    ByRef sh     As Shape, _
+    Optional ByVal mode As TOUCH_MODE = OVERLAP _
+) As Boolean
+    Dim rangeLeft   As Double: rangeLeft   = target.Left
+    Dim rangeTop    As Double: rangeTop    = target.Top
+    Dim rangeRight  As Double: rangeRight  = rangeLeft + target.Width
+    Dim rangeBottom As Double: rangeBottom = rangeTop + target.Height
+
+    Dim shapeLeft   As Double: shapeLeft   = sh.Left
+    Dim shapeTop    As Double: shapeTop    = sh.Top
+    Dim shapeRight  As Double: shapeRight  = shapeLeft + sh.Width
+    Dim shapeBottom As Double: shapeBottom = shapeTop + sh.Height
+
+    Select Case mode
+        Case INSIDE  ' Shape must be fully inside
+            Let isTouch = _
+                shapeLeft >= rangeLeft _
+                And shapeRight <= rangeRight _
+                And shapeTop >= rangeTop _
+                And shapeBottom <= rangeBottom
+        Case OVERLAP ' Shape must be intersect
+            Let isTouch = Not ( _
+                shapeLeft > rangeRight _
+                Or shapeRight < rangeLeft _
+                Or shapeTop > rangeBottom _
+                Or shapeBottom < rangeTop _
+            )
+        Case Else
+        ' TODO Error Handler
+    End Select
+
+End Function
+
+'4.
+Public Function getShapeInRange( _
+    ByRef target As Range, _
+    Optional ByVal mode As TOUCH_MODE = OVERLAP _
+) As String()
+    Dim result() As String
+    ' Let result = Split("", ",") ' Trick create result(0) = "" in VBA
+    ReDim result(0): Let result(0) = ""
+    If TypeName(target) <> "Range" Then GoTo returnResult
+    Dim count as Long
+    Dim sh As Shape: For Each sh In system.ws.Shapes
+        If isTouch(target, sh, mode) Then
+            Let count = count + 1
+            ReDim Preserve result(0 To count - 1)
+            Let result(count - 1) = sh.name
+        End If
+    Next sh
+returnResult:
+    Let getShapeInRange = result
+End Function
+
+'MAIN
+
+'5 
+Public Sub snipShareX( _
+    ByRef workFlow As String, _
+    Optional savedPath As String = vbNullString _
+)
+On Error GoTo ErrorHandle
+    If Not hasVariables Then GoTo ExecuteProcedure
+    Call system.speedOn
+    Call setTargetPlace(Selection)
+    If targetPlace Is Nothing Then GoTo ExecuteProcedure
+    Dim sxC As ShareXController: Set sxC = New ShareXController
+    Dim fullName As String
+    Application.CutCopyMode = False ' DELETE Old pic
+    Let sxC.letWorkflow = workFlow
+    Call sxC.START(30000)
+    ' TODO: REFACTOR HERE
+    Let fullName = latestPic(savedPath & "\" & format(Date, "yymmdd"))
+    Application.Wait Now + TimeValue("0:00:02") ' 2 second delay
+    If fullName <> vbNullString Then
+        ActiveSheet.Pictures.Insert (fullName)
+    Else
+        '    Set targetObject = ActiveSheet.Pictures.Paste
+        '    Set targetObject = ActiveSheet.Pictures.Paste()
+        ActiveSheet.Paste
+    End If
+    Set targetObject = ActiveSheet.Pictures(ActiveSheet.Pictures.Count)
+    Let letLockRatio = True
+    Call scalePicture(isLockRatio, msoSendToBack)
+    Call deleteOldPicture
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call system.tackleErrors
+ExecuteProcedure:
+    Let Application.ScreenUpdating = True
+    Call system.speedOff
+End Sub
+
+'
+Public Function latestPic( _
+    ByRef folderPath As String, _
+    Optional ByVal stamptimeLength  As Byte = 16, _
+    Optional ByVal extensionPattern As String = "\*.png" _
+) As String
+    If folderPath = vbNullString Then Exit Function
+    Dim fullName     As String: Let fullName = Dir(folderPath & extensionPattern)
+    Dim latestFile   As String
+    Dim stamptimeMax As String
+    Dim stamptime    As String
+    Do While fullName <> vbNullString
+        Let stamptime = left(fullName, stamptimeLength)
+        If ( _
+            Len(stamptime) <> stamptimeLength _
+            Or Not IsNumeric(stamptime) _
+        ) Then GoTo NextLoop
+        ' NOTE: compare Number by String must have Option Compare Binary in top
+        If stamptime > stamptimeMax Then
+            Let stamptimeMax = stamptime
+            Let latestFile = fullName
+        End If
+NextLoop:
+        Let fullName = Dir
+    Loop
+    Let latestPic = IIf(latestFile <> vbNullString, folderPath & "\" & latestFile, vbNullString)
+End Function
+
+'1. Snipping Tool
+Public Sub snip()
+On Error GoTo ErrorHandle
+    If Not hasVariables Then GoTo ExecuteProcedure
+    Call system.speedOn
+    Call setTargetPlace(Selection)
+    If targetPlace Is Nothing Then GoTo ExecuteProcedure
+    Call capturePicture
+    Call scalePicture(isLockRatio, msoBringToFront)
+    Call deleteOldPicture
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call system.tackleErrors
+ExecuteProcedure:
+    Let Application.ScreenUpdating = True
+    Call system.speedOff
+End Sub
+
+'2.1 Assign macro to shape
+Public Sub assign()
+On Error GoTo ErrorHandle
+    If Not hasVariables Then GoTo ExecuteProcedure
+    Call system.speedOn
+    Call setTargetPlace(Selection, hasConfirm:=False)
+    If targetPlace Is Nothing Then GoTo ExecuteProcedure
+    Call assignOnAction("ThisWorkbook.Auto_Arrange_Shape")
+    Let hasFakeBorder = True
+    Let hasMarkTargetPlace = True
+    Let selectObjectMode = True
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call system.tackleErrors
+ExecuteProcedure:
+    Call system.speedOff
+End Sub
+
+'2.2 Arrrage Object
+Public Sub arrange(ByRef objectName As String)
+On Error GoTo ErrorHandle
+    If Not hasVariables Then GoTo ExecuteProcedure
+    If Not hasSelectObjectMode Then GoTo ExecuteProcedure
+    Call system.speedOn
+    Call setTargetPlace(Selection, hasConfirm:=False)
+    If targetPlace Is Nothing Then GoTo ExecuteProcedure
+    Call setTargetObject(Application.Caller)
+    Call scalePicture(isLockRatio, msoSendToBack)
+    Call deleteOldPicture
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call system.tackleErrors
+ExecuteProcedure:
+    Call system.speedOff
+End Sub
+
+'2.3
+Public Sub clearArrange()
+On Error GoTo ErrorHandle
+    If Not hasVariables Then GoTo ExecuteProcedure
+    Call system.speedOn
+    Let hasMarkTargetPlace = False
+    Call assignOnAction("")
+    Let selectObjectMode = False
+    Let hasFakeBorder = False
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call system.tackleErrors
+ExecuteProcedure:
+    Call system.speedOff
+End Sub
+
+'3. Auto Arrange
+Public Sub autoArrange(ByRef isOn As Boolean)
+On Error GoTo ErrorHandle
+    If Not hasVariables Then GoTo ExecuteProcedure
+    Call system.speedOn
+    Let hasMarkTargetObject = isOn
+'    system.app.Run "PicturesController.Auto_Run_Continuously"
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call system.tackleErrors
+ExecuteProcedure:
+    Call system.speedOff
+End Sub
+
+'3.
+Public Sub arrangeToMerge()
+On Error GoTo ErrorHandle
+    If Not hasVariables Then GoTo ExecuteProcedure
+    Call system.speedOn
+    If typeName(Selection) = "GroupObject" Then
+        Call setTargetPlace(Selection.TopLeftCell.MergeArea)
+        Call setTargetObject(Selection.name)
+        Call scalePicture(isLockRatio, msoBringToFront)
+    End If
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call system.tackleErrors
+ExecuteProcedure:
+    Call system.speedOff
+End Sub
+
+'4.
+Public Sub selectShapeInRange( _
+    Optional ByVal mode As TOUCH_MODE = OVERLAP _
+)
+On Error GoTo ErrorHandle
+    If Not hasVariables Then GoTo ExecuteProcedure
+    If TypeName(Selection) <> "Range" Then GoTo ExecuteProcedure
+    Call system.speedOn
+    Call renameShape
+    Dim nameArr() As String: Let nameArr = getShapeInRange(Selection, mode)
+    If system.getArrayLength(nameArr) > 0 And nameArr(0) <> "" Then
+        Call system.ws.Shapes.Range(nameArr).Select
+    End If
+    Call restoreNameShape
+GoTo ExecuteProcedure
+ErrorHandle:
+    Call system.tackleErrors
+ExecuteProcedure:
+    Call system.speedOff
+End Sub

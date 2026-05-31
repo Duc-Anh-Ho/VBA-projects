@@ -1206,8 +1206,8 @@ Private Sub setStatusBarAsMode()
 End Sub
 
 ' Check pressed size buttons
-Private Function isHighlightUpSize(ByRef value As Byte) As Boolean
-    If highlightUpSize = value Then
+Private Function isHighlightUpSize(ByRef Value As Byte) As Boolean
+    If highlightUpSize = Value Then
         Let isHighlightUpSize = True
     Else
         Let isHighlightUpSize = False
@@ -1215,8 +1215,8 @@ Private Function isHighlightUpSize(ByRef value As Byte) As Boolean
 End Function
 
 ' Check pressed transparent buttons
-Private Function isHighlightTransparent(ByRef value As Byte) As Boolean
-    If highlightTransparent = value Then
+Private Function isHighlightTransparent(ByRef Value As Byte) As Boolean
+    If highlightTransparent = Value Then
         Let isHighlightTransparent = True
     Else
         Let isHighlightTransparent = False
@@ -1224,8 +1224,8 @@ Private Function isHighlightTransparent(ByRef value As Byte) As Boolean
 End Function
 
 ' Check pressed color buttons
-Private Function isHighlightColor(ByRef value As Long) As Boolean
-    If highlightColor = value Then
+Private Function isHighlightColor(ByRef Value As Long) As Boolean
+    If highlightColor = Value Then
         Let isHighlightColor = True
     Else
         Let isHighlightColor = False
@@ -1239,7 +1239,7 @@ Private Sub HighlightRange()
         Let rangeCEvent.letAddSize = highlightUpSize
         Let rangeCEvent.letBlurRate = highlightTransparent
         Let rangeCEvent.letHighlightColor = highlightColor
-        Call rangeCEvent.highlight(Target:=Selection)
+        Call rangeCEvent.highlight(Target:=selection)
     End If
 End Sub
 
@@ -2334,17 +2334,18 @@ End Sub
 Public Sub addinController(ByRef control As IRibbonControl, Optional ByRef pressed As Boolean)
 On Error GoTo ErrorHandle
     If loadedRibbon Is Nothing Then Call refreshCustomRibbon
-    Dim newAddin As AutoAddin
-    Set newAddin = New AutoAddin
+    Dim newAddin As AutoAddin: Set newAddin = New AutoAddin
+    Dim shortcutC As ShortcutController: Set shortcutC = New ShortcutController
     Select Case control.id
         Case removeAddinButton.getID
             Call newAddin.remove(hasConfirm:=True)
         Case refreshAddinButton.getID
             Call refreshCustomRibbon(loadedRibbon)
-            Call Shortcuts.unInstall
-            Call Shortcuts.install
+            Call shortcutC.unInstall
+            Call shortcutC.install
     End Select
     Set newAddin = Nothing ' Clear Cache
+    Set shortcutC = Nothing
 GoTo ExecuteProcedure
 ErrorHandle:
     Call tackleErrors

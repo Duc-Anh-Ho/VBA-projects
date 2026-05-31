@@ -40,7 +40,7 @@ End Sub
 
 ' TEST
 Public Sub aaTestCode()
-
+    KeyboardShortcutForm.Show
  '    If ActiveWorkbook.path = "" Then MsgBox "Not saved"
 ''''''''''''''''''''
 '    Dim system As SystemUpdate

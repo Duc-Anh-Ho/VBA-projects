@@ -93,7 +93,7 @@ End Property
 'G1.2- Trim if too long name
 Private Property Get trimSheetName(ByVal cellText As String, Optional ByVal numChar As Byte = MAX_SHEETNAME_LENGTH) As String
     If Len(cellText) >= numChar Then
-        Let trimSheetName = Left(cellText, numChar)
+        Let trimSheetName = left(cellText, numChar)
     Else
         Let trimSheetName = cellText
     End If
@@ -132,35 +132,72 @@ Private Property Get getRenameRange(Optional ByVal onSheet As Worksheet) As Rang
             system.getLastRow(onSheet, Range(TITLE_RENAME_CELL).Column), _
             Range(TITLE_RENAME_CELL).Column))
 End Property
+
 'MUTATORS
 'METHODS
 'G1.1-Add Sheets
 Private Sub addSheetsAsRange()
     Dim cellText As String
+    Dim addSheetCount As Long
+    Dim mess As String
     'Check Selected Range
-    If typeName(Selection) = "Range" Then
-        Set addSheetRange = Selection
-        'Loop through selected range
-        For Each cell In addSheetRange
-            'Remove special chars in cell.text
-            Let cellText = removeSpecialChars(cell.text)
-            'Trim if sheet name too long
-            Let cellText = trimSheetName(cellText, MAX_SHEETNAME_LENGTH)
-            'Check don't exist and not null
-            If Not system.hasSheet(cellText) And cellText <> vbNullString Then
-                'Add at the end
-                wss.add(After:=wss(wss.Count)).name = cellText
-            End If
-        Next cell
-        'Return to origin sheet
-        system.ws.Activate
-    Else
+    If typeName(selection) <> "Range" Then
         Let userResponse = MsgBox( _
             Prompt:=info.getPrompt & _
                 "You have to select range first for adding sheet(s)!", _
             Buttons:=vbOKOnly + vbExclamation, _
             Title:=info.getAuthor)
+        Exit Sub
     End If
+    Set addSheetRange = selection
+    Let addSheetCount = WorksheetFunction.CountIf(addSheetRange, "<>")
+    ' Check empty Selected Range
+    If Not CBool(addSheetCount) Then
+        Let userResponse = MsgBox( _
+            Prompt:= _
+                info.getPrompt _
+                & "Your selected range(s) is all empty" _
+                & vbNewLine _
+                & "Please check again!" _
+            , Buttons:=vbOKOnly + vbExclamation _
+            , Title:=info.getAuthor)
+        Exit Sub
+    End If
+    ' Comfirmation message
+    Let mess = _
+        "We are going to add " _
+        & addSheetCount _
+        & " sheet(s) as Range: " _
+        & addSheetRange.AddressLocal
+    If addSheetCount >= 100 Then Let mess = _
+        mess _
+        & vbNewLine _
+        & "Because a large number of sheets will be added," _
+        & vbNewLine _
+        & "IT WILL TAKE A LOT OF TIME!"
+    Let userResponse = MsgBox( _
+        Prompt:= _
+            info.getPrompt _
+            & mess _
+            & vbNewLine _
+            & "Do you want to continue?" _
+        , Buttons:=vbOKCancel + vbQuestion _
+        , Title:=info.getAuthor)
+    If userResponse = vbNo Then Exit Sub
+    'Loop through selected range
+    For Each cell In addSheetRange
+        'Remove special chars in cell.text
+        Let cellText = removeSpecialChars(cell.text)
+        'Trim if sheet name too long
+        Let cellText = trimSheetName(cellText, MAX_SHEETNAME_LENGTH)
+        'Check don't exist and not null
+        If Not system.hasSheet(cellText) And cellText <> vbNullString Then
+            'Add at the end
+            wss.add(After:=wss(wss.Count)).name = cellText
+        End If
+    Next cell
+    'Return to origin sheet
+    system.ws.Activate
 End Sub
 'G1.2-Delete Sheets
 Private Sub deleteAllSheets()
@@ -177,7 +214,7 @@ Private Sub deleteAllSheets()
         'Loop through all worksheets
         For Each ws In wss
             'Check don't delete current sheet
-            If ws.name <> system.ws.name And ws.Visible = xlSheetVisible Then
+            If ws.name <> system.ws.name And ws.visible = xlSheetVisible Then
                 ws.Delete
             End If
         Next ws
@@ -199,14 +236,14 @@ Private Sub insertListSheetsColumn(Optional ByVal onSheet As Worksheet)
         End With
         With onSheet.Range(TITLE_NO_CELL)
             ' Add No column headers
-            .value = CStr(TITLE_NO)
+            .Value = CStr(TITLE_NO)
             ' Add format
             .ClearFormats
-            .Interior.Color = LIST_HEADER_COLOR
-            .Font.Bold = LIST_ISBOLD
+            .Interior.color = LIST_HEADER_COLOR
+            .Font.bold = LIST_ISBOLD
             .Font.size = LIST_FONT_SIZE
             .Font.name = LIST_FONT_NAME
-            .Borders.Color = LIST_BORDER_COLOR
+            .Borders.color = LIST_BORDER_COLOR
             .Borders.LineStyle = LIST_BORDER_STYLE
             .NumberFormat = LIST_FORMAT_TEXT
             .HorizontalAlignment = xlCenter
@@ -230,14 +267,14 @@ Private Sub insertListSheetsColumn(Optional ByVal onSheet As Worksheet)
         End With
         With onSheet.Range(TITLE_NAME_CELL)
             ' Add Name column headers
-            .value = CStr(TITLE_NAME)
+            .Value = CStr(TITLE_NAME)
             ' Add format
             .ClearFormats
-            .Interior.Color = LIST_HEADER_COLOR
-            .Font.Bold = LIST_ISBOLD
+            .Interior.color = LIST_HEADER_COLOR
+            .Font.bold = LIST_ISBOLD
             .Font.size = LIST_FONT_SIZE
             .Font.name = LIST_FONT_NAME
-            .Borders.Color = LIST_BORDER_COLOR
+            .Borders.color = LIST_BORDER_COLOR
             .Borders.LineStyle = LIST_BORDER_STYLE
             .NumberFormat = LIST_FORMAT_TEXT
             .HorizontalAlignment = xlCenter
@@ -265,16 +302,16 @@ Private Sub insertListSheetsColumn(Optional ByVal onSheet As Worksheet)
             With onSheet.Range(TITLE_NO_CELL).Offset(ws.index)
                 ' Add format
                 .ClearFormats
-                .Font.Bold = LIST_ISBOLD
+                .Font.bold = LIST_ISBOLD
                 .Font.size = LIST_FONT_SIZE
                 .Font.name = LIST_FONT_NAME
-                .Borders.Color = LIST_BORDER_COLOR
+                .Borders.color = LIST_BORDER_COLOR
                 .Borders.LineStyle = LIST_BORDER_STYLE
                 .NumberFormat = LIST_FORMAT_TEXT
                 .HorizontalAlignment = xlCenter
                  .EntireColumn.AutoFit
                 ' Add Numbering to No. column
-                .value = CStr(ws.index)
+                .Value = CStr(ws.index)
                 ' Add data validation
                 .Validation.Delete
                 .Validation.add _
@@ -300,15 +337,15 @@ Private Sub insertListSheetsColumn(Optional ByVal onSheet As Worksheet)
                     screentip:=CStr("Click here to go to " & ws.index & ": " & ws.name)
                 ' Add format
                 '.ClearFormats
-                .Font.Bold = LIST_ISBOLD
+                .Font.bold = LIST_ISBOLD
                 .Font.size = LIST_FONT_SIZE
                 .Font.name = LIST_FONT_NAME
-                .Borders.Color = LIST_BORDER_COLOR
+                .Borders.color = LIST_BORDER_COLOR
                 .Borders.LineStyle = LIST_BORDER_STYLE
                 .NumberFormat = LIST_FORMAT_TEXT
                 .HorizontalAlignment = xlLeft
                 ' Add SheetName to Name column
-                .value = CStr(ws.name)
+                .Value = CStr(ws.name)
                 ' Add data validation
                 .Validation.Delete
                 .Validation.add _
@@ -324,7 +361,7 @@ Private Sub insertListSheetsColumn(Optional ByVal onSheet As Worksheet)
                 .Validation.ShowInput = False
                 .Validation.ShowError = True
                 ' Highlight current sheet
-                If .text = onSheet.name Then Let .Interior.Color = SELECTED_SHEET_COLOR
+                If .text = onSheet.name Then Let .Interior.color = SELECTED_SHEET_COLOR
             End With
         Next ws
     End If
@@ -342,14 +379,14 @@ Private Sub insertRenameColumn(Optional ByVal onSheet As Worksheet)
         End With
         With onSheet.Range(TITLE_RENAME_CELL)
             ' Add Rename column header
-            .value = TITLE_RENAME
+            .Value = TITLE_RENAME
             ' Add format
             .ClearFormats
-            .Interior.Color = LIST_HEADER_COLOR
-            .Font.Bold = LIST_ISBOLD
+            .Interior.color = LIST_HEADER_COLOR
+            .Font.bold = LIST_ISBOLD
             .Font.size = LIST_FONT_SIZE
             .Font.name = LIST_FONT_NAME
-            .Borders.Color = LIST_BORDER_COLOR
+            .Borders.color = LIST_BORDER_COLOR
             .Borders.LineStyle = LIST_BORDER_STYLE
             .NumberFormat = LIST_FORMAT_TEXT
             .EntireColumn.AutoFit
@@ -376,10 +413,10 @@ Private Sub insertRenameColumn(Optional ByVal onSheet As Worksheet)
             Range(TITLE_RENAME_CELL).Offset(wss.Count))
             ' Add Format
             .ClearFormats
-            .Font.Bold = LIST_ISBOLD
+            .Font.bold = LIST_ISBOLD
             .Font.size = LIST_FONT_SIZE
             .Font.name = LIST_FONT_NAME
-            .Borders.Color = LIST_BORDER_COLOR
+            .Borders.color = LIST_BORDER_COLOR
             .Borders.LineStyle = LIST_BORDER_STYLE
             .NumberFormat = LIST_FORMAT_TEXT
             .HorizontalAlignment = xlLeft
@@ -470,7 +507,7 @@ Private Sub renameSheet( _
                 If Not system.hasSheet(newName) And newName <> vbNullString Then
                     ' Change to dump name
                     Let wss(cell.row - 1).name = newName
-                    Let onSheet.Range(TITLE_NAME_CELL).Offset(cell.row - 1).value = CStr(newName)
+                    Let onSheet.Range(TITLE_NAME_CELL).Offset(cell.row - 1).Value = CStr(newName)
                 End If
             Next cell
             ' Update list sheet
@@ -513,12 +550,12 @@ Private Sub hideAllSheets( _
     For Each ws In wss
         'Check don't hide current sheet
         If ws.name <> system.ws.name Then
-            ws.Visible = visibleStatus 'Hide all except current sheet
+            ws.visible = visibleStatus 'Hide all except current sheet
         End If
     Next ws
     '*'Loop through all selected worksheets
     For Each ws In selectedWss
-            ws.Visible = xlSheetVisible 'Show all selected sheets again
+            ws.visible = xlSheetVisible 'Show all selected sheets again
     Next ws
 End Sub
 'MAIN
@@ -588,10 +625,10 @@ Public Sub selectNext()
     If ActiveSheet Is Nothing Then Exit Sub
     If Sheets Is Nothing Then Exit Sub
     If ActiveSheet.index = Sheets.Count Then
-        Sheets(1).Visible = xlSheetVisible
+        Sheets(1).visible = xlSheetVisible
         Sheets(1).Select
     Else
-        ActiveSheet.Next.Visible = xlSheetVisible
+        ActiveSheet.Next.visible = xlSheetVisible
         ActiveSheet.Next.Select
     End If
 End Sub
@@ -600,10 +637,10 @@ Public Sub selectPrevious()
     If ActiveSheet Is Nothing Then Exit Sub
     If Sheets Is Nothing Then Exit Sub
     If ActiveSheet.index = 1 Then
-        Sheets(Sheets.Count).Visible = xlSheetVisible
+        Sheets(Sheets.Count).visible = xlSheetVisible
         Sheets(Sheets.Count).Select
     Else
-        ActiveSheet.Previous.Visible = xlSheetVisible
+        ActiveSheet.Previous.visible = xlSheetVisible
         ActiveSheet.Previous.Select
     End If
 End Sub
@@ -657,7 +694,7 @@ Private Sub wsEvent_Change(ByVal Target As Range)
                 & vbNewLine & "Please trigger List Sheets button on Danh Tools tab to remove this column.", _
             Buttons:=vbOKCancel + vbExclamation, _
             Title:=info.getAuthor)
-        Let Target.value = preventchangedFlag
+        Let Target.Value = preventchangedFlag
     End If
 End Sub
 

@@ -84,14 +84,14 @@ Public Property Let hasFakeBorder(ByRef isFake As Boolean)
         For Each Sh In system.ws.Shapes
             With system.ws.Shapes.AddShape( _
                 Type:=msoShapeRectangle, _
-                Left:=Sh.Left - MARKER_LINE_WEIGHT / 2, _
-                Top:=Sh.Top - MARKER_LINE_WEIGHT / 2, _
-                Width:=Sh.Width + MARKER_LINE_WEIGHT, _
-                Height:=Sh.Height + MARKER_LINE_WEIGHT)
+                left:=Sh.left - MARKER_LINE_WEIGHT / 2, _
+                top:=Sh.top - MARKER_LINE_WEIGHT / 2, _
+                width:=Sh.width + MARKER_LINE_WEIGHT, _
+                height:=Sh.height + MARKER_LINE_WEIGHT)
                 .name = fakeBorderName & .name
-                .Fill.Visible = msoTrue
-                .Fill.ForeColor.RGB = FAKE_BORDER_COLOR
-                .line.Visible = msoFalse
+                .Fill.visible = msoTrue
+                .Fill.foreColor.RGB = FAKE_BORDER_COLOR
+                .Line.visible = msoFalse
                 .ZOrder msoSendToBack
             End With
         Next Sh
@@ -109,24 +109,24 @@ Public Property Let hasMarkTargetPlace(ByRef isMarked As Boolean)
     If isMarked Then
         With system.ws.Shapes.AddShape( _
             Type:=msoShapeRectangle, _
-            Left:=targetPlace.Left, _
-            Top:=targetPlace.Top, _
-            Width:=targetPlace.Width, _
-            Height:=targetPlace.Height)
+            left:=targetPlace.left, _
+            top:=targetPlace.top, _
+            width:=targetPlace.width, _
+            height:=targetPlace.height)
             .name = markUpName
-            .Fill.Visible = msoTrue
-            .Fill.ForeColor.RGB = MARKER_COLOR
+            .Fill.visible = msoTrue
+            .Fill.foreColor.RGB = MARKER_COLOR
             .Fill.Transparency = MARKER_TRANSPARENT_RATE / 100
             .Fill.Solid
-            .line.Visible = msoTrue
-            .line.ForeColor.RGB = MARKER_COLOR
-            .line.Weight = MARKER_LINE_WEIGHT
-            .line.DashStyle = msoLineSysDot
+            .Line.visible = msoTrue
+            .Line.foreColor.RGB = MARKER_COLOR
+            .Line.Weight = MARKER_LINE_WEIGHT
+            .Line.DashStyle = msoLineSysDot
             .TextFrame.Characters.text = MARKER_TEXT
             .TextFrame.Characters.Font.name = MARKER_TEXT_FONT
-            .TextFrame.Characters.Font.Bold = msoTrue
-            .TextFrame.Characters.Font.Italic = msoFalse
-            .TextFrame.Characters.Font.size = .Height / 5
+            .TextFrame.Characters.Font.bold = msoTrue
+            .TextFrame.Characters.Font.italic = msoFalse
+            .TextFrame.Characters.Font.size = .height / 5
             .TextFrame.Characters.Font.ColorIndex = vbBlack
             .TextFrame2.HorizontalAnchor = msoAnchorCenter
             .TextFrame2.VerticalAnchor = msoAnchorMiddle
@@ -151,13 +151,13 @@ Public Property Let hasMarkTargetObject(ByRef isMarked As Boolean)
         For Each Sh In system.ws.Shapes
             Set tearSh = system.ws.Shapes.AddShape( _
                 Type:=msoShapeTear, _
-                Left:=Sh.Left, _
-                Top:=Sh.Top, _
-                Width:=Sh.Width / 20, _
-                Height:=Sh.Width / 20)
+                left:=Sh.left, _
+                top:=Sh.top, _
+                width:=Sh.width / 20, _
+                height:=Sh.width / 20)
             With tearSh
-                .line.Visible = msoFalse
-                .Fill.ForeColor.RGB = MARKER_TEAR_COLOR
+                .Line.visible = msoFalse
+                .Fill.foreColor.RGB = MARKER_TEAR_COLOR
                 .Adjustments.item(1) = 1.85
                 .IncrementRotation 270
                 .name = tearName & .name 're-name for marker_delete
@@ -235,7 +235,7 @@ Private Sub deleteOldPicture()
         Select Case typeName(targetPlace)
             Case "ChartArea"
                 MsgBox _
-                    Prompt:="The captured picture is inside the " & typeName(Selection) _
+                    Prompt:="The captured picture is inside the " & typeName(selection) _
                         & vbNewLine & "Can't delete it automatically", _
                     Buttons:=vbOKOnly + vbExclamation, _
                     Title:=info.getAuthor
@@ -265,8 +265,8 @@ Private Sub capturePicture()
         .ScreenUpdating = False
         .CommandBars.ExecuteMso "ScreenClipping" 'important key
     End With
-    If typeName(Selection) = "Picture" Then
-        Set targetObject = Selection
+    If typeName(selection) = "Picture" Then
+        Set targetObject = selection
 '        targetObject.Cut
 '    'Paste to A1 as default
 '    targetObject = ws.Paste Destination:=ws.Range("A1")
@@ -289,42 +289,42 @@ End Sub
 '1,2,3
 Private Sub scalePicture(ByVal isLockRatio As Boolean)
     'Scale up when too small
-    If targetPlace.Height < customOffset * 2 Or _
-    targetPlace.Width < customOffset * 2 Then
+    If targetPlace.height < customOffset * 2 Or _
+    targetPlace.width < customOffset * 2 Then
         If typeName(targetPlace) <> "Range" Then
-            Let targetPlace.Height = targetPlace.Height + customOffset * 2
-            Let targetPlace.Width = targetPlace.Width + customOffset * 2
+            Let targetPlace.height = targetPlace.height + customOffset * 2
+            Let targetPlace.width = targetPlace.width + customOffset * 2
         End If
     End If
     'Set Lock Rate
     Call lockRatio(targetObject)
     'Algorithm When Lock Rate
     If isLockRatio Then
-        If targetPlace.Height < targetPlace.Width Then
-            targetObject.Top = targetPlace.Top + customOffset
-            targetObject.Height = targetPlace.Height - customOffset * 2
-            targetObject.Left = targetPlace.Left + (targetPlace.Width - targetObject.Width) / 2
+        If targetPlace.height < targetPlace.width Then
+            targetObject.top = targetPlace.top + customOffset
+            targetObject.height = targetPlace.height - customOffset * 2
+            targetObject.left = targetPlace.left + (targetPlace.width - targetObject.width) / 2
         Else
-            targetObject.Left = targetPlace.Left + customOffset
-            targetObject.Height = targetPlace.Height - customOffset * 2
-            targetObject.Top = targetPlace.Top + (targetPlace.Height - targetObject.Height) / 2
+            targetObject.left = targetPlace.left + customOffset
+            targetObject.height = targetPlace.height - customOffset * 2
+            targetObject.top = targetPlace.top + (targetPlace.height - targetObject.height) / 2
         End If
-        If targetObject.Height > targetPlace.Height Then
-            targetObject.Height = targetPlace.Height - customOffset * 2
-            targetObject.Top = targetPlace.Top + customOffset
-            targetObject.Left = targetPlace.Left + (targetPlace.Width - targetObject.Width) / 2
+        If targetObject.height > targetPlace.height Then
+            targetObject.height = targetPlace.height - customOffset * 2
+            targetObject.top = targetPlace.top + customOffset
+            targetObject.left = targetPlace.left + (targetPlace.width - targetObject.width) / 2
         End If
-        If targetObject.Width > targetPlace.Width Then
-            targetObject.Width = targetPlace.Width - customOffset * 2
-            targetObject.Left = targetPlace.Left + customOffset
-            targetObject.Top = targetPlace.Top + (targetPlace.Height - targetObject.Height) / 2
+        If targetObject.width > targetPlace.width Then
+            targetObject.width = targetPlace.width - customOffset * 2
+            targetObject.left = targetPlace.left + customOffset
+            targetObject.top = targetPlace.top + (targetPlace.height - targetObject.height) / 2
         End If
     'Algorithm When Not Lock Rate
     Else
-        targetObject.Left = targetPlace.Left + customOffset
-        targetObject.Top = targetPlace.Top + customOffset
-        targetObject.Width = targetPlace.Width - customOffset * 2
-        targetObject.Height = targetPlace.Height - customOffset * 2
+        targetObject.left = targetPlace.left + customOffset
+        targetObject.top = targetPlace.top + customOffset
+        targetObject.width = targetPlace.width - customOffset * 2
+        targetObject.height = targetPlace.height - customOffset * 2
     End If
     'Reset default settings
 '    targetObject.ShapeRange.LockAspectRatio = True
@@ -339,7 +339,7 @@ Public Sub snip()
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
     Call system.speedOn
-    Call setTargetPlace(Selection)
+    Call setTargetPlace(selection)
     If targetPlace Is Nothing Then GoTo ExecuteProcedure
     Call capturePicture
     Call scalePicture(isLockRatio)
@@ -356,7 +356,7 @@ Public Sub assign()
 On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
     Call system.speedOn
-    Call setTargetPlace(Selection, hasConfirm:=False)
+    Call setTargetPlace(selection, hasConfirm:=False)
     If targetPlace Is Nothing Then GoTo ExecuteProcedure
     Call assignOnAction("ThisWorkbook.Auto_Arrange_Shape")
     Let hasFakeBorder = True
@@ -374,7 +374,7 @@ On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
     If Not hasSelectObjectMode Then GoTo ExecuteProcedure
     Call system.speedOn
-    Call setTargetPlace(Selection, hasConfirm:=False)
+    Call setTargetPlace(selection, hasConfirm:=False)
     If targetPlace Is Nothing Then GoTo ExecuteProcedure
     Call setTargetObject(Application.Caller)
     Call scalePicture(isLockRatio)
@@ -418,9 +418,9 @@ Public Sub arrangeToMerge()
     On Error GoTo ErrorHandle
     If Not hasVariables Then GoTo ExecuteProcedure
     Call system.speedOn
-    If typeName(Selection) = "GroupObject" Then
-        Call setTargetPlace(Selection.TopLeftCell.MergeArea)
-        Call setTargetObject(Selection.name)
+    If typeName(selection) = "GroupObject" Then
+        Call setTargetPlace(selection.TopLeftCell.MergeArea)
+        Call setTargetObject(selection.name)
         Call scalePicture(isLockRatio)
     End If
 GoTo ExecuteProcedure

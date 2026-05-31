@@ -44,26 +44,26 @@ Private Sub pingCheck()
     Set pingSh = Application.ThisWorkbook.Worksheets(pingShName)
     Do Until Not Switch_Button
         For row = DATA_FIRST_ROW To system.getLastRow(pingSh, Column.Address)
-            Let link = pingSh.Cells(row, Column.Address).value
+            Let link = pingSh.Cells(row, Column.Address).Value
             If internetC.isConnect(link) Then
-                Let pingSh.Cells(row, Column.Status).value = InternetStt.Connect
+                Let pingSh.Cells(row, Column.Status).Value = InternetStt.Connect
             Else
-                Let pingSh.Cells(row, Column.Status).value = InternetStt.Disconnect
+                Let pingSh.Cells(row, Column.Status).Value = InternetStt.Disconnect
             End If
         Next row
     Loop
     For row = DATA_FIRST_ROW To system.getLastRow(pingSh, Column.Address)
-        Let pingSh.Cells(row, Column.Status).value = InternetStt.Loading
+        Let pingSh.Cells(row, Column.Status).Value = InternetStt.Loading
     Next row
 End Sub
 
 Private Sub Switch_Button_Click()
     If Switch_Button Then
-        Let Switch_Button.Caption = SWITCH_ON
-        Let Switch_Button.ForeColor = SWITCH_ON_COLOR
+        Let Switch_Button.caption = SWITCH_ON
+        Let Switch_Button.foreColor = SWITCH_ON_COLOR
         Call pingCheck
     Else
-        Let Switch_Button.Caption = SWITCH_OFF
-        Let Switch_Button.ForeColor = SWITCH_OFF_COLOR
+        Let Switch_Button.caption = SWITCH_OFF
+        Let Switch_Button.foreColor = SWITCH_OFF_COLOR
     End If
 End Sub

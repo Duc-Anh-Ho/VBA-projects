@@ -57,7 +57,7 @@ Private Sub Scisors_Icon_MouseMove(ByVal Button As Integer, ByVal Shift As Integ
 End Sub
 
 Private Sub UserForm_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
-    CloseButton.BackColor = vbButtonFace
+    CloseButton.backColor = vbButtonFace
     Scisors_Icon.SpecialEffect = fmSpecialEffectFlat
 End Sub
 

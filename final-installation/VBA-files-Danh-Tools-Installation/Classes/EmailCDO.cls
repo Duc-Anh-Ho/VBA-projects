@@ -97,7 +97,7 @@ Private Sub setEmailContent(Optional ByRef attachmentPath As String)
     With emailMessage
         .From = "vba.khongchuyen@gmail.com"
         .To = "meovang658@gmail.com;meo658@yahoo.com"
-        .CC = ""
+        .cc = ""
         .BCC = ""
         .Subject = _
             Environ$("computername") & _

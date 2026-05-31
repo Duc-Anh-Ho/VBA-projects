@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "cleanupPeriodDays": 30,
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "ask": [
+      "Bash(git push *)",
+      "PowerShell(git push *)",
+      "Bash(git reset *)",
+      "PowerShell(git reset *)",
+      "Bash(git stash drop *)",
+      "PowerShell(git stash drop *)",
+      "Bash(rm *)",
+      "PowerShell(Remove-Item *)"
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "node .claude/scripts/statusline/statusline-command.mjs"
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.agents/hooks/memory/inject-index.mjs\"",
+            "statusMessage": "Loading memory index..."
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.agents/hooks/memory/check-write-rules.mjs\"",
+            "statusMessage": "Checking memory path..."
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.agents/hooks/tools/block-unlisted-tool.mjs\"",
+            "statusMessage": "Checking tool manifest..."
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.agents/hooks/commit/inject-checklist.mjs\"",
+            "statusMessage": "Commit checklist..."
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.agents/hooks/commit/block-message-format.mjs\"",
+            "statusMessage": "Checking commit message format..."
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.agents/hooks/commit/block-no-verify.mjs\"",
+            "statusMessage": "Checking --no-verify bypass..."
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.agents/hooks/commit/block-without-trigger.mjs\"",
+            "statusMessage": "Confirming commit trigger..."
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.agents/hooks/commit/block-git-add-bypass.mjs\"",
+            "statusMessage": "Checking git add scope..."
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.agents/hooks/memory/check-write-rules.mjs\"",
+            "statusMessage": "Checking memory write target..."
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.agents/hooks/edit/check-doc-style.mjs\"",
+            "statusMessage": "Checking doc style..."
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.agents/hooks/edit/inject-vba-reminder.mjs\"",
+            "statusMessage": "VBA conventions reminder..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.agents/hooks/edit/inject-edit-track.mjs\"",
+            "statusMessage": "Tracking edit..."
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.agents/hooks/notify/notify.mjs\"",
+            "statusMessage": "Notifying user input needed..."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.agents/hooks/notify/notify.mjs\"",
+            "statusMessage": "Notifying task complete..."
+          }
+        ]
+      }
+    ]
+  }
+}
